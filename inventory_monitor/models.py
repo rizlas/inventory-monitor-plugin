@@ -1,10 +1,12 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from netbox.models import NetBoxModel
+from django.urls import reverse
+
 
 class Probe(NetBoxModel):
     time = models.DateTimeField(
-        
+
     )
 
     device_name = models.CharField(
@@ -41,9 +43,12 @@ class Probe(NetBoxModel):
         null=True
     )
 
-
     class Meta:
         ordering = ('name',)
 
     def __str__(self):
         return f'{self.serial} - {self.name}'
+
+    def get_absolute_url(self):
+        return reverse('plugins:inventory_monitor:probe', args=[self.pk])
+
