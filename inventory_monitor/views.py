@@ -1,5 +1,5 @@
 from netbox.views import generic
-from . import forms, models, tables
+from . import filtersets, forms, models, tables
 
 
 class ProbeView(generic.ObjectView):
@@ -18,6 +18,8 @@ class ProbeView(generic.ObjectView):
 class ProbeListView(generic.ObjectListView):
     queryset = models.Probe.objects.all()
     table = tables.ProbeTable
+    filterset = filtersets.ProbeFilterSet
+    filterset_form = forms.ProbeFilterForm
 
 
 class ProbeEditView(generic.ObjectEditView):
