@@ -43,6 +43,10 @@ class Probe(NetBoxModel):
         null=True
     )
 
+    comments = models.TextField(
+        blank=True
+    )
+
     class Meta:
         ordering = ('name',)
 

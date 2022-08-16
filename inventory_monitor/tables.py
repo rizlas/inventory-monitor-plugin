@@ -11,5 +11,5 @@ class ProbeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Probe
         fields = ('pk', 'id', 'time', 'name', 'device_name',
-                  'part', 'serial', 'device', 'comment', 'actions')
+                  'part', 'serial', 'device', 'comments', 'actions')
         default_columns = ('id', 'time', 'name', 'serial')
