@@ -1,19 +1,21 @@
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from netbox.models import NetBoxModel
 from django.urls import reverse
 
 
 class Probe(NetBoxModel):
-    time = models.DateTimeField(
+    time = models.DateTimeField()
 
-    )
-
-    device_name = models.CharField(
+    dev_name = models.CharField(
         max_length=100,
         blank=True,
         null=True
     )
+
+    # TODO: site name? - history value
+    # TODO: location name? - history value
+    # TODO: Site - relation
+    # TODO: Location - relation
 
     part = models.CharField(
         max_length=255,
@@ -29,18 +31,11 @@ class Probe(NetBoxModel):
         max_length=255
     )
 
-    comment = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True
-    )
-
     device = models.ForeignKey(
         to='dcim.Device',
-        on_delete=models.PROTECT,
-        related_name='+',
+        on_delete=models.SET_NULL,
         blank=True,
-        null=True
+        null=True,
     )
 
     comments = models.TextField(
@@ -55,4 +50,3 @@ class Probe(NetBoxModel):
 
     def get_absolute_url(self):
         return reverse('plugins:inventory_monitor:probe', args=[self.pk])
-

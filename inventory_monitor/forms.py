@@ -10,12 +10,13 @@ from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, StaticSelect
 class ProbeForm(NetBoxModelForm):
     comments = CommentField()
     device = DynamicModelChoiceField(
-        queryset=Device.objects.all()
+        queryset=Device.objects.all(),
+        required=False
     )
 
     class Meta:
         model = Probe
-        fields = ('name', 'serial', 'time', 'device_name',
+        fields = ('name', 'serial', 'time', 'dev_name',
                   'device', 'comments', 'tags')
 
 
@@ -30,7 +31,7 @@ class ProbeFilterForm(NetBoxModelFilterSetForm):
     serial = forms.CharField(
         required=False
     )
-    device_name = forms.CharField(
+    dev_name = forms.CharField(
         required=False
     )
     time__gte = forms.DateTimeField(

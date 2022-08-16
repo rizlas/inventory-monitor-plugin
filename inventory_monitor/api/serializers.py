@@ -24,7 +24,7 @@ class ProbeSerializer(NetBoxModelSerializer):
             'custom_fields',
             'created',
             'last_updated',
-            'device_name',
+            'dev_name',
             'device',
             'serial',
             'part'
