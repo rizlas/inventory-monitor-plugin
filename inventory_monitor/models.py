@@ -38,6 +38,10 @@ class Probe(NetBoxModel):
         null=True,
     )
 
+    description = models.TextField(
+        blank=True
+    )
+
     comments = models.TextField(
         blank=True
     )
