@@ -3,6 +3,7 @@ from .models import Probe
 from django.db.models import Q
 import django_filters
 
+
 class ProbeFilterSet(NetBoxModelFilterSet):
     serial = django_filters.CharFilter(lookup_expr="icontains")
     time__gte = django_filters.DateTimeFilter(
@@ -18,7 +19,8 @@ class ProbeFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Probe
-        fields = ('id', 'dev_name', 'part', 'name', 'serial', 'device', 'description')
+        fields = ('id', 'dev_name', 'part', 'name',
+                  'serial', 'device', 'description')
 
     def search(self, queryset, name, value):
         dev_name = Q(dev_name__icontains=value)
@@ -30,6 +32,9 @@ class ProbeFilterSet(NetBoxModelFilterSet):
 
     def _latest_only(self, queryset, name, value):
         if value == True:
-            return queryset.order_by("serial", '-time').distinct("serial")
+            latest_inventory_pks = Probe.objects.all().distinct(
+                'serial').order_by('serial', '-time').values('pk')
+            return queryset.filter(pk__in=latest_inventory_pks)
+
         else:
             return queryset
