@@ -1,9 +1,14 @@
 from django.db import models
-from netbox.models import NetBoxModel
 from django.urls import reverse
 
+from django.db import models
+from netbox.models.features import CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTemplatesMixin, JournalingMixin, TagsMixin, WebhooksMixin
+from utilities.querysets import RestrictedQuerySet
 
-class Probe(NetBoxModel):
+
+class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTemplatesMixin, JournalingMixin, TagsMixin, WebhooksMixin, models.Model):
+    objects = RestrictedQuerySet.as_manager()
+
     time = models.DateTimeField()
 
     dev_name = models.CharField(

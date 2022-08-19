@@ -11,4 +11,5 @@ class ProbeTable(NetBoxTable):
         model = Probe
         fields = ('pk', 'id', 'time', 'name', 'dev_name', 'description',
                   'part', 'serial', 'device', 'comments', 'actions')
-        default_columns = ('id', 'time', 'name', 'serial')
+        default_columns = ('time', 'name', 'serial',
+                           'part', 'dev_name', 'device')

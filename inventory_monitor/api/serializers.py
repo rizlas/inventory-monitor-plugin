@@ -22,8 +22,6 @@ class ProbeSerializer(NetBoxModelSerializer):
             'comments',
             'tags',
             'custom_fields',
-            'created',
-            'last_updated',
             'dev_name',
             'device',
             'serial',
