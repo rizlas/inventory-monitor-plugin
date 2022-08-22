@@ -1,22 +1,28 @@
 from netbox.views import generic
 from . import filtersets, forms, models, tables
+from django.db.models import OuterRef, Subquery, Count
 
 
 class ProbeView(generic.ObjectView):
     queryset = models.Probe.objects.all()
 
     def get_extra_context(self, request, instance):
-        table = tables.ProbeTable(
-            models.Probe.objects.filter(serial=instance.serial))
+        sub_count_serial = models.Probe.objects.filter(serial=OuterRef('serial')).values(
+            'serial').annotate(changes_count=Count('*'))
+        table = tables.ProbeTable(models.Probe.objects.filter(serial=instance.serial).annotate(
+            changes_count=Subquery(sub_count_serial.values("changes_count"))))
+
         table.configure(request)
 
-        return {
-            'probe_table': table,
-        }
+        return {'probe_table': table}
 
 
 class ProbeListView(generic.ObjectListView):
-    queryset = models.Probe.objects.all()
+    sub_count_serial = models.Probe.objects.filter(serial=OuterRef('serial')).values(
+        'serial').annotate(changes_count=Count('*'))
+    queryset = models.Probe.objects.prefetch_related('tags', 'device').annotate(
+        changes_count=Subquery(sub_count_serial.values("changes_count")))
+
     table = tables.ProbeTable
     filterset = filtersets.ProbeFilterSet
     filterset_form = forms.ProbeFilterForm
