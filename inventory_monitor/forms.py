@@ -17,7 +17,7 @@ class ProbeForm(NetBoxModelForm):
     class Meta:
         model = Probe
         fields = ('name', 'serial', 'time', 'dev_name',
-                  'device', 'comments', 'tags', 'description')
+                  'device', 'description', 'tags', 'comments')
 
 
 class ProbeFilterForm(NetBoxModelFilterSetForm):
@@ -32,6 +32,9 @@ class ProbeFilterForm(NetBoxModelFilterSetForm):
         required=False
     )
     dev_name = forms.CharField(
+        required=False
+    )
+    item_class = forms.CharField(
         required=False
     )
     description = forms.CharField(
@@ -50,7 +53,7 @@ class ProbeFilterForm(NetBoxModelFilterSetForm):
 
     latest_only = forms.NullBooleanField(
         required=False,
-        label='Only latest inventory',
+        label='Latest inventory only',
         widget=StaticSelect(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )

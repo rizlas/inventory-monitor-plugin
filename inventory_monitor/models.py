@@ -51,6 +51,16 @@ class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTe
         blank=True
     )
 
+    discovered_data = models.JSONField(
+        default=dict,
+        blank=True
+    )
+    item_class = models.CharField(
+        blank=True,
+        null=True,
+        max_length=255
+    )
+
     class Meta:
         ordering = ('name',)
 

@@ -4,7 +4,7 @@
 <div class="row mb-3">
     <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">Access List</h5>
+            <h5 class="card-header">Probed Item</h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
@@ -33,7 +33,24 @@
                     </tr>
                     <tr>
                         <th scope="row">Device</th>
-                        <td>{{ object.Device }}</td>
+                        <td>
+                            {% if object.device %}
+                            <a href="{{ object.device.get_absolute_url }}">{{ object.device.name }}</a>
+                            {% else %}
+                            {{ ''|placeholder }}
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <th scope="row">Class</th>
+                        <td>{{ object.item_class }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Discovered Data</th>
+                        <td>
+                            <pre>{{ object.discovered_data|json }}</pre>
+                        </td>
                     </tr>
                 </table>
             </div>

@@ -20,7 +20,7 @@ class ProbeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = Probe
         fields = ('id', 'dev_name', 'part', 'name',
-                  'serial', 'device', 'description')
+                  'serial', 'device', 'description', 'item_class')
 
     def search(self, queryset, name, value):
         dev_name = Q(dev_name__icontains=value)

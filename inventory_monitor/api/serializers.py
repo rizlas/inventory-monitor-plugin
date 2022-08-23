@@ -26,5 +26,7 @@ class ProbeSerializer(NetBoxModelSerializer):
             'device',
             'serial',
             'part',
-            'description'
+            'description',
+            'item_class',
+            'discovered_data',
         )
