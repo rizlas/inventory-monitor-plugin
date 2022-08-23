@@ -8,6 +8,7 @@ from utilities.querysets import RestrictedQuerySet
 
 class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTemplatesMixin, JournalingMixin, TagsMixin, WebhooksMixin, models.Model):
     objects = RestrictedQuerySet.as_manager()
+
     time = models.DateTimeField()
 
     device_descriptor = models.CharField(
@@ -16,10 +17,17 @@ class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTe
         null=True
     )
 
-    # TODO: site name? - history value
-    # TODO: location name? - history value
-    # TODO: Site - relation
-    # TODO: Location - relation
+    site_descriptor = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    location_descriptor = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
 
     part = models.CharField(
         max_length=255,
@@ -37,6 +45,20 @@ class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTe
 
     device = models.ForeignKey(
         to='dcim.Device',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+
+    location = models.ForeignKey(
+        to='dcim.Location',
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
@@ -61,7 +83,8 @@ class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTe
     )
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('name', 'serial', 'time', 'part', 'description', 'device_descriptor', 'device',
+                    'site_descriptor', 'site', 'location_descriptor', 'location', 'category', 'discovered_data',)
 
     def __str__(self):
         return f'{self.serial} - {self.name}'

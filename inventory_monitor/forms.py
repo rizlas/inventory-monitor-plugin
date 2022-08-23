@@ -1,4 +1,4 @@
-from dcim.models import Device
+from dcim.models import Device, Site, Location
 from netbox.forms import NetBoxModelForm, NetBoxModelFilterSetForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField
 from .models import Probe
@@ -13,11 +13,19 @@ class ProbeForm(NetBoxModelForm):
         queryset=Device.objects.all(),
         required=False
     )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Probe
-        fields = ('name', 'serial', 'time', 'device_descriptor',
-                  'device', 'category', 'description', 'tags', 'comments')
+        fields = ('name', 'serial', 'time',  'category', 'part', 'device_descriptor', 'device',
+                  'site_descriptor', 'site', 'location_descriptor', 'location', 'description', 'tags', 'comments',)
 
 
 class ProbeFilterForm(NetBoxModelFilterSetForm):

@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from netbox.api.serializers import NetBoxModelSerializer
 from ..models import Probe
-from dcim.api.serializers import NestedDeviceSerializer
+from dcim.api.serializers import NestedDeviceSerializer, NestedSiteSerializer, NestedLocationSerializer
 
 
 class ProbeSerializer(NetBoxModelSerializer):
@@ -10,6 +10,8 @@ class ProbeSerializer(NetBoxModelSerializer):
         view_name='plugins-api:inventory_monitor-api:probe-detail'
     )
     device = NestedDeviceSerializer()
+    site = NestedSiteSerializer(allow_null=True)
+    location = NestedLocationSerializer(allow_null=True)
 
     class Meta:
         model = Probe
@@ -19,14 +21,18 @@ class ProbeSerializer(NetBoxModelSerializer):
             'display',
             'name',
             'time',
-            'comments',
-            'tags',
-            'custom_fields',
-            'device_descriptor',
-            'device',
             'serial',
             'part',
+            'device_descriptor',
+            'device',
+            'site_descriptor',
+            'site',
+            'location_descriptor',
+            'location',
             'description',
             'category',
             'discovered_data',
+            'tags',
+            'comments',
+            'custom_fields',
         )

@@ -19,16 +19,18 @@ class ProbeFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Probe
-        fields = ('id', 'device_descriptor', 'part', 'name',
-                  'serial', 'device', 'description', 'category')
+        fields = ('id', 'device_descriptor', 'site_descriptor', 'location_descriptor', 'part', 'name',
+                  'serial', 'device', 'site', 'location', 'description', 'category')
 
     def search(self, queryset, name, value):
         device_descriptor = Q(device_descriptor__icontains=value)
+        site_descriptor = Q(site_descriptor__icontains=value)
+        location_descriptor = Q(location_descriptor__icontains=value)
         part = Q(part__icontains=value)
         name = Q(name__icontains=value)
         serial = Q(serial__icontains=value)
         description = Q(description__icontains=value)
-        return queryset.filter(device_descriptor | part | name | serial | description)
+        return queryset.filter(device_descriptor | part | name | serial | description | site_descriptor | location_descriptor)
 
     def _latest_only(self, queryset, name, value):
         if value == True:
