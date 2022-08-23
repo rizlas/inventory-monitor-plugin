@@ -8,10 +8,9 @@ from utilities.querysets import RestrictedQuerySet
 
 class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTemplatesMixin, JournalingMixin, TagsMixin, WebhooksMixin, models.Model):
     objects = RestrictedQuerySet.as_manager()
-
     time = models.DateTimeField()
 
-    dev_name = models.CharField(
+    device_descriptor = models.CharField(
         max_length=100,
         blank=True,
         null=True
@@ -55,7 +54,7 @@ class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTe
         default=dict,
         blank=True
     )
-    item_class = models.CharField(
+    category = models.CharField(
         blank=True,
         null=True,
         max_length=255

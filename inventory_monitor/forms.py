@@ -16,8 +16,8 @@ class ProbeForm(NetBoxModelForm):
 
     class Meta:
         model = Probe
-        fields = ('name', 'serial', 'time', 'dev_name',
-                  'device', 'description', 'tags', 'comments')
+        fields = ('name', 'serial', 'time', 'device_descriptor',
+                  'device', 'category', 'description', 'tags', 'comments')
 
 
 class ProbeFilterForm(NetBoxModelFilterSetForm):
@@ -31,10 +31,13 @@ class ProbeFilterForm(NetBoxModelFilterSetForm):
     serial = forms.CharField(
         required=False
     )
-    dev_name = forms.CharField(
+    device_descriptor = forms.CharField(
         required=False
     )
-    item_class = forms.CharField(
+    category = forms.CharField(
+        required=False
+    )
+    category = forms.CharField(
         required=False
     )
     description = forms.CharField(

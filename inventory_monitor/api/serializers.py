@@ -22,11 +22,11 @@ class ProbeSerializer(NetBoxModelSerializer):
             'comments',
             'tags',
             'custom_fields',
-            'dev_name',
+            'device_descriptor',
             'device',
             'serial',
             'part',
             'description',
-            'item_class',
+            'category',
             'discovered_data',
         )
