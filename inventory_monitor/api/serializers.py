@@ -36,3 +36,12 @@ class ProbeSerializer(NetBoxModelSerializer):
             'comments',
             'custom_fields',
         )
+
+class NestedProbeSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='plugins-api:inventory_monitor-api:probe-detail'
+    )
+
+    class Meta:
+        model = Probe
+        fields = ['id', 'url', 'display', 'name', 'serial', 'time']
