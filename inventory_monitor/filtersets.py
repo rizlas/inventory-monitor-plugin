@@ -34,8 +34,8 @@ class ProbeFilterSet(NetBoxModelFilterSet):
 
     def _latest_only(self, queryset, name, value):
         if value == True:
-            latest_inventory_pks = Probe.objects.all().distinct(
-                'serial').order_by('serial', '-time').values('pk')
+            latest_inventory_pks = Probe.objects.all().order_by('serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
+            #latest_inventory_pks = Probe.objects.all().distinct('serial').order_by('serial', '-time').values('pk')
             return queryset.filter(pk__in=latest_inventory_pks)
 
         else:

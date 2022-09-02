@@ -5,6 +5,8 @@ from django.db.models import OuterRef, Subquery, Count
 #from django.conf import settings
 #plugin_settings = settings.PLUGINS_CONFIG.get('inventory_monitor', {})
 
+from django.db.models import CharField, Value
+from django.db.models.functions import Concat
 
 class DeviceDocumentList(PluginTemplateExtension):
     model = 'dcim.device'
@@ -15,6 +17,8 @@ class DeviceDocumentList(PluginTemplateExtension):
             .distinct('serial')\
             .order_by('serial', '-time')\
             .values('pk')
+
+        latest_inventory_pks = Probe.objects.all().order_by('serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
 
         sub_count_serial = Probe.objects.filter(serial=OuterRef('serial'))\
             .values('serial')\
