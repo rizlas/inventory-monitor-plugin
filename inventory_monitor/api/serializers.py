@@ -3,7 +3,7 @@ from rest_framework import serializers
 from netbox.api.serializers import NetBoxModelSerializer
 from ..models import Probe
 from dcim.api.serializers import NestedDeviceSerializer, NestedSiteSerializer, NestedLocationSerializer
-
+from netbox.api.serializers import WritableNestedSerializer
 
 class ProbeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
@@ -15,7 +15,7 @@ class ProbeSerializer(NetBoxModelSerializer):
 
     class Meta:
         model = Probe
-        fields = (
+        fields = [
             'id',
             'url',
             'display',
@@ -35,9 +35,9 @@ class ProbeSerializer(NetBoxModelSerializer):
             'tags',
             'comments',
             'custom_fields',
-        )
+        ]
 
-class NestedProbeSerializer(NetBoxModelSerializer):
+class NestedProbeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='plugins-api:inventory_monitor-api:probe-detail'
     )
