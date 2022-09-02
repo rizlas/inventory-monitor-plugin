@@ -35,3 +35,9 @@ class ProbeEditView(generic.ObjectEditView):
 
 class ProbeDeleteView(generic.ObjectDeleteView):
     queryset = models.Probe.objects.all()
+
+
+class ProbeBulkDeleteView(generic.BulkDeleteView):
+    queryset = models.Probe.objects.all()
+    filterset = filtersets.ProbeFilterSet
+    table = tables.ProbeTable

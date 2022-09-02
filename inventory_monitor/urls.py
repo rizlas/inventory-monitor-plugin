@@ -10,7 +10,8 @@ urlpatterns = (
     path('probes/<int:pk>/edit/', views.ProbeEditView.as_view(), name='probe_edit'),
     path('probes/<int:pk>/delete/',
          views.ProbeDeleteView.as_view(), name='probe_delete'),
-    path('probes/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='probe_changelog', kwargs={
-        'model': models.Probe
-    }),
+    path('probes/<int:pk>/changelog/', ObjectChangeLogView.as_view(),
+         name='probe_changelog', kwargs={'model': models.Probe}),
+    path("probes/delete/", views.ProbeBulkDeleteView.as_view(),
+         name="probe_bulk_delete",),
 )
