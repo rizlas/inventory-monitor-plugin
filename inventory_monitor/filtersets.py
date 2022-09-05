@@ -1,10 +1,17 @@
-from netbox.filtersets import NetBoxModelFilterSet
-from .models import Probe
-from django.db.models import Q
 import django_filters
+from django.db.models import Q
+from .models import Probe
+from extras.filters import TagFilter
+from dcim.models import Device
 
 
-class ProbeFilterSet(NetBoxModelFilterSet):
+class ProbeFilterSet(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    tag = TagFilter()
+
     serial = django_filters.CharFilter(lookup_expr="icontains")
     time__gte = django_filters.DateTimeFilter(
         field_name='time',
@@ -16,6 +23,19 @@ class ProbeFilterSet(NetBoxModelFilterSet):
     )
     latest_only = django_filters.BooleanFilter(
         method='_latest_only', label='Only latest inventory')
+
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__id',
+        queryset=Device.objects.all(),
+        to_field_name='id',
+        label='Device (ID)',
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__name',
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label='Device (name)',
+    )
 
     class Meta:
         model = Probe
@@ -34,7 +54,8 @@ class ProbeFilterSet(NetBoxModelFilterSet):
 
     def _latest_only(self, queryset, name, value):
         if value == True:
-            latest_inventory_pks = Probe.objects.all().order_by('serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
+            latest_inventory_pks = Probe.objects.all().order_by(
+                'serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
             #latest_inventory_pks = Probe.objects.all().distinct('serial').order_by('serial', '-time').values('pk')
             return queryset.filter(pk__in=latest_inventory_pks)
 
