@@ -32,11 +32,11 @@
         </div>
         {% endif %}
 
-        {% if total_device_probes_count > device_probes.count %}
+        {% if total_device_probes_count > 1 %}
         <!--{% if object|meta:'verbose_name' == 'device' %}-->
         <div class="text-muted">
             Displaying {{ device_probes.count }} of {{ total_device_probes_count }} probed items (<a
-                href="{% url 'plugins:inventory_monitor:probe_list' %}?device={{ object.pk }}&latest_only=True">View
+                href="{% url 'plugins:inventory_monitor:probe_list' %}?device_id={{ object.pk }}&latest_only=True">View
                 full list</a>)
         </div>
         {% endif %}
