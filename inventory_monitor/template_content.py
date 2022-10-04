@@ -1,5 +1,6 @@
 from extras.plugins import PluginTemplateExtension
 from .models import Probe
+from dcim.models import InventoryItem
 from django.db.models import OuterRef, Subquery, Count
 
 #from django.conf import settings
@@ -8,7 +9,8 @@ from django.db.models import OuterRef, Subquery, Count
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat
 
-class DeviceDocumentList(PluginTemplateExtension):
+
+class DeviceProbeList(PluginTemplateExtension):
     model = 'dcim.device'
 
     def right_page(self):
@@ -18,7 +20,8 @@ class DeviceDocumentList(PluginTemplateExtension):
             .order_by('serial', '-time')\
             .values('pk')
 
-        latest_inventory_pks = Probe.objects.all().order_by('serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
+        latest_inventory_pks = Probe.objects.all().order_by(
+            'serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
 
         sub_count_serial = Probe.objects.filter(serial=OuterRef('serial'))\
             .values('serial')\
@@ -37,4 +40,23 @@ class DeviceDocumentList(PluginTemplateExtension):
         )
 
 
-template_extensions = [DeviceDocumentList]
+class InventoryItemDuplicates(PluginTemplateExtension):
+    model = 'dcim.inventoryitem'
+
+    def right_page(self):
+        obj = self.context['object']
+
+        inv_duplicates = InventoryItem.objects.filter(serial=obj.serial)\
+            .exclude(id=obj.id).order_by('-custom_field_data__inventory_monitor_last_probe')
+
+        return self.render(
+            'inventory_monitor/inventory_item_duplicates_include.html',
+            extra_context={
+                'current_inv': obj,
+                'inv_duplicates': inv_duplicates,
+                'inv_duplicates_count': inv_duplicates.count(),
+            }
+        )
+
+
+template_extensions = [DeviceProbeList, InventoryItemDuplicates]
