@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name = 'inventory-monitor',
-    version='0.4.3',
+    version='0.4.4',
     description = 'Manage inventory discovered by SNMP',
     install_requires=[],
     packages=find_packages(),

@@ -1,5 +1,7 @@
 from netbox.views import generic
 from . import filtersets, forms, models, tables
+from dcim.models import InventoryItem
+from dcim.tables.devices import InventoryItemTable
 from django.db.models import OuterRef, Subquery, Count
 
 
@@ -7,14 +9,19 @@ class ProbeView(generic.ObjectView):
     queryset = models.Probe.objects.all()
 
     def get_extra_context(self, request, instance):
-        sub_count_serial = models.Probe.objects.filter(serial=OuterRef('serial')).values(
+        probes_sub_count_serial = models.Probe.objects.filter(serial=OuterRef('serial')).values(
             'serial').annotate(changes_count=Count('*'))
-        table = tables.ProbeTable(models.Probe.objects.filter(serial=instance.serial).annotate(
-            changes_count=Subquery(sub_count_serial.values("changes_count"))))
+        probe_table = tables.ProbeTable(models.Probe.objects.filter(serial=instance.serial).annotate(
+            changes_count=Subquery(probes_sub_count_serial.values("changes_count"))))
+        probe_table.configure(request)
 
-        table.configure(request)
+        inventory_items = InventoryItem.objects.filter(
+            custom_field_data__inventory_monitor_probe=instance.id)
+        inventory_items_table = InventoryItemTable(inventory_items)
+        inventory_items_table.configure(request)
 
-        return {'probe_table': table}
+        return {'probe_table': probe_table,
+                'inventory_items_table': inventory_items_table}
 
 
 class ProbeListView(generic.ObjectListView):
