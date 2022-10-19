@@ -56,6 +56,13 @@ class ProbeFilterForm(NetBoxModelFilterSetForm):
         label=('Time Till'),
         widget=DateTimePicker()
     )
+    latest_only_per_device = forms.NullBooleanField(
+        required=False,
+        label='Latest inventory only (per device)',
+        widget=StaticSelect(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
     latest_only = forms.NullBooleanField(
         required=False,
         label='Latest inventory only',

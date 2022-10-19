@@ -6,20 +6,20 @@ from django.db.models import OuterRef, Subquery, Count
 #from django.conf import settings
 #plugin_settings = settings.PLUGINS_CONFIG.get('inventory_monitor', {})
 
-from django.db.models import CharField, Value
-from django.db.models.functions import Concat
-
 
 class DeviceProbeList(PluginTemplateExtension):
     model = 'dcim.device'
 
     def right_page(self):
         obj = self.context['object']
-        latest_inventory_pks = Probe.objects.all()\
-            .distinct('serial')\
-            .order_by('serial', '-time')\
-            .values('pk')
 
+        # Latest inventory overall
+        # latest_inventory_pks = Probe.objects.all()\
+        #    .distinct('serial')\
+        #    .order_by('serial', '-time')\
+        #    .values('pk')
+
+        # Latest inventory per device
         latest_inventory_pks = Probe.objects.all().order_by(
             'serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
 
