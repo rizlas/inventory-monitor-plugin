@@ -1,11 +1,15 @@
 import django_filters
-from django.db.models import Q
-from .models import Probe
 from extras.filters import TagFilter
+from django.db.models import Q
+from .models import ContractTypeChoices, Contractor, Probe, Contract
 from dcim.models import Device
+from netbox.filtersets import NetBoxModelFilterSet, BaseFilterSet
 
 
-class ProbeFilterSet(django_filters.FilterSet):
+# Probe
+
+
+class ProbeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -70,5 +74,142 @@ class ProbeFilterSet(django_filters.FilterSet):
             latest_inventory_pks = Probe.objects.all().distinct(
                 'serial').order_by('serial', '-time').values('pk')
             return queryset.filter(pk__in=latest_inventory_pks)
+        else:
+            return queryset
+
+
+# Contractor
+
+
+class ContractorFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    tag = TagFilter()
+
+    name = django_filters.CharFilter(lookup_expr="icontains")
+    company = django_filters.CharFilter(lookup_expr="icontains")
+    address = django_filters.CharFilter(lookup_expr="icontains")
+
+    class Meta:
+        model = Contractor
+        fields = ('id', 'name', 'company', 'address')
+
+    def search(self, queryset, name, value):
+        name = Q(name__icontains=value)
+        company = Q(company__icontains=value)
+        address = Q(address__icontains=value)
+        return queryset.filter(name | company | address)
+
+
+# Contract
+
+
+class ContractFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    tag = TagFilter()
+    name = django_filters.CharFilter(lookup_expr="icontains")
+    name_internal = django_filters.CharFilter(lookup_expr="icontains")
+    contractor_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='contractor__id',
+        queryset=Contractor.objects.all(),
+        to_field_name='id',
+        label='Contractor (ID)',
+    )
+    contractor = django_filters.ModelMultipleChoiceFilter(
+        field_name='contractor__name',
+        queryset=Contractor.objects.all(),
+        to_field_name='name',
+        label='Contractor (name)',
+    )
+    # TODO: forms.MultipleChoiceField
+    type = django_filters.MultipleChoiceFilter(
+        choices=ContractTypeChoices,
+        required=False
+    )
+    # TODO: forms.DecimalField
+    price = django_filters.NumberFilter(
+        required=False
+    )
+    signed__gte = django_filters.DateFilter(
+        field_name='signed',
+        lookup_expr='gte'
+    )
+    signed__lte = django_filters.DateFilter(
+        field_name='signed',
+        lookup_expr='lte'
+    )
+    signed = django_filters.DateFilter(
+        field_name='signed',
+        lookup_expr='contains'
+    )
+    accepted__gte = django_filters.DateFilter(
+        field_name='accepted',
+        lookup_expr='gte'
+    )
+    accepted__lte = django_filters.DateFilter(
+        field_name='accepted',
+        lookup_expr='lte'
+    )
+    accepted = django_filters.DateFilter(
+        field_name='accepted',
+        lookup_expr='contains'
+    )
+    invoicing_start__gte = django_filters.DateFilter(
+        field_name='invoicing_start',
+        lookup_expr='gte'
+    )
+    invoicing_start__lte = django_filters.DateFilter(
+        field_name='invoicing_start',
+        lookup_expr='lte'
+    )
+    invoicing_start = django_filters.DateFilter(
+        field_name='invoicing_start',
+        lookup_expr='contains'
+    )
+    invoicing_end__gte = django_filters.DateFilter(
+        field_name='invoicing_end',
+        lookup_expr='gte'
+    )
+    invoicing_end__lte = django_filters.DateFilter(
+        field_name='invoicing_end',
+        lookup_expr='lte'
+    )
+    invoicing_end = django_filters.DateFilter(
+        field_name='invoicing_end',
+        lookup_expr='contains'
+    )
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__id',
+        queryset=Contract.objects.all(),
+        to_field_name='id',
+        label='Contract (ID)',
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__name',
+        queryset=Contract.objects.all(),
+        to_field_name='name',
+        label='Contract (name)',
+    )
+    master_contracts = django_filters.BooleanFilter(
+        method='_master_contracts', label='Master contracts only')
+
+    class Meta:
+        model = Contract
+        fields = ('id', 'name', 'name_internal', 'contractor', 'type', 'price',
+                  'signed', 'accepted', 'invoicing_start', 'invoicing_end')
+
+    def search(self, queryset, name, value):
+        name = Q(name__icontains=value)
+        name_internal = Q(name_internal__icontains=value)
+        return queryset.filter(name | name_internal)
+
+    def _master_contracts(self, queryset, name, value):
+        if value == True:
+            return queryset.filter(parent=None)
         else:
             return queryset

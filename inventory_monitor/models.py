@@ -1,9 +1,23 @@
 from django.db import models
 from django.urls import reverse
-
-from django.db import models
-from netbox.models.features import CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTemplatesMixin, JournalingMixin, TagsMixin, WebhooksMixin
+from netbox.models import NetBoxModel
+from netbox.models.features import (CustomFieldsMixin, CustomLinksMixin,
+                                    CustomValidationMixin,
+                                    ExportTemplatesMixin, JournalingMixin,
+                                    TagsMixin, WebhooksMixin)
+from utilities.choices import ChoiceSet
 from utilities.querysets import RestrictedQuerySet
+
+
+class ContractTypeChoices(ChoiceSet):
+    key = 'Contract.type'
+
+    CHOICES = [
+        ('supply', 'Supply Contract', 'green'),
+        ('order', 'Order', 'red'),
+        ('service', 'Service Contract', 'orange'),
+        ('other', 'Other', 'blue')
+    ]
 
 
 class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTemplatesMixin, JournalingMixin, TagsMixin, WebhooksMixin, models.Model):
@@ -91,3 +105,133 @@ class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTe
 
     def get_absolute_url(self):
         return reverse('plugins:inventory_monitor:probe', args=[self.pk])
+
+
+class Contractor(NetBoxModel):
+    objects = RestrictedQuerySet.as_manager()
+
+    name = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False
+    )
+
+    company = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    address = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    comments = models.TextField(
+        blank=True
+    )
+
+    class Meta:
+        ordering = ('name', 'company', 'address', 'comments',)
+
+    def __str__(self):
+        if self.company:
+            return f'{self.name}: {self.company}'
+        else:
+            return f'{self.name}'
+
+    def get_absolute_url(self):
+        return reverse('plugins:inventory_monitor:contractor', args=[self.pk])
+
+
+class Contract(NetBoxModel):
+    objects = RestrictedQuerySet.as_manager()
+
+    name = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False
+    )
+
+    name_internal = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False
+    )
+
+    contractor = models.ForeignKey(
+        to='inventory_monitor.contractor',  # Contractor,
+        on_delete=models.PROTECT,
+        related_name="contracts",
+        blank=True,
+        null=True,
+    )
+
+    type = models.CharField(
+        max_length=50,
+        choices=ContractTypeChoices
+    )
+
+    price = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    signed = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    accepted = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    invoicing_start = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    invoicing_end = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    parent = models.ForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='subcontracts',
+        null=True,
+        blank=True,
+        verbose_name='Parent contract'
+    )
+
+    comments = models.TextField(
+        blank=True
+    )
+
+    @property
+    def contract_type(self):
+        if self.parent:
+            return "subcontract"
+        else:
+            return "contract"
+
+    class Meta:
+        ordering = ('name', 'name_internal', 'contractor', 'type', 'price',
+                    'signed', 'accepted', 'invoicing_start', 'invoicing_end')
+
+    def __str__(self):
+        if self.parent:
+            return f"{self.parent.name} - {self.name}"
+        else:
+            return f"{self.name}"
+
+    def get_type_color(self):
+        return ContractTypeChoices.colors.get(self.type)
+
+    def get_absolute_url(self):
+        return reverse('plugins:inventory_monitor:contract', args=[self.pk])
