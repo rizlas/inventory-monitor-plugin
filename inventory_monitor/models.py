@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from netbox.models import NetBoxModel
@@ -177,7 +179,8 @@ class Contract(NetBoxModel):
         max_digits=19,
         decimal_places=2,
         blank=True,
-        null=True
+        null=True,
+        validators=[MinValueValidator(0)]
     )
 
     signed = models.DateField(
@@ -235,3 +238,24 @@ class Contract(NetBoxModel):
 
     def get_absolute_url(self):
         return reverse('plugins:inventory_monitor:contract', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Validate - subcontract cannot set parent which is subcontract
+        if self.parent and self.parent.parent:
+            raise ValidationError(
+                {'parent': "Parent cannot be a subcontract"}
+            )
+
+        # Validate - if parent contract has different contractor
+        if self.parent and self.parent.contractor != self.contractor:
+            raise ValidationError(
+                {'contractor': f"Contractor must be same as Parent contractor: {self.parent.contractor}"}
+            )
+
+        # Validate invoicing_start and invoicing_end
+        if self.invoicing_start and self.invoicing_end and self.invoicing_start > self.invoicing_end:
+            raise ValidationError(
+                {'invoicing_start': f"Invoicing Start cannot be set after Invoicing End"}
+            )
