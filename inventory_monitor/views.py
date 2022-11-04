@@ -1,6 +1,8 @@
 from dcim.models import InventoryItem
 from dcim.tables.devices import InventoryItemTable
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, OuterRef, Subquery
+from django.shortcuts import get_object_or_404
 from netbox.views import generic
 
 from . import filtersets, forms, models, tables
@@ -114,3 +116,37 @@ class ContractEditView(generic.ObjectEditView):
 
 class ContractDeleteView(generic.ObjectDeleteView):
     queryset = models.Contract.objects.all()
+
+
+# File attachments
+
+
+class InvMonFileAttachmentEditView(generic.ObjectEditView):
+    queryset = models.InvMonFileAttachment.objects.all()
+    form = forms.InvMonFileAttachmentForm
+    template_name = 'inventory_monitor/invmon_file_attachment_edit.html'
+
+    def alter_object(self, instance, request, args, kwargs):
+        if not instance.pk:
+            # Assign the parent object based on URL kwargs
+            content_type = get_object_or_404(
+                ContentType, pk=request.GET.get('content_type'))
+            instance.parent = get_object_or_404(
+                content_type.model_class(), pk=request.GET.get('object_id'))
+        return instance
+
+    def get_return_url(self, request, obj=None):
+        return obj.parent.get_absolute_url() if obj else super().get_return_url(request)
+
+    def get_extra_addanother_params(self, request):
+        return {
+            'content_type': request.GET.get('content_type'),
+            'object_id': request.GET.get('object_id'),
+        }
+
+
+class InvMonFileAttachmentDeleteView(generic.ObjectDeleteView):
+    queryset = models.InvMonFileAttachment.objects.all()
+
+    def get_return_url(self, request, obj=None):
+        return obj.parent.get_absolute_url() if obj else super().get_return_url(request)

@@ -1,9 +1,10 @@
 import django_filters
 from extras.filters import TagFilter
 from django.db.models import Q
-from .models import ContractTypeChoices, Contractor, Probe, Contract
+from .models import ContractTypeChoices, Contractor, Probe, Contract, InvMonFileAttachment
 from dcim.models import Device
 from netbox.filtersets import NetBoxModelFilterSet, BaseFilterSet
+from utilities.filters import ContentTypeFilter
 
 
 # Probe
@@ -213,3 +214,21 @@ class ContractFilterSet(NetBoxModelFilterSet):
             return queryset.filter(parent=None)
         else:
             return queryset
+
+
+class InvMonFileAttachmentFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    created = django_filters.DateTimeFilter()
+    content_type = ContentTypeFilter()
+
+    class Meta:
+        model = InvMonFileAttachment
+        fields = ['id', 'content_type_id', 'object_id', 'name']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(name__icontains=value)

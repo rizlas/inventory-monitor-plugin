@@ -40,4 +40,12 @@ urlpatterns = (
          views.ContractDeleteView.as_view(), name='contract_delete'),
     path('contracts/<int:pk>/changelog/', ObjectChangeLogView.as_view(),
          name='contract_changelog', kwargs={'model': models.Contract}),
+
+    # Files
+    path('invmon_file_attachments/add/', views.InvMonFileAttachmentEditView.as_view(),
+         name='invmon_file_attachment_add'),
+    path('invmon_file_attachments/<int:pk>/edit/',
+         views.InvMonFileAttachmentEditView.as_view(), name='invmon_file_attachment_edit'),
+    path('invmon_file_attachments/<int:pk>/delete/',
+         views.InvMonFileAttachmentDeleteView.as_view(), name='invmon_file_attachment_delete'),
 )
