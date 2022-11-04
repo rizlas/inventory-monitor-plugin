@@ -225,6 +225,10 @@ class Contract(NetBoxModel):
         blank=True
     )
 
+    files = GenericRelation(
+        to='inventory_monitor.InvMonFileAttachment',
+    )
+
     @property
     def contract_type(self):
         if self.parent:

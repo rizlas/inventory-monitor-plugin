@@ -70,7 +70,7 @@
         </div>
     </div>
     {% if object.subcontracts.all %}
-        <div class="row">
+        <div class="row mb-3">
             <div class="col col-md-12">
                 <div class="card">
                     <h5 class="card-header">Subcontracts</h5>
@@ -79,4 +79,7 @@
             </div>
         </div>
     {% endif %}
+    <div class="row mb-3">
+        <div class="col col-md-12">{% include "inventory_monitor/invmon_file_attachment_panel.html" %}</div>
+    </div>
 {% endblock content %}
