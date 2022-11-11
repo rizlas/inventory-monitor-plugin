@@ -1,5 +1,6 @@
 {% extends "generic/object.html" %}
 {% load render_table from django_tables2 %}
+{% load plugins %}
 {% block content %}
     <div class="row mb-3">
         <div class="col col-md-6">
@@ -89,10 +90,12 @@
                 </div>
             </div>
             {% include "inc/panels/custom_fields.html" %}
+            {% plugin_left_page object %}
         </div>
         <div class="col col-md-6">
             {% include "inc/panels/tags.html" %}
             {% include "inc/panels/comments.html" %}
+            {% plugin_right_page object %}
         </div>
     </div>
     <div class="row">
@@ -117,6 +120,11 @@
                     {% render_table probe_table %}
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-md-12">
+            {% plugin_full_width_page object %}
         </div>
     </div>
 {% endblock content %}
