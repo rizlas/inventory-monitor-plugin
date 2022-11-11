@@ -7,8 +7,7 @@ from utilities.forms import (BOOLEAN_WITH_BLANK_CHOICES, DatePicker,
                              StaticSelect)
 from utilities.forms.fields import CommentField, DynamicModelChoiceField
 
-from .models import Contract, Contractor, ContractTypeChoices, Probe, InvMonFileAttachment
-
+from .models import Contract, Contractor, ContractTypeChoices, Probe
 
 # Probe
 
@@ -258,12 +257,3 @@ class ContractFilterForm(NetBoxModelFilterSetForm):
         label=('Invoicing End'),
         widget=DatePicker()
     )
-
-
-class InvMonFileAttachmentForm(NetBoxModelForm):
-
-    class Meta:
-        model = InvMonFileAttachment
-        fields = [
-            'name', 'file',
-        ]

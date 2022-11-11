@@ -2,8 +2,7 @@ from netbox.api.viewsets import NetBoxModelViewSet
 
 from .. import filtersets, models
 from .serializers import (ContractorSerializer, ContractSerializer,
-                          ProbeSerializer, InvMonFileAttachmentSerializer)
-from netbox.api.metadata import ContentTypeMetadata
+                          ProbeSerializer)
 
 
 class ProbeViewSet(NetBoxModelViewSet):
@@ -22,10 +21,3 @@ class ContractViewSet(NetBoxModelViewSet):
     queryset = models.Contract.objects.prefetch_related('tags', 'contractor')
     serializer_class = ContractSerializer
     filterset_class = filtersets.ContractFilterSet
-
-
-class InvMonFileAttachmentViewSet(NetBoxModelViewSet):
-    metadata_class = ContentTypeMetadata
-    queryset = models.InvMonFileAttachment.objects.all()
-    serializer_class = InvMonFileAttachmentSerializer
-    filterset_class = filtersets.InvMonFileAttachmentFilterSet

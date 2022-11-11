@@ -4,7 +4,6 @@ import django.core.serializers.json
 import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
-import inventory_monitor.utils
 import taggit.managers
 
 
@@ -30,7 +29,7 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
                 ('object_id', models.PositiveBigIntegerField()),
-                ('file', models.FileField(upload_to=inventory_monitor.utils.invmon_file_upload)),
+                #('file', models.FileField(upload_to=inventory_monitor.utils.invmon_file_upload)),
                 ('name', models.CharField(blank=True, max_length=50)),
                 ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
