@@ -114,3 +114,26 @@ class ContractEditView(generic.ObjectEditView):
 
 class ContractDeleteView(generic.ObjectDeleteView):
     queryset = models.Contract.objects.all()
+
+
+# Invoice
+
+
+class InvoiceView(generic.ObjectView):
+    queryset = models.Invoice.objects.all()
+
+
+class InvoiceListView(generic.ObjectListView):
+    queryset = models.Invoice.objects.all()
+    filterset = filtersets.InvoiceFilterSet
+    filterset_form = forms.InvoiceFilterForm
+    table = tables.InvoiceTable
+
+
+class InvoiceEditView(generic.ObjectEditView):
+    queryset = models.Invoice.objects.all()
+    form = forms.InvoiceForm
+
+
+class InvoiceDeleteView(generic.ObjectDeleteView):
+    queryset = models.Invoice.objects.all()

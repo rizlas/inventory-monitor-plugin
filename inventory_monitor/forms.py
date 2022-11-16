@@ -7,7 +7,7 @@ from utilities.forms import (BOOLEAN_WITH_BLANK_CHOICES, DatePicker,
                              StaticSelect)
 from utilities.forms.fields import CommentField, DynamicModelChoiceField
 
-from .models import Contract, Contractor, ContractTypeChoices, Probe
+from .models import Contract, Contractor, ContractTypeChoices, Invoice, Probe
 
 # Probe
 
@@ -224,6 +224,91 @@ class ContractFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=('Signed'),
         widget=DatePicker()
+    )
+
+    invoicing_start__gte = forms.DateField(
+        required=False,
+        label=('Invoicing Start: From'),
+        widget=DatePicker()
+    )
+    invoicing_start__lte = forms.DateField(
+        required=False,
+        label=('Invoicing Start: Till'),
+        widget=DatePicker()
+    )
+    invoicing_start = forms.DateField(
+        required=False,
+        label=('Invoicing Start'),
+        widget=DatePicker()
+    )
+
+    invoicing_end__gte = forms.DateField(
+        required=False,
+        label=('Invoicing End: From'),
+        widget=DatePicker()
+    )
+    invoicing_end__lte = forms.DateField(
+        required=False,
+        label=('Invoicing End: Till'),
+        widget=DatePicker()
+    )
+    invoicing_end = forms.DateField(
+        required=False,
+        label=('Invoicing End'),
+        widget=DatePicker()
+    )
+
+
+# Invoice
+
+
+class InvoiceForm(NetBoxModelForm):
+    comments = CommentField(
+        label="Comments"
+    )
+
+    contract = DynamicModelChoiceField(
+        queryset=Contract.objects.all(),
+        required=True
+    )
+
+    invoicing_start = forms.DateField(
+        required=False,
+        label=('Invoicing Start'),
+        widget=DatePicker()
+    )
+
+    invoicing_end = forms.DateField(
+        required=False,
+        label=('Invoicing End'),
+        widget=DatePicker()
+    )
+
+    class Meta:
+        model = Invoice
+        fields = ('name', 'name_internal', 'contract', 'price',
+                  'invoicing_start',  'invoicing_end', 'comments', 'tags')
+
+
+class InvoiceFilterForm(NetBoxModelFilterSetForm):
+    model = Invoice
+
+    name = forms.CharField(
+        required=False
+    )
+
+    name_internal = forms.CharField(
+        required=False
+    )
+
+    contract_id = DynamicModelMultipleChoiceField(
+        queryset=Contract.objects.all(),
+        required=False,
+        label=_('Contract')
+    )
+
+    price = forms.DecimalField(
+        required=False
     )
 
     invoicing_start__gte = forms.DateField(

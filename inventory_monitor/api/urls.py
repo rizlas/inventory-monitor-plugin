@@ -7,5 +7,6 @@ router = NetBoxRouter()
 router.register('probes', views.ProbeViewSet)
 router.register('contractors', views.ContractorViewSet)
 router.register('contracts', views.ContractViewSet)
+router.register('invoices', views.InvoiceViewSet)
 
 urlpatterns = router.urls
