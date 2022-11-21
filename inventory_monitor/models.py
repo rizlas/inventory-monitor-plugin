@@ -245,7 +245,7 @@ class Contract(NetBoxModel):
         # Validate - subcontract cannot set parent which is subcontract
         if self.parent and self.parent.parent:
             raise ValidationError(
-                {'parent': "Parent cannot be a subcontract"}
+                {'parent': "Subcontract cannot be set as Parent Contract"}
             )
 
         # Validate - if parent contract has different contractor
