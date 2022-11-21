@@ -59,4 +59,19 @@ class InventoryItemDuplicates(PluginTemplateExtension):
         )
 
 
-template_extensions = [DeviceProbeList, InventoryItemDuplicates]
+class InvoicesList(PluginTemplateExtension):
+    model = 'inventory_monitor.contract'
+
+    def full_width_page(self):
+        object = self.context['object']
+
+        return self.render(
+            'inventory_monitor/invoices_include.html',
+            extra_context={
+                'object': object,
+                'invoices': object.invoices.all(),
+            }
+        )
+
+
+template_extensions = [DeviceProbeList, InventoryItemDuplicates, InvoicesList]
