@@ -99,8 +99,8 @@ class ContractView(generic.ObjectView):
 
 
 class ContractListView(generic.ObjectListView):
-    queryset = models.Contract.objects.all().annotate(
-        subcontracts_count=Count('subcontracts'))
+    queryset = models.Contract.objects.all().annotate(subcontracts_count=Count(
+        'subcontracts', distinct=True)).annotate(invoices_count=Count('invoices', distinct=True))
     filterset = filtersets.ContractFilterSet
     filterset_form = forms.ContractFilterForm
     table = tables.ContractTable

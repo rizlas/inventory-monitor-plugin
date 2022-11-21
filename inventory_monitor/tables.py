@@ -43,6 +43,7 @@ class ContractTable(NetBoxTable):
     name = tables.Column(linkify=True)
     contractor = tables.Column(linkify=True)
     subcontracts_count = tables.Column()
+    invoices_count = tables.Column()
     contract_type = tables.Column()
     parent = tables.Column(linkify=True)
     type = ChoiceFieldColumn()
@@ -50,7 +51,7 @@ class ContractTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Contract
         fields = ('pk', 'id', 'name', 'name_internal', 'contractor', 'type', 'contract_type', 'price', 'signed',
-                  'accepted', 'invoicing_start',  'invoicing_end', 'parent', 'comments', 'actions')
+                  'accepted', 'invoicing_start',  'invoicing_end', 'parent', 'comments', 'invoices_count', 'subcontracts_count', 'actions')
         default_columns = ('id', 'name', 'name_internal', 'contractor', 'type', 'contract_type', 'price',
                            'signed', 'accepted', 'invoicing_start',  'invoicing_end', 'parent')
 
