@@ -45,15 +45,16 @@ class ContractTable(NetBoxTable):
     subcontracts_count = tables.Column()
     invoices_count = tables.Column()
     contract_type = tables.Column()
+    attachments_count = tables.Column()
     parent = tables.Column(linkify=True)
     type = ChoiceFieldColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Contract
         fields = ('pk', 'id', 'name', 'name_internal', 'contractor', 'type', 'contract_type', 'price', 'signed',
-                  'accepted', 'invoicing_start',  'invoicing_end', 'parent', 'comments', 'invoices_count', 'subcontracts_count', 'actions')
+                  'accepted', 'invoicing_start',  'invoicing_end', 'parent', 'comments', 'invoices_count', 'subcontracts_count', 'attachments_count', 'actions')
         default_columns = ('id', 'name', 'name_internal', 'contractor', 'type', 'contract_type', 'price',
-                           'signed', 'accepted', 'invoicing_start',  'invoicing_end', 'parent')
+                           'signed', 'accepted', 'invoicing_start',  'invoicing_end', 'parent', 'attachments_count')
 
 
 # Invoice
@@ -62,10 +63,11 @@ class ContractTable(NetBoxTable):
 class InvoiceTable(NetBoxTable):
     name = tables.Column(linkify=True)
     contract = tables.Column(linkify=True)
+    attachments_count = tables.Column()
 
     class Meta(NetBoxTable.Meta):
         model = Invoice
         fields = ('pk', 'id', 'name', 'name_internal', 'contract', 'price',
-                  'invoicing_start',  'invoicing_end', 'comments', 'actions')
+                  'invoicing_start',  'invoicing_end', 'comments', 'attachments_count', 'actions')
         default_columns = ('id', 'name', 'name_internal', 'contract',
-                           'price', 'invoicing_start',  'invoicing_end')
+                           'price', 'invoicing_start',  'invoicing_end', 'attachments_count')
