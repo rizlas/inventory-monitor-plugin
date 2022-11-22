@@ -5,7 +5,7 @@ from netbox.api.serializers import (NetBoxModelSerializer,
                                     WritableNestedSerializer)
 from rest_framework import serializers
 
-from ..models import Contract, Contractor, Probe
+from ..models import Contract, Contractor, Invoice, Probe
 
 # Probe
 
@@ -129,3 +129,37 @@ class ContractSerializer(NetBoxModelSerializer):
             'comments',
             'custom_fields',
         ]
+
+
+class InvoiceSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='plugins-api:inventory_monitor-api:invoice-detail'
+    )
+    contract = NestedContractSerializer()
+
+    class Meta:
+        model = Invoice
+        fields = [
+            'id',
+            'url',
+            'display',
+            'name',
+            'name_internal',
+            'contract',
+            'price',
+            'invoicing_start',
+            'invoicing_end',
+            'tags',
+            'comments',
+            'custom_fields',
+        ]
+
+
+class NestedInvoiceSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='plugins-api:inventory_monitor-api:invoice-detail'
+    )
+
+    class Meta:
+        model = Invoice
+        fields = ['id', 'url', 'display', 'name', 'name_internal']

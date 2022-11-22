@@ -4,7 +4,7 @@ from django.db.models import Q
 from extras.filters import TagFilter
 from netbox.filtersets import BaseFilterSet, NetBoxModelFilterSet
 
-from .models import Contract, Contractor, ContractTypeChoices, Probe
+from .models import Contract, Contractor, ContractTypeChoices, Invoice, Probe
 
 # Probe
 
@@ -213,3 +213,68 @@ class ContractFilterSet(NetBoxModelFilterSet):
             return queryset.filter(parent=None)
         else:
             return queryset
+
+
+# Invoice
+
+
+class InvoiceFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    tag = TagFilter()
+    name = django_filters.CharFilter(lookup_expr="icontains")
+    name_internal = django_filters.CharFilter(lookup_expr="icontains")
+    contract_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='contract__id',
+        queryset=Contract.objects.all(),
+        to_field_name='id',
+        label='Contract (ID)',
+    )
+    contract = django_filters.ModelMultipleChoiceFilter(
+        field_name='contract__name',
+        queryset=Contract.objects.all(),
+        to_field_name='name',
+        label='Contract (name)',
+    )
+
+    # TODO: forms.DecimalField
+    price = django_filters.NumberFilter(
+        required=False
+    )
+
+    invoicing_start__gte = django_filters.DateFilter(
+        field_name='invoicing_start',
+        lookup_expr='gte'
+    )
+    invoicing_start__lte = django_filters.DateFilter(
+        field_name='invoicing_start',
+        lookup_expr='lte'
+    )
+    invoicing_start = django_filters.DateFilter(
+        field_name='invoicing_start',
+        lookup_expr='contains'
+    )
+    invoicing_end__gte = django_filters.DateFilter(
+        field_name='invoicing_end',
+        lookup_expr='gte'
+    )
+    invoicing_end__lte = django_filters.DateFilter(
+        field_name='invoicing_end',
+        lookup_expr='lte'
+    )
+    invoicing_end = django_filters.DateFilter(
+        field_name='invoicing_end',
+        lookup_expr='contains'
+    )
+
+    class Meta:
+        model = Invoice
+        fields = ('id', 'name', 'name_internal', 'contract',
+                  'price', 'invoicing_start', 'invoicing_end')
+
+    def search(self, queryset, name, value):
+        name = Q(name__icontains=value)
+        name_internal = Q(name_internal__icontains=value)
+        return queryset.filter(name | name_internal)

@@ -40,4 +40,16 @@ urlpatterns = (
          views.ContractDeleteView.as_view(), name='contract_delete'),
     path('contracts/<int:pk>/changelog/', ObjectChangeLogView.as_view(),
          name='contract_changelog', kwargs={'model': models.Contract}),
+
+    # Invoice
+    path('invoices/', views.InvoiceListView.as_view(), name='invoice_list'),
+    path('invoices/add/', views.InvoiceEditView.as_view(), name='invoice_add'),
+    path('invoices/<int:pk>/', views.InvoiceView.as_view(), name='invoice'),
+    path('invoices/<int:pk>/edit/',
+         views.InvoiceEditView.as_view(), name='invoice_edit'),
+    path('invoices/<int:pk>/delete/',
+         views.InvoiceDeleteView.as_view(), name='invoice_delete'),
+    path('invoices/<int:pk>/changelog/', ObjectChangeLogView.as_view(),
+         name='invoice_changelog', kwargs={'model': models.Invoice}),
+
 )
