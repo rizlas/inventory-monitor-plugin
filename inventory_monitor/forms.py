@@ -286,7 +286,7 @@ class InvoiceForm(NetBoxModelForm):
 
     class Meta:
         model = Invoice
-        fields = ('name', 'name_internal', 'contract', 'price',
+        fields = ('name', 'name_internal', 'project', 'contract', 'price',
                   'invoicing_start',  'invoicing_end', 'comments', 'tags')
 
 
@@ -298,6 +298,10 @@ class InvoiceFilterForm(NetBoxModelFilterSetForm):
     )
 
     name_internal = forms.CharField(
+        required=False
+    )
+    
+    project = forms.CharField(
         required=False
     )
 

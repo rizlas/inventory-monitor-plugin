@@ -17,6 +17,10 @@
                             <td>{{ object.name_internal }}</td>
                         </tr>
                         <tr>
+                            <th scope="row">Project</th>
+                            <td>{{ object.project }}</td>
+                        </tr>
+                        <tr>
                             <th scope="row">Contract</th>
                             <td>
                                 <a href="{{ object.contract.get_absolute_url }}">{{ object.contract }}</a>
