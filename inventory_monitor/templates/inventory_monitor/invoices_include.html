@@ -8,10 +8,12 @@
                     <th>ID</th>
                     <th>Name</th>
                     <th>Name Internal</th>
+                    <th>Project</th>
                     <th>Contract</th>
                     <th>Price</th>
                     <th>Invoicing Start</th>
                     <th>Invoicing End</th>
+                    <th>Attachments Count</th>
                 </tr>
                 {% for invoice in invoices %}
                     <tr>
@@ -20,12 +22,14 @@
                         </td>
                         <td>{{ invoice.name }}</td>
                         <td>{{ invoice.name_internal }}</td>
+                        <td>{{ invoice.project }}</td>
                         <td>
                             <a href="{{ invoice.contract.get_absolute_url }}">{{ invoice.contract }}</a>
                         </td>
                         <td>{{ invoice.price }}</td>
                         <td>{{ invoice.invoicing_start }}</td>
                         <td>{{ invoice.invoicing_end }}</td>
+                        <td>{{ invoice.attachments_count }}</td>
                     </tr>
                 {% endfor %}
             </table>

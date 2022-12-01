@@ -112,7 +112,8 @@ class ContractFilterSet(NetBoxModelFilterSet):
         label='Search',
     )
     tag = TagFilter()
-    name = django_filters.CharFilter(lookup_expr="icontains")
+    name = django_filters.CharFilter(lookup_expr="exact", field_name='name')
+    name__ic = django_filters.CharFilter(field_name='name', lookup_expr="icontains", label="Name Contains")
     name_internal = django_filters.CharFilter(lookup_expr="icontains")
     contractor_id = django_filters.ModelMultipleChoiceFilter(
         field_name='contractor__id',
@@ -224,8 +225,11 @@ class InvoiceFilterSet(NetBoxModelFilterSet):
         label='Search',
     )
     tag = TagFilter()
-    name = django_filters.CharFilter(lookup_expr="icontains")
+    name = django_filters.CharFilter(lookup_expr="exact", field_name='name')
+    name__ic = django_filters.CharFilter(field_name='name', lookup_expr="icontains", label="Name Contains")
     name_internal = django_filters.CharFilter(lookup_expr="icontains")
+    project = django_filters.CharFilter(lookup_expr="icontains")
+
     contract_id = django_filters.ModelMultipleChoiceFilter(
         field_name='contract__id',
         queryset=Contract.objects.all(),
@@ -271,7 +275,7 @@ class InvoiceFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Invoice
-        fields = ('id', 'name', 'name_internal', 'contract',
+        fields = ('id', 'name', 'name_internal', 'project', 'contract',
                   'price', 'invoicing_start', 'invoicing_end')
 
     def search(self, queryset, name, value):

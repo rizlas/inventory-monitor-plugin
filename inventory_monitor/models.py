@@ -275,7 +275,13 @@ class Invoice(NetBoxModel):
         blank=False,
         null=False
     )
-
+    
+    project = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    
     contract = models.ForeignKey(
         to='inventory_monitor.contract',  # Contractor,
         on_delete=models.PROTECT,

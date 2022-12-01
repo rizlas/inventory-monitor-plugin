@@ -106,7 +106,7 @@ class ContractSerializer(NetBoxModelSerializer):
         view_name='plugins-api:inventory_monitor-api:contract-detail'
     )
     contractor = NestedContractorSerializer()
-    parent = NestedContractSerializer()
+    parent = NestedContractSerializer(allow_null=True)
 
     class Meta:
         model = Contract
@@ -145,6 +145,7 @@ class InvoiceSerializer(NetBoxModelSerializer):
             'display',
             'name',
             'name_internal',
+            'project',
             'contract',
             'price',
             'invoicing_start',
