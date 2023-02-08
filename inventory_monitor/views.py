@@ -13,8 +13,6 @@ except ModuleNotFoundError:
     attachments_model_exists = False
 
 # Probe
-
-
 class ProbeView(generic.ObjectView):
     queryset = models.Probe.objects.all()
 
@@ -60,8 +58,6 @@ class ProbeBulkDeleteView(generic.BulkDeleteView):
 
 
 # Contractor
-
-
 class ContractorView(generic.ObjectView):
     queryset = models.Contractor.objects.all()
 
@@ -101,8 +97,6 @@ class ContractorDeleteView(generic.ObjectDeleteView):
 
 
 # Contract
-
-
 class ContractView(generic.ObjectView):
     if attachments_model_exists:
         contract_content_type = ContentType.objects.get(
@@ -161,8 +155,6 @@ class ContractDeleteView(generic.ObjectDeleteView):
 
 
 # Invoice
-
-
 class InvoiceView(generic.ObjectView):
     queryset = models.Invoice.objects.all()
 
@@ -190,3 +182,45 @@ class InvoiceEditView(generic.ObjectEditView):
 
 class InvoiceDeleteView(generic.ObjectDeleteView):
     queryset = models.Invoice.objects.all()
+
+
+# Component
+class ComponentView(generic.ObjectView):
+    queryset = models.Component.objects.all()
+
+
+class ComponentListView(generic.ObjectListView):
+    queryset = models.Component.objects.all()
+    filterset = filtersets.ComponentFilterSet
+    filterset_form = forms.ComponentFilterForm
+    table = tables.ComponentTable
+
+
+class ComponentEditView(generic.ObjectEditView):
+    queryset = models.Component.objects.all()
+    form = forms.ComponentForm
+
+
+class ComponentDeleteView(generic.ObjectDeleteView):
+    queryset = models.Component.objects.all()
+
+
+# ComponentService
+class ComponentServiceView(generic.ObjectView):
+    queryset = models.ComponentService.objects.all()
+
+
+class ComponentServiceListView(generic.ObjectListView):
+    queryset = models.ComponentService.objects.all()
+    filterset = filtersets.ComponentServiceFilterSet
+    filterset_form = forms.ComponentServiceFilterForm
+    table = tables.ComponentServiceTable
+
+
+class ComponentServiceEditView(generic.ObjectEditView):
+    queryset = models.ComponentService.objects.all()
+    form = forms.ComponentServiceForm
+
+
+class ComponentServiceDeleteView(generic.ObjectDeleteView):
+    queryset = models.ComponentService.objects.all()

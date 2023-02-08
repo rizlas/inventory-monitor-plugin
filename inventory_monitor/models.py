@@ -415,7 +415,7 @@ class Component(NetBoxModel):
     )
 
     order_contract = models.ForeignKey(
-        to='inventory_monitor.Contract',  # Contractor,
+        to='inventory_monitor.contract',  # Contractor,
         on_delete=models.PROTECT,
         related_name="components",
         blank=True,
@@ -502,7 +502,7 @@ class ComponentService(NetBoxModel):
     )
 
     component = models.ForeignKey(
-        to='inventory_monitor.Component',
+        to='inventory_monitor.component',
         on_delete=models.PROTECT,
         related_name="services",
         blank=True,
@@ -510,11 +510,15 @@ class ComponentService(NetBoxModel):
     )
 
     contract = models.ForeignKey(
-        to='inventory_monitor.Contract',
+        to='inventory_monitor.contract',
         on_delete=models.PROTECT,
         related_name="services",
         blank=True,
         null=True
+    )
+
+    comments = models.TextField(
+        blank=True
     )
 
     class Meta:
@@ -526,7 +530,7 @@ class ComponentService(NetBoxModel):
         return f"{self.pk}"
 
     def get_absolute_url(self):
-        return reverse('plugins:inventory_monitor:service', args=[self.pk])
+        return reverse('plugins:inventory_monitor:componentservice', args=[self.pk])
 
     def clean(self):
         super().clean()

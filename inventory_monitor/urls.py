@@ -52,4 +52,28 @@ urlpatterns = (
     path('invoices/<int:pk>/changelog/', ObjectChangeLogView.as_view(),
          name='invoice_changelog', kwargs={'model': models.Invoice}),
 
+    # Component
+    path('components/', views.ComponentListView.as_view(), name='component_list'),
+    path('components/add/', views.ComponentEditView.as_view(), name='component_add'),
+    path('components/<int:pk>/', views.ComponentView.as_view(), name='component'),
+    path('components/<int:pk>/edit/',
+         views.ComponentEditView.as_view(), name='component_edit'),
+    path('components/<int:pk>/delete/',
+         views.ComponentDeleteView.as_view(), name='component_delete'),
+    path('components/<int:pk>/changelog/', ObjectChangeLogView.as_view(),
+         name='component_changelog', kwargs={'model': models.Component}),
+
+    # ComponentService
+    path('component-services/', views.ComponentServiceListView.as_view(),
+         name='componentservice_list'),
+    path('component-services/add/',
+         views.ComponentServiceEditView.as_view(), name='componentservice_add'),
+    path('component-services/<int:pk>/',
+         views.ComponentServiceView.as_view(), name='componentservice'),
+    path('component-services/<int:pk>/edit/',
+         views.ComponentServiceEditView.as_view(), name='componentservice_edit'),
+    path('component-services/<int:pk>/delete/',
+         views.ComponentServiceDeleteView.as_view(), name='componentservice_delete'),
+    path('component-services/<int:pk>/changelog/', ObjectChangeLogView.as_view(),
+         name='componentservice_changelog', kwargs={'model': models.ComponentService}),
 )

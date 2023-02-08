@@ -5,9 +5,8 @@ from netbox.api.serializers import (NetBoxModelSerializer,
                                     WritableNestedSerializer)
 from rest_framework import serializers
 
-from ..models import Contract, Contractor, Invoice, Probe
-
-# Probe
+from ..models import (Component, ComponentService, Contract, Contractor,
+                      Invoice, Probe)
 
 
 class ProbeSerializer(NetBoxModelSerializer):
@@ -53,9 +52,6 @@ class NestedProbeSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'serial', 'time']
 
 
-# Contractor
-
-
 class ContractorSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='plugins-api:inventory_monitor-api:contractor-detail'
@@ -85,8 +81,6 @@ class NestedContractorSerializer(WritableNestedSerializer):
         model = Contractor
         fields = ['id', 'display', 'url', 'name', 'company', 'address']
 
-
-# Contract
 
 class NestedContractSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(
@@ -164,3 +158,59 @@ class NestedInvoiceSerializer(WritableNestedSerializer):
     class Meta:
         model = Invoice
         fields = ['id', 'url', 'display', 'name', 'name_internal']
+
+
+class ComponentServiceSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='plugins-api:inventory_monitor-api:componentservice-detail'
+    )
+    # contract = NestedContractSerializer()
+
+    class Meta:
+        model = ComponentService
+        fields = [
+            'id',
+            'url',
+            'display',
+            'tags',
+            'comments',
+            'custom_fields',
+        ]
+
+
+class NestedComponentServiceSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='plugins-api:inventory_monitor-api:componentservice-detail'
+    )
+
+    class Meta:
+        model = ComponentService
+        fields = ['id', 'url', 'display']
+
+
+class ComponentSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='plugins-api:inventory_monitor-api:component-detail'
+    )
+    # contract = NestedContractSerializer()
+
+    class Meta:
+        model = Component
+        fields = [
+            'id',
+            'url',
+            'display',
+            'tags',
+            'comments',
+            'custom_fields',
+        ]
+
+
+class NestedComponentSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='plugins-api:inventory_monitor-api:component-detail'
+    )
+
+    class Meta:
+        model = Invoice
+        fields = ['id', 'url', 'display']

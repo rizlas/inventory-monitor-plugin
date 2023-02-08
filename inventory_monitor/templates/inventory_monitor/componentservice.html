@@ -1,0 +1,62 @@
+{% extends "generic/object.html" %} {% load render_table from django_tables2 %}
+{% load plugins %} {% load tabs %} {% block content %}
+<div class="row mb-3">
+  <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">Component</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <td>Service Start</td>
+            <td>{{ object.service_start }}</td>
+          </tr>
+          <tr>
+            <td>Service End</td>
+            <td>{{ object.service_end }}</td>
+          </tr>
+          <tr>
+            <td>Service Param</td>
+            <td>{{ object.service_param }}</td>
+          </tr>
+          <tr>
+            <td>Service Price</td>
+            <td>{{ object.service_price }}</td>
+          </tr>
+          <tr>
+            <td>Service Category</td>
+            <td>{{ object.service_category }}</td>
+          </tr>
+          <tr>
+            <td>Service Category Vendor</td>
+            <td>{{ object.service_category_vendor }}</td>
+          </tr>
+          <tr>
+            <td>Component</td>
+            <td>
+              <a href="{{ object.component.get_absolute_url }}"
+                >{{ object.component }}</a
+              >
+            </td>
+          </tr>
+          <tr>
+            <td>Contract</td>
+            <td>
+              <a href="{{ object.contract.get_absolute_url }}"
+                >{{ object.contract }}</a
+              >
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% include "inc/panels/custom_fields.html" %} {% plugin_left_page object %}
+  </div>
+  <div class="col col-md-6">
+    {% include "inc/panels/tags.html" %} {% include "inc/panels/comments.html"
+    %} {% plugin_right_page object %}
+  </div>
+</div>
+<div class="row">
+  <div class="col col-md-12">{% plugin_full_width_page object %}</div>
+</div>
+{% endblock content %}

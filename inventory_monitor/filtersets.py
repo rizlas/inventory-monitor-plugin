@@ -1,14 +1,13 @@
 import django_filters
-from dcim.models import Device
+from dcim.models import Device, Site
 from django.db.models import Q
 from extras.filters import TagFilter
 from netbox.filtersets import BaseFilterSet, NetBoxModelFilterSet
 
-from .models import Contract, Contractor, ContractTypeChoices, Invoice, Probe
+from .models import (Component, ComponentService, Contract, Contractor,
+                     ContractTypeChoices, Invoice, Probe)
 
 # Probe
-
-
 class ProbeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -63,7 +62,7 @@ class ProbeFilterSet(BaseFilterSet):
         if value == True:
             latest_inventory_pks = Probe.objects.all().order_by(
                 'serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
-            #latest_inventory_pks = Probe.objects.all().distinct('serial').order_by('serial', '-time').values('pk')
+            # latest_inventory_pks = Probe.objects.all().distinct('serial').order_by('serial', '-time').values('pk')
             return queryset.filter(pk__in=latest_inventory_pks)
 
         else:
@@ -79,8 +78,6 @@ class ProbeFilterSet(BaseFilterSet):
 
 
 # Contractor
-
-
 class ContractorFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -104,8 +101,6 @@ class ContractorFilterSet(NetBoxModelFilterSet):
 
 
 # Contract
-
-
 class ContractFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -113,7 +108,8 @@ class ContractFilterSet(NetBoxModelFilterSet):
     )
     tag = TagFilter()
     name = django_filters.CharFilter(lookup_expr="exact", field_name='name')
-    name__ic = django_filters.CharFilter(field_name='name', lookup_expr="icontains", label="Name Contains")
+    name__ic = django_filters.CharFilter(
+        field_name='name', lookup_expr="icontains", label="Name Contains")
     name_internal = django_filters.CharFilter(lookup_expr="icontains")
     contractor_id = django_filters.ModelMultipleChoiceFilter(
         field_name='contractor__id',
@@ -217,8 +213,6 @@ class ContractFilterSet(NetBoxModelFilterSet):
 
 
 # Invoice
-
-
 class InvoiceFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -226,7 +220,8 @@ class InvoiceFilterSet(NetBoxModelFilterSet):
     )
     tag = TagFilter()
     name = django_filters.CharFilter(lookup_expr="exact", field_name='name')
-    name__ic = django_filters.CharFilter(field_name='name', lookup_expr="icontains", label="Name Contains")
+    name__ic = django_filters.CharFilter(
+        field_name='name', lookup_expr="icontains", label="Name Contains")
     name_internal = django_filters.CharFilter(lookup_expr="icontains")
     project = django_filters.CharFilter(lookup_expr="icontains")
 
@@ -282,3 +277,177 @@ class InvoiceFilterSet(NetBoxModelFilterSet):
         name = Q(name__icontains=value)
         name_internal = Q(name_internal__icontains=value)
         return queryset.filter(name | name_internal)
+
+# Component
+class ComponentFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    tag = TagFilter()
+    serial = django_filters.CharFilter(
+        lookup_expr="iexact", field_name='serial')
+    serial_actual = django_filters.CharFilter(
+        lookup_expr="iexact", field_name='serial_actual')
+    partnumber = django_filters.CharFilter(
+        lookup_expr="iexact", field_name='partnumber')
+    device = django_filters.ModelMultipleChoiceFilter(
+        required=False,
+        field_name='device__id',
+        queryset=Device.objects.all(),
+        to_field_name='id',
+        label='Device (ID)')
+    inventory = django_filters.CharFilter(
+        lookup_expr="icontains", field_name='inventory')
+    project = django_filters.CharFilter(lookup_expr="icontains")
+    locality = django_filters.ModelMultipleChoiceFilter(
+        required=False,
+        field_name='locality__id',
+        queryset=Site.objects.all(),
+        to_field_name='id',
+        label='Site (ID)',
+    )
+    vendor = django_filters.CharFilter(
+        lookup_expr="icontains", field_name='vendor')
+    price = django_filters.NumberFilter(
+        required=False,
+        field_name='price',
+        lookup_expr='exact',
+    )
+    price__gte = django_filters.NumberFilter(
+        required=False,
+        field_name='price',
+        lookup_expr='gte',
+    )
+    price__lte = django_filters.NumberFilter(
+        required=False,
+        field_name='price',
+        lookup_expr='lte',
+    )
+    order_contract = django_filters.ModelMultipleChoiceFilter(
+        field_name='order_contract__id',
+        queryset=Contract.objects.all(),
+        to_field_name='id',
+        label='Order Contract (ID)',
+    )
+    warranty_start = django_filters.DateFilter(
+        field_name='warranty_start',
+        lookup_expr='contains'
+    )
+    warranty_start__gte = django_filters.DateFilter(
+        field_name='warranty_start',
+        lookup_expr='gte'
+    )
+    warranty_start__lte = django_filters.DateFilter(
+        field_name='warranty_start',
+        lookup_expr='lte'
+    )
+    warranty_end = django_filters.DateFilter(
+        field_name='warranty_end',
+        lookup_expr='contains'
+    )
+    warranty_end__gte = django_filters.DateFilter(
+        field_name='warranty_end',
+        lookup_expr='gte'
+    )
+    warranty_end__lte = django_filters.DateFilter(
+        field_name='warranty_end',
+        lookup_expr='lte'
+    )
+
+    class Meta:
+        model = Component
+        fields = ('id', 'serial', 'serial_actual', 'partnumber', 'inventory',
+                  'project', 'device', 'locality', 'vendor', 'price',
+                  'order_contract', 'warranty_start', 'warranty_end')
+
+    def search(self, queryset, name, value):
+        serial = Q(serial__icontains=value)
+        serial_actual = Q(serial_actual__icontains=value)
+        inventory = Q(inventory__icontains=value)
+        device = Q(device__name__icontains=value)
+        project = Q(project__icontains=value)
+        locality = Q(locality__name__icontains=value)
+        vendor = Q(vendor__icontains=value)
+        order_contract = Q(order_contract__name__icontains=value)
+        return queryset.filter(serial | serial_actual | inventory | project | locality | vendor | order_contract | device)
+
+
+# ComponentService
+class ComponentServiceFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    tag = TagFilter()
+    service_start = django_filters.DateFilter(
+        field_name='service_start',
+        lookup_expr='contains'
+    )
+    service_start__gte = django_filters.DateFilter(
+        field_name='service_start',
+        lookup_expr='gte'
+    )
+    service_start__lte = django_filters.DateFilter(
+        field_name='service_start',
+        lookup_expr='lte'
+    )
+    service_end = django_filters.DateFilter(
+        field_name='service_end',
+        lookup_expr='contains'
+    )
+    service_end__gte = django_filters.DateFilter(
+        field_name='service_end',
+        lookup_expr='gte'
+    )
+    service_end__lte = django_filters.DateFilter(
+        field_name='service_end',
+        lookup_expr='lte'
+    )
+    service_param = django_filters.CharFilter(
+        lookup_expr="icontains", field_name='service_param')
+    service_price = django_filters.NumberFilter(
+        required=False,
+        field_name='service_price',
+        lookup_expr='exact',
+    )
+    service_price__gte = django_filters.NumberFilter(
+        required=False,
+        field_name='service_price',
+        lookup_expr='gte',
+    )
+    service_price__lte = django_filters.NumberFilter(
+        required=False,
+        field_name='service_price',
+        lookup_expr='lte',
+    )
+    service_category = django_filters.CharFilter(
+        lookup_expr="icontains", field_name='service_category')
+    service_category_vendor = django_filters.CharFilter(
+        lookup_expr="icontains", field_name='service_category_vendor')
+    component = django_filters.ModelMultipleChoiceFilter(
+        field_name='component__id',
+        queryset=Component.objects.all(),
+        to_field_name='id',
+        label='Component (ID)',
+    )
+    contract = django_filters.ModelMultipleChoiceFilter(
+        field_name='contract__id',
+        queryset=Contract.objects.all(),
+        to_field_name='id',
+        label='Contract (ID)',
+    )
+
+    class Meta:
+        model = ComponentService
+        fields = ('id', 'service_start', 'service_end', 'service_param',
+                  'service_price', 'service_category', 'service_category_vendor',
+                  'component', 'contract')
+
+    def search(self, queryset, name, value):
+        service_param = Q(service_param__icontains=value)
+        service_category = Q(service_category__icontains=value)
+        service_category_vendor = Q(service_category_vendor__icontains=value)
+        component = Q(component__name__icontains=value)
+        contract = Q(contract__name__icontains=value)
+        return queryset.filter(service_param | service_category | service_category_vendor | component | contract)

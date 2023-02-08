@@ -1,11 +1,10 @@
 import django_tables2 as tables
 from netbox.tables import ChoiceFieldColumn, NetBoxTable
 
-from .models import Contract, Contractor, Invoice, Probe
+from .models import (Component, ComponentService, Contract, Contractor,
+                     Invoice, Probe)
 
 # Probe
-
-
 class ProbeTable(NetBoxTable):
     name = tables.Column(linkify=True)
     device = tables.Column(linkify=True)
@@ -23,8 +22,6 @@ class ProbeTable(NetBoxTable):
 
 
 # Contractor
-
-
 class ContractorTable(NetBoxTable):
     name = tables.Column(linkify=True)
     contracts_count = tables.Column()
@@ -37,8 +34,6 @@ class ContractorTable(NetBoxTable):
 
 
 # Contract
-
-
 class ContractTable(NetBoxTable):
     name = tables.Column(linkify=True)
     contractor = tables.Column(linkify=True)
@@ -58,8 +53,6 @@ class ContractTable(NetBoxTable):
 
 
 # Invoice
-
-
 class InvoiceTable(NetBoxTable):
     name = tables.Column(linkify=True)
     contract = tables.Column(linkify=True)
@@ -71,3 +64,35 @@ class InvoiceTable(NetBoxTable):
                   'invoicing_start',  'invoicing_end', 'comments', 'attachments_count', 'actions')
         default_columns = ('id', 'name', 'name_internal', 'contract',
                            'price', 'invoicing_start',  'invoicing_end', 'attachments_count')
+
+
+# Component
+class ComponentTable(NetBoxTable):
+    serial = tables.Column(linkify=True)
+
+    device = tables.Column(linkify=True)
+    locality = tables.Column(linkify=True)
+    order_contract = tables.Column(linkify=True)
+
+    class Meta(NetBoxTable.Meta):
+        model = Component
+        fields = ('pk', 'id', 'serial', 'serial_actual',
+                  'partnumber', 'device', 'inventory', 'project',
+                  'locality', 'vendor', 'items', 'price', 'order_contract',
+                  'warranty_start', 'warranty_end', 'comments', 'actions')
+        default_columns = ('id', 'serial', 'serial_actual',
+                           'device', 'inventory', 'locality',
+                           'items', 'price', 'actions')
+
+# ComponentService
+class ComponentServiceTable(NetBoxTable):
+    component = tables.Column(linkify=True)
+    contract = tables.Column(linkify=True)
+
+    class Meta(NetBoxTable.Meta):
+        model = ComponentService
+        fields = ('pk', 'id', 'service_start', 'service_end',
+                  'service_param', 'service_price', 'service_category', 'service_category_vendor',
+                  'component', 'contract', 'comments', 'actions')
+        default_columns = ('id', 'service_start', 'service_end',
+                           'service_price', 'contract', 'component', 'actions')

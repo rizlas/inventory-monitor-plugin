@@ -1,0 +1,82 @@
+{% extends "generic/object.html" %} {% load render_table from django_tables2 %}
+{% load plugins %} {% load tabs %} {% block content %}
+<div class="row mb-3">
+  <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">Component</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th>Serial</th>
+            <td>{{ object.serial }}</td>
+          </tr>
+          <tr>
+            <th>Serial Actual</th>
+            <td>{{ object.serial_actual }}</td>
+          </tr>
+          <tr>
+            <th>Part Number</th>
+            <td>{{ object.partnumber }}</td>
+          </tr>
+          <tr>
+            <th>Device</th>
+            <td>{{ object.device }}</td>
+          </tr>
+          <tr>
+            <th>Inventory</th>
+            <td>{{ object.inventory }}</td>
+          </tr>
+          <tr>
+            <th>Project</th>
+            <td>{{ object.project }}</td>
+          </tr>
+          <tr>
+            <th>Locality</th>
+            <td>
+              <a href="{{ object.locality.get_absolute_url }}"
+                >{{ object.locality }}</a
+              >
+            </td>
+          </tr>
+          <tr>
+            <th>Vendor</th>
+            <td>{{ object.vendor }}</td>
+          </tr>
+          <tr>
+            <th>Items</th>
+            <td>{{ object.items }}</td>
+          </tr>
+          <tr>
+            <th>Price</th>
+            <td>{{ object.price }}</td>
+          </tr>
+          <tr>
+            <th>Order Contract</th>
+            <td>
+              <a href="{{ object.order_contract.get_absolute_url }}"
+                >{{ object.order_contract }}</a
+              >
+            </td>
+          </tr>
+          <tr>
+            <th>Warranty Start</th>
+            <td>{{ object.warranty_start }}</td>
+          </tr>
+          <tr>
+            <th>Warranty End</th>
+            <td>{{ object.warranty_end }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% include "inc/panels/custom_fields.html" %} {% plugin_left_page object %}
+  </div>
+  <div class="col col-md-6">
+    {% include "inc/panels/tags.html" %} {% include "inc/panels/comments.html"
+    %} {% plugin_right_page object %}
+  </div>
+</div>
+<div class="row">
+  <div class="col col-md-12">{% plugin_full_width_page object %}</div>
+</div>
+{% endblock content %}

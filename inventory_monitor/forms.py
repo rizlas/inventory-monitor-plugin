@@ -7,11 +7,9 @@ from utilities.forms import (BOOLEAN_WITH_BLANK_CHOICES, DatePicker,
                              StaticSelect)
 from utilities.forms.fields import CommentField, DynamicModelChoiceField
 
-from .models import Contract, Contractor, ContractTypeChoices, Invoice, Probe
+from .models import Contract, Contractor, ContractTypeChoices, Invoice, Probe, Component, ComponentService
 
 # Probe
-
-
 class ProbeForm(NetBoxModelForm):
     comments = CommentField(
         label="Comments"
@@ -79,8 +77,6 @@ class ProbeFilterForm(NetBoxModelFilterSetForm):
 
 
 # Contractor
-
-
 class ContractorForm(NetBoxModelForm):
     comments = CommentField(
         label="Comments"
@@ -106,8 +102,6 @@ class ContractorFilterForm(NetBoxModelFilterSetForm):
 
 
 # Contract
-
-
 class ContractForm(NetBoxModelForm):
     comments = CommentField(
         label="Comments"
@@ -260,8 +254,6 @@ class ContractFilterForm(NetBoxModelFilterSetForm):
 
 
 # Invoice
-
-
 class InvoiceForm(NetBoxModelForm):
     comments = CommentField(
         label="Comments"
@@ -345,4 +337,312 @@ class InvoiceFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=('Invoicing End'),
         widget=DatePicker()
+    )
+
+
+
+# Component
+class ComponentForm(NetBoxModelForm):
+    comments = CommentField(
+        label="Comments"
+    )
+    
+    serial = forms.CharField(
+        required=True,
+        label='Serial',
+        widget=forms.TextInput(attrs={'placeholder': 'Serial'}),
+    )
+    
+    serial_actual = forms.CharField(
+        required=True,
+        label='Serial Actual',
+        widget=forms.TextInput(attrs={'placeholder': 'Serial Actual'}),
+    )
+    
+    partnumber = forms.CharField(
+        required=False,
+        label='Part Number',
+    )
+    
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label='Device',
+    )
+    
+    inventory = forms.CharField(
+        required=False,
+        label='Inventory / AN',
+    )
+    
+    project = forms.CharField(
+        required=False,
+        label='Project',
+    )
+    
+    locality = DynamicModelChoiceField(
+        queryset = Site.objects.all(),
+        required=False,
+        label='Locality',
+    )
+    
+    vendor = forms.CharField(
+        required=False,
+        label='Vendor',
+    )
+    
+    items = forms.IntegerField(
+        required=True,
+        label='Items',
+        initial=1,
+        min_value=1
+    )
+    
+    price = forms.DecimalField(
+        required=False,
+        label='Price',
+        initial=0,
+        min_value=0,
+        decimal_places=2,
+    )
+    
+    order_contract = DynamicModelChoiceField(
+        queryset=Contract.objects.all(),
+        required=False,
+        label='Order Contract',
+    )
+    
+    warranty_start = forms.DateField(
+        required=False,
+        label=('Warranty Start'),
+        widget=DatePicker()
+    )
+    
+    warranty_end = forms.DateField(
+        required=False,
+        label=('Warranty End'),
+        widget=DatePicker()
+    )
+    
+    class Meta:
+        model = Component
+        fields = ('serial', 'serial_actual', 'partnumber', 'device', 'inventory',
+                  'project',  'locality', 'vendor', 'items', 'price', 'order_contract',
+                  'warranty_start', 'warranty_end', 'comments', 'tags')
+
+
+class ComponentFilterForm(NetBoxModelFilterSetForm):
+    model = Component
+
+    serial = forms.CharField(
+        required=False
+    )
+    
+    serial_actual = forms.CharField(
+        required=False
+    )
+    
+    device = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Device')
+    )
+    
+    inventory = forms.CharField(
+        required=False,
+        label='Inventory / AN',
+    )
+    
+    project = forms.CharField(
+        required=False,
+        label='Project',
+    )
+    
+    vendor = forms.CharField(
+        required=False,
+        label='Vendor',
+    )
+    
+    price = forms.DecimalField(
+        required=False
+    )
+    
+    price__gte = forms.DecimalField(
+        required=False,
+        label=('Price: From'),
+    )
+    
+    price__lte = forms.DecimalField(
+        required=False,
+        label=('Price: Till'),
+    )
+    
+    order_contract = DynamicModelMultipleChoiceField(
+        queryset=Contract.objects.all(),
+        required=False,
+        label=_('Order Contract')
+    )
+    
+    warranty_start = forms.DateField(
+        required=False,
+        label=('Warranty Start'),
+        widget=DatePicker()
+    )
+    
+    warranty_start__gte = forms.DateField(
+        required=False,
+        label=('Warranty Start: From'),
+        widget=DatePicker()
+    )
+    
+    warranty_start__lte = forms.DateField(
+        required=False,
+        label=('Warranty Start: Till'),
+        widget=DatePicker()
+    )
+    
+    warranty_end = forms.DateField(
+        required=False,
+        label=('Warranty End'),
+        widget=DatePicker()
+    )
+    
+    warranty_end__gte = forms.DateField(
+        required=False,
+        label=('Warranty End: From'),
+        widget=DatePicker()
+    )
+    
+    warranty_end__lte = forms.DateField(
+        required=False,
+        label=('Warranty End: Till'),
+        widget=DatePicker()
+    )
+    
+    
+    
+
+# ComponentService
+class ComponentServiceForm(NetBoxModelForm):
+    comments = CommentField(
+        label="Comments"
+    )
+    
+    service_start = forms.DateField(
+        required=False,
+        label=('Service Start'),
+        widget=DatePicker()
+    )
+    
+    service_end = forms.DateField(
+        required=False,
+        label=('Service End'),
+        widget=DatePicker()
+    )
+    
+    service_param = forms.CharField(
+        required=False,
+        label='Service Param',
+    )
+    
+    service_price = forms.DecimalField(
+        required=False,
+        label='Service Price',
+        initial=0,
+        min_value=0,
+        decimal_places=2,
+    )
+    
+    service_category = forms.CharField(
+        required=False,
+        label='Service Category',
+    )
+    
+    service_category_vendor = forms.CharField(
+        required=False,
+        label='Service Category Vendor',
+    )
+    
+    component = DynamicModelChoiceField(
+        queryset=Component.objects.all(),
+        required=False,
+        label='Component',
+    )
+    
+    contract = DynamicModelChoiceField(
+        queryset=Contract.objects.all(),
+        required=False,
+        label='Contract', 
+    )
+    
+    class Meta:
+        model = ComponentService
+        fields = ('service_start', 'service_end', 'service_param',
+                    'service_price', 'service_category', 'service_category_vendor',
+                    'component', 'contract', 'comments', 'tags')
+
+
+class ComponentServiceFilterForm(NetBoxModelFilterSetForm):
+    model = ComponentService
+    
+    service_start = forms.DateField(
+        required=False,
+        label=('Service Start'),
+        widget=DatePicker()
+    )
+    service_start__gte = forms.DateField(
+        required=False,
+        label=('Service Start: From'),
+        widget=DatePicker()
+    )
+    service_start__lte = forms.DateField(
+        required=False,
+        label=('Service Start: Till'),
+        widget=DatePicker()
+    )
+    service_end = forms.DateField(
+        required=False,
+        label=('Service End'),
+        widget=DatePicker()
+    )
+    service_end__gte = forms.DateField(
+        required=False,
+        label=('Service End: From'),
+        widget=DatePicker()
+    )
+    service_end__lte = forms.DateField(
+        required=False,
+        label=('Service End: Till'),
+        widget=DatePicker()
+    )
+    service_param = forms.CharField(
+        required=False,
+        label='Service Param',
+    )
+    service_price = forms.DecimalField(
+        required=False,
+        label='Service Price',
+        initial=0,
+        min_value=0,
+        decimal_places=2,
+    )
+    service_category = forms.CharField(
+        required=False,
+        label='Service Category',
+    )
+    service_category_vendor = forms.CharField(
+        required=False,
+        label='Service Category Vendor',
+    )
+    
+    # Todo: component-list
+    component = DynamicModelMultipleChoiceField(
+        queryset=Component.objects.all(),
+        required=False,
+       label=_('Component')
+    )
+    contract = DynamicModelMultipleChoiceField(
+        queryset=Contract.objects.all(),
+        required=False,
+        label=_('Contract')
     )
