@@ -13,6 +13,8 @@ except ModuleNotFoundError:
     attachments_model_exists = False
 
 # Probe
+
+
 class ProbeView(generic.ObjectView):
     queryset = models.Probe.objects.all()
 
@@ -187,6 +189,14 @@ class InvoiceDeleteView(generic.ObjectDeleteView):
 # Component
 class ComponentView(generic.ObjectView):
     queryset = models.Component.objects.all()
+
+    def get_extra_context(self, request, instance):
+        table = tables.ComponentServiceTable(instance.services.all())
+        table.configure(request)
+
+        return {
+            'component_services_table': table,
+        }
 
 
 class ComponentListView(generic.ObjectListView):
