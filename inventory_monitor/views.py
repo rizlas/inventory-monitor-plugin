@@ -200,7 +200,8 @@ class ComponentView(generic.ObjectView):
 
 
 class ComponentListView(generic.ObjectListView):
-    queryset = models.Component.objects.all()
+    queryset = models.Component.objects.all().prefetch_related(
+        'services').annotate(services_count=Count('services', distinct=True))
     filterset = filtersets.ComponentFilterSet
     filterset_form = forms.ComponentFilterForm
     table = tables.ComponentTable

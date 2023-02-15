@@ -5,6 +5,8 @@ from .models import (Component, ComponentService, Contract, Contractor,
                      Invoice, Probe)
 
 # Probe
+
+
 class ProbeTable(NetBoxTable):
     name = tables.Column(linkify=True)
     device = tables.Column(linkify=True)
@@ -79,7 +81,8 @@ class ComponentTable(NetBoxTable):
         fields = ('pk', 'id', 'serial', 'serial_actual',
                   'partnumber', 'device', 'inventory', 'project',
                   'locality', 'vendor', 'items', 'price', 'order_contract',
-                  'warranty_start', 'warranty_end', 'comments', 'actions')
+                  'warranty_start', 'warranty_end', 'comments', 'actions',
+                  'services_count')
         default_columns = ('id', 'serial', 'serial_actual',
                            'device', 'inventory', 'locality',
                            'items', 'price', 'actions')
