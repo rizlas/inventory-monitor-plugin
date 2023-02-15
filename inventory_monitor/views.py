@@ -1,6 +1,7 @@
 from dcim.models import InventoryItem
 from dcim.tables.devices import InventoryItemTable
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.db.models import Count, OuterRef, Subquery, Value
 from netbox.views import generic
 
@@ -13,8 +14,6 @@ except ModuleNotFoundError:
     attachments_model_exists = False
 
 # Probe
-
-
 class ProbeView(generic.ObjectView):
     queryset = models.Probe.objects.all()
 
@@ -200,8 +199,12 @@ class ComponentView(generic.ObjectView):
 
 
 class ComponentListView(generic.ObjectListView):
-    queryset = models.Component.objects.all().prefetch_related(
-        'services').annotate(services_count=Count('services', distinct=True))
+    queryset = models.Component.objects.all() \
+        .prefetch_related('services') \
+        .prefetch_related('tags') \
+        .annotate(services_count=Count('services')) \
+        .annotate(services_to=ArrayAgg('services__service_end'))\
+        .annotate(services_contracts=ArrayAgg('services__contract__name'))
     filterset = filtersets.ComponentFilterSet
     filterset_form = forms.ComponentFilterForm
     table = tables.ComponentTable

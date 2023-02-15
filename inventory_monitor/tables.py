@@ -1,12 +1,10 @@
 import django_tables2 as tables
-from netbox.tables import ChoiceFieldColumn, NetBoxTable
+from netbox.tables import ChoiceFieldColumn, NetBoxTable, columns
 
 from .models import (Component, ComponentService, Contract, Contractor,
                      Invoice, Probe)
 
 # Probe
-
-
 class ProbeTable(NetBoxTable):
     name = tables.Column(linkify=True)
     device = tables.Column(linkify=True)
@@ -70,19 +68,44 @@ class InvoiceTable(NetBoxTable):
 
 # Component
 class ComponentTable(NetBoxTable):
+    TEMPLATE_SERVICES_END = """
+    {% for service in record.services.all %}
+        {% if service.service_end %}
+            <p>{{ service.service_end|date:"Y-n-d" }}</p>
+        {% else %}
+            <p>---</p>
+        {% endif %}
+    {% endfor %}
+    """
+
+    TEMPLATE_SERVICES_CONTRACTS = """
+    {% for service in record.services.all %}
+        {% if service.contract %}
+            <p>{{ service.contract.name }}</p>
+        {% else %}
+            <p>---</p>
+        {% endif %}
+    {% endfor %}
+    """
+
     serial = tables.Column(linkify=True)
 
     device = tables.Column(linkify=True)
     locality = tables.Column(linkify=True)
     order_contract = tables.Column(linkify=True)
+    tags = columns.TagColumn()
+    services_to = columns.TemplateColumn(template_code=TEMPLATE_SERVICES_END)
+    services_contracts = tables.TemplateColumn(
+        template_code=TEMPLATE_SERVICES_CONTRACTS)
 
     class Meta(NetBoxTable.Meta):
         model = Component
         fields = ('pk', 'id', 'serial', 'serial_actual',
                   'partnumber', 'device', 'inventory', 'project',
                   'locality', 'vendor', 'items', 'price', 'order_contract',
-                  'warranty_start', 'warranty_end', 'comments', 'actions',
-                  'services_count')
+                  'warranty_start', 'warranty_end', 'comments', 'actions', 'tags',
+                  'services_count', 'services_contracts', 'services_to')
+
         default_columns = ('id', 'serial', 'serial_actual',
                            'device', 'inventory', 'locality',
                            'items', 'price', 'actions')
