@@ -402,7 +402,7 @@ class Component(NetBoxModel):
         blank=False,
         null=False,
         default=1,
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(0)],
     )
 
     price = models.DecimalField(

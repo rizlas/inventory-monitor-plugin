@@ -160,39 +160,11 @@ class NestedInvoiceSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'name_internal']
 
 
-class ComponentServiceSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='plugins-api:inventory_monitor-api:componentservice-detail'
-    )
-    # contract = NestedContractSerializer()
-
-    class Meta:
-        model = ComponentService
-        fields = [
-            'id',
-            'url',
-            'display',
-            'tags',
-            'comments',
-            'custom_fields',
-        ]
-
-
-class NestedComponentServiceSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='plugins-api:inventory_monitor-api:componentservice-detail'
-    )
-
-    class Meta:
-        model = ComponentService
-        fields = ['id', 'url', 'display']
-
-
 class ComponentSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='plugins-api:inventory_monitor-api:component-detail'
     )
-    # contract = NestedContractSerializer()
+    order_contract = NestedContractSerializer()
 
     class Meta:
         model = Component
@@ -200,6 +172,17 @@ class ComponentSerializer(NetBoxModelSerializer):
             'id',
             'url',
             'display',
+            'serial',
+            'serial_actual',
+            'partnumber',
+            'inventory',
+            'project',
+            'vendor',
+            'items',
+            'price',
+            'warranty_start',
+            'warranty_end',
+            'order_contract',
             'tags',
             'comments',
             'custom_fields',
@@ -210,7 +193,67 @@ class NestedComponentSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='plugins-api:inventory_monitor-api:component-detail'
     )
+    order_contract = NestedContractSerializer()
 
     class Meta:
-        model = Invoice
-        fields = ['id', 'url', 'display']
+        model = Component
+        fields = [
+            'id',
+            'url',
+            'display',
+            'serial',
+            'serial_actual',
+            'partnumber',
+            'inventory',
+            'items',
+            'price',
+            'order_contract',
+        ]
+
+
+class ComponentServiceSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='plugins-api:inventory_monitor-api:componentservice-detail'
+    )
+    contract = NestedContractSerializer()
+    component = NestedComponentSerializer()
+
+    class Meta:
+        model = ComponentService
+        fields = [
+            'id',
+            'url',
+            'display',
+            'service_start',
+            'service_end',
+            'service_param',
+            'service_price',
+            'service_category',
+            'service_category_vendor',
+            'component',
+            'contract',
+            'tags',
+            'comments',
+            'custom_fields',
+        ]
+
+
+class NestedComponentServiceSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='plugins-api:inventory_monitor-api:componentservice-detail'
+    )
+    contract = NestedContractSerializer()
+    component = NestedComponentSerializer()
+
+    class Meta:
+        model = ComponentService
+        fields = [
+            'id',
+            'url',
+            'display',
+            'service_start',
+            'service_end',
+            'service_price',
+            'component',
+            'contract',
+        ]
