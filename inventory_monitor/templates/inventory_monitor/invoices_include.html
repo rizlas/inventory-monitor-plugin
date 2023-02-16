@@ -26,7 +26,7 @@
                         <td>
                             <a href="{{ invoice.contract.get_absolute_url }}">{{ invoice.contract }}</a>
                         </td>
-                        <td>{{ invoice.price }}</td>
+                        <td>{{ invoice.price|to_czech_crown }}</td>
                         <td>{{ invoice.invoicing_start }}</td>
                         <td>{{ invoice.invoicing_end }}</td>
                         <td>{{ invoice.attachments_count }}</td>

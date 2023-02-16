@@ -1,8 +1,11 @@
 import django_tables2 as tables
 from netbox.tables import ChoiceFieldColumn, NetBoxTable, columns
 
+from .helpers import (TEMPLATE_SERVICES_CONTRACTS, TEMPLATE_SERVICES_END,
+                      NumberColumn)
 from .models import (Component, ComponentService, Contract, Contractor,
                      Invoice, Probe)
+
 
 # Probe
 class ProbeTable(NetBoxTable):
@@ -43,6 +46,7 @@ class ContractTable(NetBoxTable):
     attachments_count = tables.Column()
     parent = tables.Column(linkify=True)
     type = ChoiceFieldColumn()
+    price = NumberColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Contract
@@ -57,6 +61,7 @@ class InvoiceTable(NetBoxTable):
     name = tables.Column(linkify=True)
     contract = tables.Column(linkify=True)
     attachments_count = tables.Column()
+    price = NumberColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Invoice
@@ -68,31 +73,11 @@ class InvoiceTable(NetBoxTable):
 
 # Component
 class ComponentTable(NetBoxTable):
-    TEMPLATE_SERVICES_END = """
-    {% for service in record.services.all %}
-        {% if service.service_end %}
-            <p>{{ service.service_end|date:"Y-n-d" }}</p>
-        {% else %}
-            <p>---</p>
-        {% endif %}
-    {% endfor %}
-    """
-
-    TEMPLATE_SERVICES_CONTRACTS = """
-    {% for service in record.services.all %}
-        {% if service.contract %}
-            <p>{{ service.contract.name }}</p>
-        {% else %}
-            <p>---</p>
-        {% endif %}
-    {% endfor %}
-    """
-
     serial = tables.Column(linkify=True)
-
     device = tables.Column(linkify=True)
     locality = tables.Column(linkify=True)
     order_contract = tables.Column(linkify=True)
+    price = NumberColumn()
     tags = columns.TagColumn()
     services_to = columns.TemplateColumn(template_code=TEMPLATE_SERVICES_END)
     services_contracts = tables.TemplateColumn(
@@ -114,11 +99,12 @@ class ComponentTable(NetBoxTable):
 class ComponentServiceTable(NetBoxTable):
     component = tables.Column(linkify=True)
     contract = tables.Column(linkify=True)
+    service_price = NumberColumn(accessor='service_price')
 
     class Meta(NetBoxTable.Meta):
         model = ComponentService
         fields = ('pk', 'id', 'service_start', 'service_end',
                   'service_param', 'service_price', 'service_category', 'service_category_vendor',
                   'component', 'contract', 'comments', 'actions')
-        default_columns = ('id', 'service_start', 'service_end',
-                           'service_price', 'contract', 'component', 'actions')
+        default_columns = ('id', 'contract', 'service_start', 'service_end',
+                           'service_price', 'service_category', 'service_category_vendor', 'service_param', 'actions')
