@@ -106,6 +106,7 @@
                 </h5>
                 <div class="card-body table-responsive">
                     {% render_table inventory_items_table %}
+                    {% include "inc/paginator.html" with paginator=inventory_items_table.paginator page=inventory_items_table.page %}
                 </div>
             </div>
         </div>
@@ -118,6 +119,7 @@
                 </h5>
                 <div class="card-body table-responsive">
                     {% render_table probe_table %}
+                    {% include "inc/paginator.html" with paginator=probe_table.paginator page=probe_table.page %}
                 </div>
             </div>
         </div>

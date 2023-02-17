@@ -58,7 +58,8 @@ class ContractTable(NetBoxTable):
 
 # Invoice
 class InvoiceTable(NetBoxTable):
-    name = tables.Column(linkify=True)
+    name = tables.Column(linkify=True, verbose_name='Invoice Number')
+    name_internal = tables.Column(verbose_name='Internal ID')
     contract = tables.Column(linkify=True)
     attachments_count = tables.Column()
     price = NumberColumn()
@@ -67,8 +68,8 @@ class InvoiceTable(NetBoxTable):
         model = Invoice
         fields = ('pk', 'id', 'name', 'name_internal', 'project', 'contract', 'price',
                   'invoicing_start',  'invoicing_end', 'comments', 'attachments_count', 'actions')
-        default_columns = ('id', 'name', 'name_internal', 'contract',
-                           'price', 'invoicing_start',  'invoicing_end', 'attachments_count')
+        default_columns = ('id', 'name', 'name_internal', 'contract', 'project',
+                            'invoicing_start',  'invoicing_end', 'price', 'attachments_count')
 
 
 # Component

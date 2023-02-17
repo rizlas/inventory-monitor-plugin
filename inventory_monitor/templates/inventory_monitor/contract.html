@@ -77,7 +77,13 @@
             <div class="col col-md-12">
                 <div class="card">
                     <h5 class="card-header">Subcontracts</h5>
-                    <div class="card-body table-responsive">{% render_table subcontracts_table %}</div>
+                    <div class="card-body table-responsive">
+                        {% comment %}
+                            TODO: COnfigure Table and quicsearch
+                            {% include 'inc/table_controls_htmx.html' with table_modal="ContractTable_config" %}
+                        {% endcomment %}                        {% render_table subcontracts_table %}
+                        {% include "inc/paginator.html" with paginator=subcontracts_table.paginator page=subcontracts_table.page %}
+                    </div>
                     <div class="card-footer text-end noprint">
                         <a href="{% url 'plugins:inventory_monitor:contract_list' %}?parent_id={{ object.id }}"
                            class="btn btn-info btn-sm">
@@ -97,7 +103,11 @@
             <div class="card">
                 <h5 class="card-header">Invoices</h5>
                 <div class="card-body table-responsive">
-                    {% render_table invoices_table %}
+                    {% comment %}
+                        TODO: COnfigure Table and quicsearch
+                        {% include 'inc/table_controls_htmx.html' with table_modal="InvoiceTable_config" %}
+                    {% endcomment %}                    {% render_table invoices_table %}
+                    {% include "inc/paginator.html" with paginator=invoices_table.paginator page=invoices_table.page %}
                 </div>
                 <div class="card-footer text-end noprint">
                     <a href="{% url 'plugins:inventory_monitor:invoice_list' %}?contract_id={{ object.id }}"
@@ -113,8 +123,16 @@
         </div>
     </div>
     <div class="row">
-        <div class="col col-md-12">
-            {% plugin_full_width_page object %}
-        </div>
+        <div class="col col-md-12">{% plugin_full_width_page object %}</div>
     </div>
 {% endblock content %}
+{% comment %}
+TODO: COnfigure Table and quicsearch
+    {% load helpers %}
+    {% block modals %}
+      {{ block.super }}
+      {% table_config_form subcontracts_table %}
+      {% table_config_form invoices_table %}
+    {% endblock modals %}
+    
+{% endcomment %}

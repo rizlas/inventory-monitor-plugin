@@ -113,6 +113,7 @@
         </h5>
         <div class="card-body table-responsive">
           {% render_table component_services_table %}
+          {% include "inc/paginator.html" with paginator=component_services_table.paginator page=component_services_table.page %}
         </div>
         <div class="card-footer text-end noprint">
           <a href="{% url 'plugins:inventory_monitor:componentservice_list' %}?component={{ object.id }}"
