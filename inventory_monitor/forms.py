@@ -294,6 +294,16 @@ class InvoiceForm(NetBoxModelForm):
 class InvoiceFilterForm(NetBoxModelFilterSetForm):
     model = Invoice
 
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        ('Common', ('name', 'name_internal', 'project',)),
+        ('Linked', ('contract_id',)),
+        ('Dates', ('invoicing_start', 'invoicing_start__gte', 'invoicing_start__lte',
+         'invoicing_end', 'invoicing_end__gte', 'invoicing_end__lte')),
+    )
+
+    tag = TagFilterField(model)
+
     name = forms.CharField(
         required=False
     )
