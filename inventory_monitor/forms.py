@@ -89,6 +89,8 @@ class ContractorForm(NetBoxModelForm):
 
 class ContractorFilterForm(NetBoxModelFilterSetForm):
     model = Contractor
+    
+    tag = TagFilterField(model)
 
     name = forms.CharField(
         required=False
