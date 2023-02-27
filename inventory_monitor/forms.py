@@ -32,7 +32,17 @@ class ProbeForm(NetBoxModelForm):
 
 class ProbeFilterForm(NetBoxModelFilterSetForm):
     model = Probe
-
+    
+    # TODO: Add FilterSets, Add FilterForm
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        ('Common', ('serial', 'category', 'device_descriptor', 'description')),
+        ('Linked', ('device_id',)),
+        ('Dates', ('time__gte', 'time__lte')),
+        ('Misc', ('latest_only_per_device', 'latest_only')),
+    )
+    
+    tag = TagFilterField(model)
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
