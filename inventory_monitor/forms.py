@@ -521,6 +521,14 @@ class ComponentFilterForm(NetBoxModelFilterSetForm):
 
 # ComponentService
 class ComponentServiceForm(NetBoxModelForm):
+    fieldsets = (
+        ('Linked', ('contract', 'component')),
+        ('Dates', ('service_start', 'service_end')),
+        ('Service Params', ('service_price', 'service_category',
+         'service_category_vendor', 'service_param')),
+        ('Tag', ('tags',)),
+    )
+
     comments = CommentField(
         label="Comments"
     )
@@ -562,14 +570,14 @@ class ComponentServiceForm(NetBoxModelForm):
 
     component = DynamicModelChoiceField(
         queryset=Component.objects.all(),
-        required=False,
-        label='Component',
+        required=True,
+        label='Service Component',
     )
 
     contract = DynamicModelChoiceField(
         queryset=Contract.objects.all(),
-        required=False,
-        label='Contract',
+        required=True,
+        label='Service Contract',
     )
 
     class Meta:
