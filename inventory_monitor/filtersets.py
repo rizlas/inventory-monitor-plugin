@@ -324,6 +324,21 @@ class ComponentFilterSet(NetBoxModelFilterSet):
         field_name='price',
         lookup_expr='lte',
     )
+    items = django_filters.NumberFilter(
+        required=False,
+        field_name='items',
+        lookup_expr='exact',
+    )
+    items__gte = django_filters.NumberFilter(
+        required=False,
+        field_name='items',
+        lookup_expr='gte',
+    )
+    items__lte = django_filters.NumberFilter(
+        required=False,
+        field_name='items',
+        lookup_expr='lte',
+    )
     order_contract = django_filters.ModelMultipleChoiceFilter(
         field_name='order_contract__id',
         queryset=Contract.objects.all(),
