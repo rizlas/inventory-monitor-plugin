@@ -123,12 +123,12 @@ class ContractFilterSet(NetBoxModelFilterSet):
         to_field_name='name',
         label='Contractor (name)',
     )
-    # TODO: forms.MultipleChoiceField
+
     type = django_filters.MultipleChoiceFilter(
         choices=ContractTypeChoices,
         required=False
     )
-    # TODO: forms.DecimalField
+
     price = django_filters.NumberFilter(
         required=False
     )
@@ -192,6 +192,14 @@ class ContractFilterSet(NetBoxModelFilterSet):
         to_field_name='name',
         label='Contract (name)',
     )
+    contract_type = django_filters.MultipleChoiceFilter(
+        choices=(('All', 'All'), ('Contract', 'Contract'),
+                 ('Subcontract', 'Subcontract')),
+        required=False,
+        label='Contract type',
+        method='_contract_type',
+    )
+
     master_contracts = django_filters.BooleanFilter(
         method='_master_contracts', label='Master contracts only')
 
@@ -208,6 +216,16 @@ class ContractFilterSet(NetBoxModelFilterSet):
     def _master_contracts(self, queryset, name, value):
         if value == True:
             return queryset.filter(parent=None)
+        else:
+            return queryset
+
+    def _contract_type(self, queryset, name, value):
+        if value == ['All']:
+            return queryset
+        elif value == ['Contract']:
+            return queryset.filter(parent=None)
+        elif value == ['Subcontract']:
+            return queryset.exclude(parent=None)
         else:
             return queryset
 

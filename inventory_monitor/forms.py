@@ -152,6 +152,16 @@ class ContractForm(NetBoxModelForm):
 class ContractFilterForm(NetBoxModelFilterSetForm):
     model = Contract
 
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        ('Common', ('name', 'name_internal', 'contract_type', 'type',)),
+        ('Linked', ('contractor_id', 'parent_id')),
+        ('Dates', ('signed', 'signed__gte', 'signed__lte', 'accepted', 'accepted__gte', 'accepted__lte', 'invoicing_start',
+         'invoicing_start__gte', 'invoicing_start__lte', 'invoicing_end', 'invoicing_end__gte', 'invoicing_end__lte')),
+    )
+
+    tag = TagFilterField(model)
+
     name = forms.CharField(
         required=False
     )
@@ -159,12 +169,12 @@ class ContractFilterForm(NetBoxModelFilterSetForm):
     name_internal = forms.CharField(
         required=False
     )
-    master_contracts = forms.NullBooleanField(
+    contract_type = forms.ChoiceField(
+        label='Contract Type',
+        choices=(('All', 'All'), ('Contract', 'Contract'),
+                 ('Subcontract', 'Subcontract')),
         required=False,
-        label='Master contracts only',
-        widget=StaticSelect(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
+        initial='All'
     )
     contractor_id = DynamicModelMultipleChoiceField(
         queryset=Contractor.objects.all(),
@@ -173,8 +183,7 @@ class ContractFilterForm(NetBoxModelFilterSetForm):
     )
 
     parent_id = DynamicModelMultipleChoiceField(
-        queryset=Contract.objects.all(),
-        query_params={"parent_id": "null"},
+        queryset=Contract.objects.filter(parent_id=None),
         required=False,
         label=_('Parent Contract')
     )
