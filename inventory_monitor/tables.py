@@ -1,11 +1,13 @@
 import django_tables2 as tables
-from netbox.tables import ChoiceFieldColumn, NetBoxTable
+from netbox.tables import ChoiceFieldColumn, NetBoxTable, columns
 
-from .models import Contract, Contractor, Invoice, Probe
+from .helpers import (TEMPLATE_SERVICES_CONTRACTS, TEMPLATE_SERVICES_END,
+                      NumberColumn)
+from .models import (Component, ComponentService, Contract, Contractor,
+                     Invoice, Probe)
+
 
 # Probe
-
-
 class ProbeTable(NetBoxTable):
     name = tables.Column(linkify=True)
     device = tables.Column(linkify=True)
@@ -23,8 +25,6 @@ class ProbeTable(NetBoxTable):
 
 
 # Contractor
-
-
 class ContractorTable(NetBoxTable):
     name = tables.Column(linkify=True)
     contracts_count = tables.Column()
@@ -37,8 +37,6 @@ class ContractorTable(NetBoxTable):
 
 
 # Contract
-
-
 class ContractTable(NetBoxTable):
     name = tables.Column(linkify=True)
     contractor = tables.Column(linkify=True)
@@ -48,6 +46,7 @@ class ContractTable(NetBoxTable):
     attachments_count = tables.Column()
     parent = tables.Column(linkify=True)
     type = ChoiceFieldColumn()
+    price = NumberColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Contract
@@ -58,16 +57,55 @@ class ContractTable(NetBoxTable):
 
 
 # Invoice
-
-
 class InvoiceTable(NetBoxTable):
-    name = tables.Column(linkify=True)
+    name = tables.Column(linkify=True, verbose_name='Invoice Number')
+    name_internal = tables.Column(verbose_name='Internal ID')
     contract = tables.Column(linkify=True)
     attachments_count = tables.Column()
+    price = NumberColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Invoice
         fields = ('pk', 'id', 'name', 'name_internal', 'project', 'contract', 'price',
                   'invoicing_start',  'invoicing_end', 'comments', 'attachments_count', 'actions')
-        default_columns = ('id', 'name', 'name_internal', 'contract',
-                           'price', 'invoicing_start',  'invoicing_end', 'attachments_count')
+        default_columns = ('id', 'name', 'name_internal', 'contract', 'project',
+                            'invoicing_start',  'invoicing_end', 'price', 'attachments_count')
+
+
+# Component
+class ComponentTable(NetBoxTable):
+    serial = tables.Column(linkify=True)
+    device = tables.Column(linkify=True)
+    locality = tables.Column(linkify=True)
+    order_contract = tables.Column(linkify=True)
+    price = NumberColumn()
+    tags = columns.TagColumn()
+    services_to = columns.TemplateColumn(template_code=TEMPLATE_SERVICES_END)
+    services_contracts = tables.TemplateColumn(
+        template_code=TEMPLATE_SERVICES_CONTRACTS)
+
+    class Meta(NetBoxTable.Meta):
+        model = Component
+        fields = ('pk', 'id', 'serial', 'serial_actual',
+                  'partnumber', 'device', 'inventory', 'project',
+                  'locality', 'vendor', 'items', 'price', 'order_contract',
+                  'warranty_start', 'warranty_end', 'comments', 'actions', 'tags',
+                  'services_count', 'services_contracts', 'services_to')
+
+        default_columns = ('id', 'serial', 'serial_actual',
+                           'device', 'inventory', 'locality',
+                           'items', 'price', 'actions')
+
+# ComponentService
+class ComponentServiceTable(NetBoxTable):
+    component = tables.Column(linkify=True)
+    contract = tables.Column(linkify=True)
+    service_price = NumberColumn(accessor='service_price')
+
+    class Meta(NetBoxTable.Meta):
+        model = ComponentService
+        fields = ('pk', 'id', 'service_start', 'service_end',
+                  'service_param', 'service_price', 'service_category', 'service_category_vendor',
+                  'component', 'contract', 'comments', 'actions')
+        default_columns = ('id', 'contract', 'service_start', 'service_end',
+                           'service_price', 'service_category', 'service_category_vendor', 'service_param', 'actions')

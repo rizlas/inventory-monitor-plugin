@@ -275,13 +275,13 @@ class Invoice(NetBoxModel):
         blank=False,
         null=False
     )
-    
+
     project = models.CharField(
         max_length=255,
         blank=True,
         null=True
     )
-    
+
     contract = models.ForeignKey(
         to='inventory_monitor.contract',  # Contractor,
         on_delete=models.PROTECT,
@@ -331,3 +331,206 @@ class Invoice(NetBoxModel):
             raise ValidationError(
                 {'invoicing_start': f"Invoicing Start cannot be set after Invoicing End"}
             )
+
+
+# Add Component class
+"""
+TODO:
+CREATE TABLE `components` (
+  `locality_id` bigint(20) unsigned DEFAULT NULL, ????
+  UNIQUE KEY `i_serial` (`serial`),
+"""
+
+
+class Component(NetBoxModel):
+    objects = RestrictedQuerySet.as_manager()
+
+    serial = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False
+    )
+
+    serial_actual = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False
+    )
+
+    partnumber = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True
+    )
+
+    device = models.ForeignKey(
+        to='dcim.device',
+        on_delete=models.PROTECT,
+        related_name="components",
+        blank=True,
+        null=True
+    )
+
+    # TODO: Asset Number
+    inventory = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    project = models.CharField(
+        max_length=32,
+        blank=True,
+        null=True
+    )
+
+    locality = models.ForeignKey(
+        to='dcim.site',  # Locality,
+        on_delete=models.PROTECT,
+        related_name="components",
+        blank=True,
+        null=True
+    )
+
+    vendor = models.CharField(
+        max_length=32,
+        blank=True,
+        null=True
+    )
+
+    items = models.PositiveIntegerField(
+        blank=False,
+        null=False,
+        default=1,
+        validators=[MinValueValidator(0)],
+    )
+
+    price = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        default=0
+    )
+
+    order_contract = models.ForeignKey(
+        to='inventory_monitor.contract',  # Contractor,
+        on_delete=models.PROTECT,
+        related_name="components",
+        blank=True,
+        null=True
+    )
+
+    warranty_start = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    warranty_end = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    comments = models.TextField(
+        blank=True
+    )
+
+    class Meta:
+        ordering = ('serial', 'serial_actual', 'partnumber',
+                    'device', 'inventory', 'project', 'locality',
+                    'vendor', 'items', 'price', 'order_contract',
+                    'warranty_start', 'warranty_end')
+
+    def __str__(self):
+        return f"{self.serial}"
+
+    def get_absolute_url(self):
+        return reverse('plugins:inventory_monitor:component', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+
+# Add Services class
+"""
+TODO:
+CREATE TABLE `services` (
+  PRIMARY KEY (`serviceId`),
+  UNIQUE KEY `componentId_contract_id_serviceStart` (`componentId`,`contract_id`,`serviceStart`),
+"""
+
+
+class ComponentService(NetBoxModel):
+    objects = RestrictedQuerySet.as_manager()
+
+    service_start = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    service_end = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    service_param = models.CharField(
+        max_length=32,
+        blank=True,
+        null=True
+    )
+
+    service_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        default=0
+    )
+
+    service_category = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    service_category_vendor = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    component = models.ForeignKey(
+        to='inventory_monitor.component',
+        on_delete=models.PROTECT,
+        related_name="services",
+        blank=True,
+        null=True
+    )
+
+    contract = models.ForeignKey(
+        to='inventory_monitor.contract',
+        on_delete=models.PROTECT,
+        related_name="services",
+        blank=True,
+        null=True
+    )
+
+    comments = models.TextField(
+        blank=True
+    )
+
+    class Meta:
+        ordering = ('service_start', 'service_end', 'service_param',
+                    'service_price', 'service_category', 'service_category_vendor',
+                    'component', 'contract')
+
+    def __str__(self):
+        return f"{self.pk}"
+
+    def get_absolute_url(self):
+        return reverse('plugins:inventory_monitor:componentservice', args=[self.pk])
+
+    def clean(self):
+        super().clean()

@@ -1,19 +1,11 @@
 from dcim.models import InventoryItem
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, OuterRef, Subquery, Value
+from django.db.models import Count, OuterRef, Subquery
 from extras.plugins import PluginTemplateExtension
 
 from .models import Probe
 
-try:
-    from netbox_attachments.models import NetBoxAttachment
-    attachments_model_exists = True
-except ModuleNotFoundError:
-    attachments_model_exists = False
-
-
-#from django.conf import settings
-#plugin_settings = settings.PLUGINS_CONFIG.get('inventory_monitor', {})
+# from django.conf import settings
+# plugin_settings = settings.PLUGINS_CONFIG.get('inventory_monitor', {})
 
 
 class DeviceProbeList(PluginTemplateExtension):
@@ -68,31 +60,4 @@ class InventoryItemDuplicates(PluginTemplateExtension):
         )
 
 
-class InvoicesList(PluginTemplateExtension):
-    model = 'inventory_monitor.contract'
-
-    def full_width_page(self):
-        object = self.context['object']
-
-        if attachments_model_exists:
-            invoice_content_type = ContentType.objects.get(
-                app_label='inventory_monitor', model='invoice')
-
-            subquery_attachments_count = NetBoxAttachment.objects.filter(object_id=OuterRef(
-                'id'), content_type=invoice_content_type).values('object_id').annotate(attachments_count=Count('*'))
-
-            invoices = object.invoices.all().annotate(attachments_count=Subquery(
-                subquery_attachments_count.values("attachments_count")))
-        else:
-            invoices = object.invoices.all().annotate(attachments_count=Value(0))
-
-        return self.render(
-            'inventory_monitor/invoices_include.html',
-            extra_context={
-                'object': object,
-                'invoices': invoices,
-            }
-        )
-
-
-template_extensions = [DeviceProbeList, InventoryItemDuplicates, InvoicesList]
+template_extensions = [DeviceProbeList, InventoryItemDuplicates]
