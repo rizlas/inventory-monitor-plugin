@@ -481,6 +481,6 @@ class ComponentServiceFilterSet(NetBoxModelFilterSet):
         service_param = Q(service_param__icontains=value)
         service_category = Q(service_category__icontains=value)
         service_category_vendor = Q(service_category_vendor__icontains=value)
-        component = Q(component__name__icontains=value)
+        component = Q(component__serial__icontains=value)
         contract = Q(contract__name__icontains=value)
         return queryset.filter(service_param | service_category | service_category_vendor | component | contract)
