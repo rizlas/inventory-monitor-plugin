@@ -76,7 +76,9 @@ class InvoiceTable(NetBoxTable):
 class ComponentTable(NetBoxTable):
     serial = tables.Column(linkify=True)
     device = tables.Column(linkify=True)
-    locality = tables.Column(linkify=True)
+    inventory_item = tables.Column(linkify=True)
+    site = tables.Column(linkify=True)
+    location = tables.Column(linkify=True)
     order_contract = tables.Column(linkify=True)
     price = NumberColumn()
     tags = columns.TagColumn()
@@ -87,14 +89,14 @@ class ComponentTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Component
         fields = ('pk', 'id', 'serial', 'serial_actual',
-                  'partnumber', 'device', 'inventory', 'project',
-                  'locality', 'vendor', 'items', 'price', 'order_contract',
+                  'partnumber', 'device', 'asset_number', 'project', 'location',
+                  'site', 'vendor', 'quantity', 'price', 'order_contract', 'inventory_item',
                   'warranty_start', 'warranty_end', 'comments', 'actions', 'tags',
                   'services_count', 'services_contracts', 'services_to')
 
         default_columns = ('id', 'serial', 'serial_actual',
-                           'device', 'inventory', 'locality',
-                           'items', 'price', 'actions')
+                           'device', 'asset_number', 'site',
+                           'quantity', 'price', 'actions')
 
 # ComponentService
 class ComponentServiceTable(NetBoxTable):

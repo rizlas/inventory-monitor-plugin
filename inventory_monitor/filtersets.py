@@ -1,5 +1,5 @@
 import django_filters
-from dcim.models import Device, Site
+from dcim.models import Device, Site, Location, InventoryItem
 from django.db.models import Q
 from extras.filters import TagFilter
 from netbox.filtersets import BaseFilterSet, NetBoxModelFilterSet
@@ -315,16 +315,21 @@ class ComponentFilterSet(NetBoxModelFilterSet):
         queryset=Device.objects.all(),
         to_field_name='id',
         label='Device (ID)')
-    inventory = django_filters.CharFilter(
-        lookup_expr="icontains", field_name='inventory')
-    project = django_filters.CharFilter(lookup_expr="icontains")
-    locality = django_filters.ModelMultipleChoiceFilter(
+    location = django_filters.ModelMultipleChoiceFilter(
         required=False,
-        field_name='locality__id',
-        queryset=Site.objects.all(),
+        field_name='location__id',
+        queryset=Location.objects.all(),
         to_field_name='id',
-        label='Site (ID)',
-    )
+        label='Device (ID)')    
+    inventory_item = django_filters.ModelMultipleChoiceFilter(
+        required=False, 
+        field_name='inventory_item__id',
+        queryset=InventoryItem.objects.all(),
+        to_field_name='id',
+        label='Inventory Item (ID)')
+    asset_number = django_filters.CharFilter(
+        lookup_expr="icontains", field_name='asset_number')
+    project = django_filters.CharFilter(lookup_expr="icontains")
     vendor = django_filters.CharFilter(
         lookup_expr="icontains", field_name='vendor')
     price = django_filters.NumberFilter(
@@ -342,19 +347,19 @@ class ComponentFilterSet(NetBoxModelFilterSet):
         field_name='price',
         lookup_expr='lte',
     )
-    items = django_filters.NumberFilter(
+    quantity = django_filters.NumberFilter(
         required=False,
-        field_name='items',
+        field_name='quantity',
         lookup_expr='exact',
     )
-    items__gte = django_filters.NumberFilter(
+    quantity__gte = django_filters.NumberFilter(
         required=False,
-        field_name='items',
+        field_name='quantity',
         lookup_expr='gte',
     )
-    items__lte = django_filters.NumberFilter(
+    quantity__lte = django_filters.NumberFilter(
         required=False,
-        field_name='items',
+        field_name='quantity',
         lookup_expr='lte',
     )
     order_contract = django_filters.ModelMultipleChoiceFilter(
@@ -390,20 +395,19 @@ class ComponentFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Component
-        fields = ('id', 'serial', 'serial_actual', 'partnumber', 'inventory',
-                  'project', 'device', 'locality', 'vendor', 'price',
-                  'order_contract', 'warranty_start', 'warranty_end')
+        fields = ('id', 'serial', 'serial_actual', 'partnumber', 'asset_number',
+                  'project', 'device', 'site', 'vendor', 'price',
+                  'order_contract', 'warranty_start', 'warranty_end', "inventory_item")
 
     def search(self, queryset, name, value):
         serial = Q(serial__icontains=value)
         serial_actual = Q(serial_actual__icontains=value)
-        inventory = Q(inventory__icontains=value)
         device = Q(device__name__icontains=value)
         project = Q(project__icontains=value)
-        locality = Q(locality__name__icontains=value)
+        site = Q(site__name__icontains=value)
         vendor = Q(vendor__icontains=value)
         order_contract = Q(order_contract__name__icontains=value)
-        return queryset.filter(serial | serial_actual | inventory | project | locality | vendor | order_contract | device)
+        return queryset.filter(serial | serial_actual | project | site | vendor | order_contract | device)
 
 
 # ComponentService

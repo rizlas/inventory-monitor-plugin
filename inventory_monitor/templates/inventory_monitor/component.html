@@ -37,10 +37,31 @@
               </td>
             </tr>
             <tr>
-              <th>Locality</th>
+              <th>Inventory Item</th>
               <td>
-                {% if object.locality %}
-                  <a href="{{ object.locality.get_absolute_url }}">{{ object.locality }}</a>
+                {% if object.inventory_item %}
+                  <a href="{{ object.inventory_item.get_absolute_url }}">{{ object.inventory_item }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+
+            <tr>
+              <th>Site</th>
+              <td>
+                {% if object.site %}
+                  <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th>Location</th>
+              <td>
+                {% if object.location %}
+                  <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
                 {% else %}
                   {{ ''|placeholder }}
                 {% endif %}
@@ -69,15 +90,15 @@
             </tr>
             <tr>
               <th>Items</th>
-              <td>{{ object.items }}</td>
+              <td>{{ object.quantity }}</td>
             </tr>
             <tr>
               <th>Price</th>
               <td>{{ object.price|to_czech_crown }}</td>
             </tr>
             <tr>
-              <th>Inventory / Asset Number</th>
-              <td>{{ object.inventory }}</td>
+              <th>Asset Number</th>
+              <td>{{ object.asset_number }}</td>
             </tr>
             <tr>
               <th>

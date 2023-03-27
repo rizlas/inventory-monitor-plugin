@@ -60,4 +60,15 @@ class InventoryItemDuplicates(PluginTemplateExtension):
         )
 
 
-template_extensions = [DeviceProbeList, InventoryItemDuplicates]
+class ImportComponentScriptButton(PluginTemplateExtension):
+    model = 'inventory_monitor.component'
+
+    def list_buttons(self):
+        return self.render('inventory_monitor/import_component_button.html',
+                           extra_context={
+                               'url': '/extras/scripts/component_import.ImportComponent/'}
+                           )
+
+
+template_extensions = [DeviceProbeList,
+                       InventoryItemDuplicates, ImportComponentScriptButton]

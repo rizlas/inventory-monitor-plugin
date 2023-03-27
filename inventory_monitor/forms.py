@@ -1,4 +1,4 @@
-from dcim.models import Device, Location, Site
+from dcim.models import Device, Location, Site, InventoryItem
 from django import forms
 from django.utils.translation import gettext as _
 from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
@@ -32,7 +32,7 @@ class ProbeForm(NetBoxModelForm):
 
 class ProbeFilterForm(NetBoxModelFilterSetForm):
     model = Probe
-    
+
     # TODO: Add FilterSets, Add FilterForm
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
@@ -41,7 +41,7 @@ class ProbeFilterForm(NetBoxModelFilterSetForm):
         ('Dates', ('time__gte', 'time__lte')),
         ('Misc', ('latest_only_per_device', 'latest_only')),
     )
-    
+
     tag = TagFilterField(model)
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -99,7 +99,7 @@ class ContractorForm(NetBoxModelForm):
 
 class ContractorFilterForm(NetBoxModelFilterSetForm):
     model = Contractor
-    
+
     tag = TagFilterField(model)
 
     name = forms.CharField(
@@ -370,13 +370,12 @@ class InvoiceFilterForm(NetBoxModelFilterSetForm):
         widget=DatePicker()
     )
 
-
 # Component
 class ComponentForm(NetBoxModelForm):
     fieldsets = (
         ('Component', ('serial', 'serial_actual', 'partnumber',
-         'inventory', 'project', 'price', 'vendor', 'items')),
-        ('Linked', ('order_contract', 'locality', 'device')),
+         'asset_number', 'project', 'price', 'vendor', 'quantity')),
+        ('Linked', ('order_contract', 'device', 'site', 'location', 'inventory_item')),
         ('Dates', ('warranty_start', 'warranty_end')),
         ('Tag', ('tags',)),
     )
@@ -408,7 +407,13 @@ class ComponentForm(NetBoxModelForm):
         label='Device',
     )
 
-    inventory = forms.CharField(
+    inventory_item = DynamicModelChoiceField(
+        queryset=InventoryItem.objects.all(),
+        required=False,
+        label='Inventory Item',
+    )
+
+    asset_number = forms.CharField(
         required=False,
         label='Inventory / AN',
     )
@@ -418,10 +423,16 @@ class ComponentForm(NetBoxModelForm):
         label='Project',
     )
 
-    locality = DynamicModelChoiceField(
+    site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        label='Locality',
+        label='Site',
+    )
+
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label='Location',
     )
 
     vendor = forms.CharField(
@@ -429,7 +440,7 @@ class ComponentForm(NetBoxModelForm):
         label='Vendor',
     )
 
-    items = forms.IntegerField(
+    quantity = forms.IntegerField(
         required=True,
         label='Items',
         initial=1,
@@ -464,8 +475,9 @@ class ComponentForm(NetBoxModelForm):
 
     class Meta:
         model = Component
-        fields = ('serial', 'serial_actual', 'partnumber', 'device', 'inventory',
-                  'project',  'locality', 'vendor', 'items', 'price', 'order_contract',
+        fields = ('serial', 'serial_actual', 'partnumber', 'device', 'asset_number',
+                  'site', 'location', 'inventory_item',
+                  'project', 'vendor', 'quantity', 'price', 'order_contract',
                   'warranty_start', 'warranty_end', 'comments', 'tags')
 
 
@@ -474,12 +486,12 @@ class ComponentFilterForm(NetBoxModelFilterSetForm):
 
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Linked', ('order_contract', 'locality', 'device')),
+        ('Linked', ('order_contract', 'site', 'location', 'device', 'inventory_item')),
         ('Dates', ('warranty_start', 'warranty_start__gte', 'warranty_start__lte',
          'warranty_end', 'warranty_end__gte', 'warranty_end__lte')),
         ('Component', ('serial', 'serial_actual',
-         'partnumber', 'inventory', 'project', 'vendor',)),
-        ('Items', ('items', 'items__gte', 'items__lte')),
+         'partnumber', 'asset_number', 'project', 'vendor',)),
+        ('Items', ('quantity', 'quantity__gte', 'quantity__lte')),
         ('Price', ('price', 'price__gte', 'price__lte')),
     )
 
@@ -503,30 +515,42 @@ class ComponentFilterForm(NetBoxModelFilterSetForm):
         label=_('Device')
     )
 
-    locality = DynamicModelMultipleChoiceField(
-        queryset=Site.objects.all(),
+    inventory_item = DynamicModelMultipleChoiceField(
+        queryset=InventoryItem.objects.all(),
         required=False,
-        label=_('Locality')
+        label=_('Inventory Item')
     )
 
-    items = forms.IntegerField(
+    site = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        label=_('Site')
+    )
+
+    location = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Location')
+    )
+
+    quantity = forms.IntegerField(
         required=False,
         label='Items'
     )
 
-    items__gte = forms.IntegerField(
+    quantity__gte = forms.IntegerField(
         required=False,
         label=('Items: From')
     )
 
-    items__lte = forms.IntegerField(
+    quantity__lte = forms.IntegerField(
         required=False,
         label=('Items: Till')
     )
 
-    inventory = forms.CharField(
+    asset_number = forms.CharField(
         required=False,
-        label='Inventory / AN',
+        label='Asset Number',
     )
 
     project = forms.CharField(

@@ -333,15 +333,6 @@ class Invoice(NetBoxModel):
             )
 
 
-# Add Component class
-"""
-TODO:
-CREATE TABLE `components` (
-  `locality_id` bigint(20) unsigned DEFAULT NULL, ????
-  UNIQUE KEY `i_serial` (`serial`),
-"""
-
-
 class Component(NetBoxModel):
     objects = RestrictedQuerySet.as_manager()
 
@@ -372,7 +363,7 @@ class Component(NetBoxModel):
     )
 
     # TODO: Asset Number
-    inventory = models.CharField(
+    asset_number = models.CharField(
         max_length=255,
         blank=True,
         null=True
@@ -384,8 +375,24 @@ class Component(NetBoxModel):
         null=True
     )
 
-    locality = models.ForeignKey(
+    site = models.ForeignKey(
         to='dcim.site',  # Locality,
+        on_delete=models.PROTECT,
+        related_name="components",
+        blank=True,
+        null=True
+    )
+
+    location = models.ForeignKey(
+        to='dcim.location',
+        on_delete=models.PROTECT,
+        related_name="components",
+        blank=True,
+        null=True
+    )
+
+    inventory_item = models.ForeignKey(
+        to="dcim.inventoryitem",
         on_delete=models.PROTECT,
         related_name="components",
         blank=True,
@@ -398,7 +405,7 @@ class Component(NetBoxModel):
         null=True
     )
 
-    items = models.PositiveIntegerField(
+    quantity = models.PositiveIntegerField(
         blank=False,
         null=False,
         default=1,
@@ -438,8 +445,9 @@ class Component(NetBoxModel):
 
     class Meta:
         ordering = ('serial', 'serial_actual', 'partnumber',
-                    'device', 'inventory', 'project', 'locality',
-                    'vendor', 'items', 'price', 'order_contract',
+                    'device', 'asset_number', 'project', 'site',
+                    'location', 'inventory_item',
+                    'vendor', 'quantity', 'price', 'order_contract',
                     'warranty_start', 'warranty_end')
 
     def __str__(self):
