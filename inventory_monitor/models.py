@@ -26,6 +26,12 @@ class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTe
     objects = RestrictedQuerySet.as_manager()
 
     time = models.DateTimeField()
+    
+    creation_time = models.DateTimeField(
+        auto_now_add=True,
+        blank=True,
+        null=True
+    )
 
     device_descriptor = models.CharField(
         max_length=100,

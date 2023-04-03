@@ -39,6 +39,7 @@ class ProbeSerializer(NetBoxModelSerializer):
             'tags',
             'comments',
             'custom_fields',
+            'creation_time'
         ]
 
 
@@ -49,7 +50,7 @@ class NestedProbeSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Probe
-        fields = ['id', 'url', 'display', 'name', 'serial', 'time']
+        fields = ['id', 'url', 'display', 'name', 'serial', 'time', 'creation_time']
 
 
 class ContractorSerializer(NetBoxModelSerializer):
