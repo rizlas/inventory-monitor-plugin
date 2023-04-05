@@ -24,13 +24,8 @@ class DeviceProbeList(PluginTemplateExtension):
         latest_inventory_pks = Probe.objects.all().order_by(
             'serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
 
-        sub_count_serial = Probe.objects.filter(serial=OuterRef('serial'))\
-            .values('serial')\
-            .annotate(changes_count=Count('*'))
-
         device_probes = Probe.objects.filter(device=obj, pk__in=latest_inventory_pks)\
-            .prefetch_related('tags', 'device')\
-            .annotate(changes_count=Subquery(sub_count_serial.values("changes_count")))
+            .prefetch_related('tags', 'device')
 
         return self.render(
             'inventory_monitor/device_probes_include.html',

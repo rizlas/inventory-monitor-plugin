@@ -13,7 +13,7 @@ class ProbeTable(NetBoxTable):
     device = tables.Column(linkify=True)
     site = tables.Column(linkify=True)
     location = tables.Column(linkify=True)
-    changes_count = tables.Column()
+    changes_count = tables.Column(orderable=False)
     discovered_data = tables.JSONColumn()
 
     class Meta(NetBoxTable.Meta):
