@@ -14,23 +14,15 @@ class DeviceProbeList(PluginTemplateExtension):
     def right_page(self):
         obj = self.context['object']
 
-        # Latest inventory overall
-        # latest_inventory_pks = Probe.objects.all()\
-        #    .distinct('serial')\
-        #    .order_by('serial', '-time')\
-        #    .values('pk')
-
-        # Latest inventory per device
-        latest_inventory_pks = Probe.objects.all().order_by(
-            'serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
-
-        device_probes = Probe.objects.filter(device=obj, pk__in=latest_inventory_pks)\
-            .prefetch_related('tags', 'device')
+        device_probes = Probe.objects.all()\
+            .order_by('serial', 'device_id', '-time')\
+            .distinct('serial', 'device_id')\
+            .filter(device=obj).prefetch_related('tags', 'device')
 
         return self.render(
             'inventory_monitor/device_probes_include.html',
             extra_context={
-                'device_probes': device_probes.order_by('-time')[:10],
+                'device_probes': device_probes[:10],
                 'total_device_probes_count': device_probes.count(),
             }
         )
