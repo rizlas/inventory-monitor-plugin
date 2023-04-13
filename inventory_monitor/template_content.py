@@ -1,11 +1,12 @@
 from dcim.models import InventoryItem
-from django.db.models import Count, OuterRef, Subquery
 from extras.plugins import PluginTemplateExtension
 
 from .models import Probe
 
-# from django.conf import settings
-# plugin_settings = settings.PLUGINS_CONFIG.get('inventory_monitor', {})
+from django.conf import settings
+plugin_settings = settings.PLUGINS_CONFIG.get('inventory_monitor', {})
+import_component_url = plugin_settings.get(
+    "import_component_url", '/extras/scripts/component_import.ImportComponent/')
 
 
 class DeviceProbeList(PluginTemplateExtension):
@@ -53,7 +54,7 @@ class ImportComponentScriptButton(PluginTemplateExtension):
     def list_buttons(self):
         return self.render('inventory_monitor/import_component_button.html',
                            extra_context={
-                               'url': '/extras/scripts/component_import.ImportComponent/'}
+                               'url': import_component_url}
                            )
 
 
