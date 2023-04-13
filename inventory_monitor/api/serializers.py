@@ -13,7 +13,7 @@ class ProbeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='plugins-api:inventory_monitor-api:probe-detail'
     )
-    device = NestedDeviceSerializer()
+    device = NestedDeviceSerializer(allow_null=True)
     site = NestedSiteSerializer(allow_null=True)
     location = NestedLocationSerializer(allow_null=True)
 
