@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from extras.scripts import *
 from inventory_monitor.models import Component, ComponentService, Contract
 
-REQUIRED_FIELDS = "manufacturer,part_nmr,quantity,contract_price,sn_original,sn_actual,order_contract,project,service_from,service_to,service_contract,service_price"
+REQUIRED_FIELDS = "manufacturer,part_nmr,quantity,contract_price,sn_original,order_contract,project,service_from,service_to,service_contract,service_price"
 
 
 def check_required_fields(self, reader):
@@ -31,7 +31,6 @@ def map_params(self, record):
         "quantity": 0,
         "contract_price": 0,
         "sn_original": "",
-        "sn_actual": "",
         "order_contract": None,
         "project": "",
         "service_from": None,
@@ -47,36 +46,30 @@ def map_params(self, record):
     object_defaults['contract_price'] = float(
         record['contract_price']) if record['contract_price'] else 0
     object_defaults['sn_original'] = record['sn_original'] if record['sn_original'] else ""
-    object_defaults['sn_actual'] = record['sn_actual'] if record['sn_actual'] else ""
     object_defaults['order_contract'] = record['order_contract'] if record['order_contract'] else None
     object_defaults['project'] = record['project'] if record['project'] else ""
 
     if record["service_from"]:
         object_defaults['service_from'] = datetime.strptime(
-            record["service_from"], "%d.%m.%Y").date()  # .strftime("%Y-%m-%d")
+            record["service_from"], "%d.%m.%Y").date()
     else:
         object_defaults['service_from'] = None
     if record["service_to"]:
         object_defaults['service_to'] = datetime.strptime(
-            record["service_to"], "%d.%m.%Y").date()  # .strftime("%Y-%m-%d")
+            record["service_to"], "%d.%m.%Y").date()
     else:
         object_defaults['service_to'] = None
 
     object_defaults['service_contract'] = record['service_contract'] if record['service_contract'] else None
     object_defaults['service_price'] = record['service_price'] if record['service_price'] else 0
-
-    # If sn_actual is empty, use sn_original
-    if not object_defaults['sn_actual']:
-        object_defaults['sn_actual'] = object_defaults['sn_original']
-
     return object_defaults
 
 
 def return_component_table_str(self, rec):
     return f"""
-| Manufacturer | Part Number | Quantity | Price | SN Original | SN Actual | Order Contract | Project | Service From | Service To | Service Contract | Service Price |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| {rec['manufacturer']}   | {rec['part_nmr']} | {rec['quantity']} | {rec['contract_price']} | {rec['sn_original']} | {rec['sn_actual']} | {rec['order_contract']} | {rec['project']} | {rec['service_from']} | {rec['service_to']} | {rec['service_contract']} | {rec['service_price']} |
+| Manufacturer | Part Number | Quantity | Price | SN Original | Order Contract | Project | Service From | Service To | Service Contract | Service Price |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| {rec['manufacturer']}   | {rec['part_nmr']} | {rec['quantity']} | {rec['contract_price']} | {rec['sn_original']} | {rec['order_contract']} | {rec['project']} | {rec['service_from']} | {rec['service_to']} | {rec['service_contract']} | {rec['service_price']} |
     """
 
 
@@ -157,7 +150,6 @@ class ImportComponent(Script):
                     log_type = get_log_type(self, record_messages)
                     log_result(self, log_type, record_messages)
 
-                    # self.log_failure(record_process_table(record_messages))
                     continue
 
                 # Lookup for component
@@ -167,21 +159,22 @@ class ImportComponent(Script):
                 except ObjectDoesNotExist:
                     nb_component = None
 
-                # Check if component serial_actual matches
-                if nb_component and nb_component.serial_actual != rec.get('sn_actual'):
-                    record_messages.append(["Warning", "Actual SN does not match", "TODO - Potřeba domluvit co dělat",
-                                           f"NetBox SN actual: {nb_component.serial_actual} CSV SN actual: {rec.get('sn_actual')}"])
-
                 # Contract must exists
                 try:
-                    nb_order_contract = Contract.objects.get(
-                        name=rec.get('order_contract'))
+                    csv_order_contract = rec.get('order_contract', None)
+                    if not csv_order_contract:
+                        record_messages.append(
+                            ["Warning", "Missing order contract", "-", "No contract provided"])
+                        nb_order_contract = None
+                    else:
+                        nb_order_contract = Contract.objects.get(
+                            name=rec.get('order_contract'))
                 except ObjectDoesNotExist:
                     record_messages.append(
                         ["Failure", "Order contract not found", "Skipping record", f" Service Contract: {rec.get('order_contract')}"])
                     log_type = get_log_type(self, record_messages)
                     log_result(self, log_type, record_messages)
-                    # self.log_failure(record_process_table(record_messages))
+
                     continue
 
                 # if service contract is set, it must exists
@@ -194,7 +187,7 @@ class ImportComponent(Script):
                             ["Failure", "Service contract not found", "Skipping record", f"Service Contract: {rec.get('service_contract')}"])
                         log_type = get_log_type(self, record_messages)
                         log_result(self, log_type, record_messages)
-                        # self.log_failure(record_process_table(record_messages))
+
                         continue
                 else:
                     nb_service_contract = None
@@ -211,7 +204,7 @@ class ImportComponent(Script):
                                                             serial=rec.get(
                                                                 'sn_original'),
                                                             serial_actual=rec.get(
-                                                                'sn_actual'),
+                                                                'sn_original'),
                                                             order_contract=nb_order_contract,
                                                             project=rec.get('project'))
                     record_messages.append(
@@ -291,17 +284,8 @@ class ImportComponent(Script):
                         record_messages.append(["Success", "Inventory item found and assigned", "Assign",
                                                 f"Inventory: {inventory_item}, Asset: {asset_numbers},  Device: {device}, Site: {site}, Location: {location}"])
 
-                    # part descr, end of support UNSET
-
                 log_type = get_log_type(self, record_messages)
                 log_result(self, log_type, record_messages)
-
-                # if log_type == "Warning":
-                #    self.log_warning(record_process_table(record_messages))
-                # elif log_type == "Failure":
-                #    self.log_failure(record_process_table(record_messages))
-                # else:
-                #    self.log_success(record_process_table(record_messages))
 
         except Exception as e:
             # retrun line number
