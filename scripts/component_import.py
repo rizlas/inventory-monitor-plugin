@@ -86,7 +86,7 @@ def record_process_table(data, headers=["Type", "Info", "Action", "Params"]):
     return f"""
 {head}
 {sep}
-{mkdown_lines}        
+{mkdown_lines}
     """
 
 
@@ -110,6 +110,89 @@ def log_result(self, log_type, messages):
     else:
         self.log_success(record_process_table(messages))
 
+
+class UpdateComponentWithInventory(Script):
+    class Meta:
+        name = "Update Component with Inventory"
+        description = "Checks all components, found Inventory Item and link it together"
+        commit_default = False
+
+    def run(self, data, commit):
+        for cmpt in Component.objects.all():
+            try:
+                invs = InventoryItem.objects.filter(serial=cmpt.serial_actual).order_by("-created")
+                if invs:
+                    inv = invs[0]
+                else:
+                    continue
+
+                asset_numbers = inv.cf.get('asset_numbers')
+                device = inv.device
+                site = device.site
+                location = device.location
+                if cmpt.pk and hasattr(cmpt, 'snapshot'):
+                    cmpt.snapshot()
+
+                change = False
+                if cmpt.inventory_item:
+                    if cmpt.inventory_item.id != inv.id:
+                        cmpt.inventory_item = inv
+                        change = True
+                else:
+                    cmpt.inventory_item = inv
+                    change = True
+
+                if device and cmpt.device:
+                    if cmpt.device.id != device.id:
+                        cmpt.device = device
+                        change = True
+                elif not cmpt.device and device:
+                    cmpt.device = device
+                    change = True
+                elif not device and cmpt.device:
+                    cmpt.device = None
+                    change = True
+
+                if site and cmpt.site:
+                    if cmpt.site.id != site.id:
+                        cmpt.site = site
+                        change = True
+                elif not cmpt.site and site:
+                    cmpt.site = site
+                    change = True
+
+                elif not site and cmpt.site:
+                    cmpt.site = None
+                    change = True
+
+                if location and cmpt.location:
+                    if cmpt.location.id != location.id:
+                        cmpt.location = location
+                        change = True
+                elif not cmpt.location and location:
+                    cmpt.location = location
+                    change = True
+                elif not location and cmpt.location:
+                    cmpt.location = None
+                    change = True
+
+                # convert None to ""
+                if cmpt.asset_number == None:
+                    cmpt.asset_number = ""
+                if asset_numbers == None:
+                    asset_numbers = ""
+
+                if cmpt.asset_number != asset_numbers:
+                    cmpt.asset_number = asset_numbers
+                    if cmpt.asset_number == None:
+                        cmpt.asset_number = ""
+                    change = True
+
+                if change:
+                    cmpt.save()
+                    self.log_success(f"Inventory: {inv}, Asset: {asset_numbers},  Device: {device}, Site: {site}, Location: {location}")
+            except Exception as e:
+                raise e
 
 class ImportComponent(Script):
 
@@ -249,10 +332,7 @@ class ImportComponent(Script):
 
                 if inventory_item:
                     asset_numbers = inventory_item.cf.get('asset_numbers')
-                    # device
                     device = inventory_item.device
-
-                    # locality
                     site = device.site
                     location = device.location
 
@@ -260,29 +340,67 @@ class ImportComponent(Script):
                         nb_component.snapshot()
 
                     change = False
+                    cmpt = nb_component
+                    inv = inventory_item
 
-                    if nb_component.inventory_item != inventory_item:
-                        nb_component.inventory_item = inventory_item
+                    if cmpt.inventory_item:
+                        if cmpt.inventory_item.id != inv.id:
+                            cmpt.inventory_item = inv
+                            change = True
+                    else:
+                        cmpt.inventory_item = inv
                         change = True
-                    if nb_component.device != device:
-                        nb_component.device = device
+
+                    if device and cmpt.device:
+                        if cmpt.device.id != device.id:
+                            cmpt.device = device
+                            change = True
+                    elif not cmpt.device and device:
+                        cmpt.device = device
                         change = True
-                    if nb_component.site != site:
-                        nb_component.site = site
+                    elif not device and cmpt.device:
+                        cmpt.device = None
                         change = True
-                    if nb_component.location != location:
-                        nb_component.location = location
+
+                    if site and cmpt.site:
+                        if cmpt.site.id != site.id:
+                            cmpt.site = site
+                            change = True
+                    elif not cmpt.site and site:
+                        cmpt.site = site
                         change = True
-                    if nb_component.asset_number != asset_numbers:
-                        nb_component.asset_number = asset_numbers
-                        if nb_component.asset_number == None:
-                            nb_component.asset_number = ""
+
+                    elif not site and cmpt.site:
+                        cmpt.site = None
+                        change = True
+
+                    if location and cmpt.location:
+                        if cmpt.location.id != location.id:
+                            cmpt.location = location
+                            change = True
+                    elif not cmpt.location and location:
+                        cmpt.location = location
+                        change = True
+                    elif not location and cmpt.location:
+                        cmpt.location = None
+                        change = True
+
+                    # convert None to ""
+                    if cmpt.asset_number == None:
+                        cmpt.asset_number = ""
+                    if asset_numbers == None:
+                        asset_numbers = ""
+
+                    if cmpt.asset_number != asset_numbers:
+                        cmpt.asset_number = asset_numbers
+                        if cmpt.asset_number == None:
+                            cmpt.asset_number = ""
                         change = True
 
                     if change:
-                        nb_component.save()
+                        cmpt.save()
                         record_messages.append(["Success", "Inventory item found and assigned", "Assign",
-                                                f"Inventory: {inventory_item}, Asset: {asset_numbers},  Device: {device}, Site: {site}, Location: {location}"])
+                                                f"Inventory: {inv}, Asset: {asset_numbers},  Device: {device}, Site: {site}, Location: {location}"])
 
                 log_type = get_log_type(self, record_messages)
                 log_result(self, log_type, record_messages)
