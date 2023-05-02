@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name = 'inventory-monitor',
-    version='4.1.0',
+    version='5.0.0',
     description = 'Asset Management with semi-auto discovery processes',
     install_requires=[],
     packages=find_packages(),
