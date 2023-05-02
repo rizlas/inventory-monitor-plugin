@@ -2,10 +2,11 @@ from dcim.models import Device, Location, Site, InventoryItem
 from django import forms
 from django.utils.translation import gettext as _
 from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
-from utilities.forms import (BOOLEAN_WITH_BLANK_CHOICES, DatePicker,
-                             DateTimePicker, DynamicModelMultipleChoiceField,
-                             StaticSelect, TagFilterField)
+from utilities.forms.constants import BOOLEAN_WITH_BLANK_CHOICES
+from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.fields import CommentField, DynamicModelChoiceField
+
+from utilities.forms.widgets.datetime import DatePicker, DateTimePicker
 
 from .models import Contract, Contractor, ContractTypeChoices, Invoice, Probe, Component, ComponentService
 
@@ -73,14 +74,14 @@ class ProbeFilterForm(NetBoxModelFilterSetForm):
     latest_only_per_device = forms.NullBooleanField(
         required=False,
         label='Latest inventory only (per device)',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     latest_only = forms.NullBooleanField(
         required=False,
         label='Latest inventory only',
-        widget=StaticSelect(
+        widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )

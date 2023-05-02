@@ -66,12 +66,15 @@ class ContractorView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         if attachments_model_exists:
-            contract_content_type = ContentType.objects.get(
-                app_label='inventory_monitor', model='contract')
-            subquery_attachments_count = NetBoxAttachment.objects.filter(object_id=OuterRef(
-                'id'), content_type=contract_content_type).values('object_id').annotate(attachments_count=Count('*'))
-            contracts = models.Contract.objects.filter(contractor=instance).annotate(subcontracts_count=Count('subcontracts', distinct=True)).annotate(invoices_count=Count(
-                'invoices', distinct=True)).annotate(attachments_count=Subquery(subquery_attachments_count.values("attachments_count")))
+            try:
+                contract_content_type = ContentType.objects.get(
+                    app_label='inventory_monitor', model='contract')
+                subquery_attachments_count = NetBoxAttachment.objects.filter(object_id=OuterRef(
+                    'id'), content_type=contract_content_type).values('object_id').annotate(attachments_count=Count('*'))
+                contracts = models.Contract.objects.filter(contractor=instance).annotate(subcontracts_count=Count('subcontracts', distinct=True)).annotate(invoices_count=Count(
+                    'invoices', distinct=True)).annotate(attachments_count=Subquery(subquery_attachments_count.values("attachments_count")))
+            except ContentType.DoesNotExist as e:
+                contracts = models.Contract.objects.filter(contractor=instance)
         else:
             contracts = models.Contract.objects.filter(contractor=instance)
 
@@ -102,42 +105,54 @@ class ContractorDeleteView(generic.ObjectDeleteView):
 # Contract
 class ContractView(generic.ObjectView):
     if attachments_model_exists:
-        contract_content_type = ContentType.objects.get(
-            app_label='inventory_monitor', model='contract')
-        subquery_attachments_count = NetBoxAttachment.objects.filter(object_id=OuterRef(
-            'id'), content_type=contract_content_type).values('object_id').annotate(attachments_count=Count('*'))
-        queryset = models.Contract.objects.all().annotate(subcontracts_count=Count('subcontracts', distinct=True)).annotate(invoices_count=Count(
-            'invoices', distinct=True)).annotate(attachments_count=Subquery(subquery_attachments_count.values("attachments_count")))
+        try:
+            contract_content_type = ContentType.objects.get(
+                app_label='inventory_monitor', model='contract')
+            subquery_attachments_count = NetBoxAttachment.objects.filter(object_id=OuterRef(
+                'id'), content_type=contract_content_type).values('object_id').annotate(attachments_count=Count('*'))
+            queryset = models.Contract.objects.all().annotate(subcontracts_count=Count('subcontracts', distinct=True)).annotate(invoices_count=Count(
+                'invoices', distinct=True)).annotate(attachments_count=Subquery(subquery_attachments_count.values("attachments_count")))
+        except ContentType.DoesNotExist as e:
+            models.Contract.objects.all().annotate(subcontracts_count=Count('subcontracts', distinct=True)
+                                                   ).annotate(invoices_count=Count('invoices', distinct=True)).annotate(attachments_count=Value(0))
     else:
         queryset = models.Contract.objects.all().annotate(subcontracts_count=Count('subcontracts', distinct=True)
                                                           ).annotate(invoices_count=Count('invoices', distinct=True)).annotate(attachments_count=Value(0))
 
     def get_extra_context(self, request, instance):
         if attachments_model_exists:
-            contract_content_type = ContentType.objects \
-                .get(app_label='inventory_monitor', model='contract')
+            try:
+                contract_content_type = ContentType.objects \
+                    .get(app_label='inventory_monitor', model='contract')
 
-            subquery_contract_attachments_count = NetBoxAttachment.objects \
-                .filter(object_id=OuterRef('id'), content_type=contract_content_type) \
-                .values('object_id') \
-                .annotate(attachments_count=Count('*'))
+                subquery_contract_attachments_count = NetBoxAttachment.objects \
+                    .filter(object_id=OuterRef('id'), content_type=contract_content_type) \
+                    .values('object_id') \
+                    .annotate(attachments_count=Count('*'))
 
-            subcontracts = models.Contract.objects \
-                .filter(parent=instance) \
-                .annotate(subcontracts_count=Count('subcontracts', distinct=True)) \
-                .annotate(invoices_count=Count('invoices', distinct=True)) \
-                .annotate(attachments_count=Subquery(subquery_contract_attachments_count.values("attachments_count")))
+                subcontracts = models.Contract.objects \
+                    .filter(parent=instance) \
+                    .annotate(subcontracts_count=Count('subcontracts', distinct=True)) \
+                    .annotate(invoices_count=Count('invoices', distinct=True)) \
+                    .annotate(attachments_count=Subquery(subquery_contract_attachments_count.values("attachments_count")))
 
-            invoice_content_type = ContentType.objects.get(
-                app_label='inventory_monitor', model='invoice')
+                invoice_content_type = ContentType.objects.get(
+                    app_label='inventory_monitor', model='invoice')
 
-            subquery_attachments_count = NetBoxAttachment.objects \
-                .filter(object_id=OuterRef('id'), content_type=invoice_content_type).values('object_id') \
-                .annotate(attachments_count=Count('*'))
+                subquery_attachments_count = NetBoxAttachment.objects \
+                    .filter(object_id=OuterRef('id'), content_type=invoice_content_type).values('object_id') \
+                    .annotate(attachments_count=Count('*'))
 
-            invoices = instance.invoices.all() \
-                .annotate(attachments_count=Subquery(subquery_attachments_count.values("attachments_count")))
+                invoices = instance.invoices.all() \
+                    .annotate(attachments_count=Subquery(subquery_attachments_count.values("attachments_count")))
+            except ContentType.DoesNotExist as e:
+                subcontracts = models.Contract.objects \
+                    .filter(parent=instance) \
+                    .annotate(subcontracts_count=Count('subcontracts', distinct=True)) \
+                    .annotate(invoices_count=Count('invoices', distinct=True)) \
+                    .annotate(attachments_count=Value(0))
 
+                invoices = instance.invoices.all().annotate(attachments_count=Value(0))
         else:
             subcontracts = models.Contract.objects \
                 .filter(parent=instance) \
@@ -158,12 +173,16 @@ class ContractView(generic.ObjectView):
 
 class ContractListView(generic.ObjectListView):
     if attachments_model_exists:
-        contract_content_type = ContentType.objects.get(
-            app_label='inventory_monitor', model='contract')
-        subquery_attachments_count = NetBoxAttachment.objects.filter(object_id=OuterRef(
-            'id'), content_type=contract_content_type).values('object_id').annotate(attachments_count=Count('*'))
-        queryset = models.Contract.objects.all().annotate(subcontracts_count=Count('subcontracts', distinct=True)).annotate(invoices_count=Count(
-            'invoices', distinct=True)).annotate(attachments_count=Subquery(subquery_attachments_count.values("attachments_count")))
+        try:
+            contract_content_type = ContentType.objects.get(
+                app_label='inventory_monitor', model='contract')
+            subquery_attachments_count = NetBoxAttachment.objects.filter(object_id=OuterRef(
+                'id'), content_type=contract_content_type).values('object_id').annotate(attachments_count=Count('*'))
+            queryset = models.Contract.objects.all().annotate(subcontracts_count=Count('subcontracts', distinct=True)).annotate(invoices_count=Count(
+                'invoices', distinct=True)).annotate(attachments_count=Subquery(subquery_attachments_count.values("attachments_count")))
+        except ContentType.DoesNotExist as e:
+            queryset = models.Contract.objects.all().annotate(subcontracts_count=Count('subcontracts', distinct=True)
+                                                              ).annotate(invoices_count=Count('invoices', distinct=True)).annotate(attachments_count=Value(0))
     else:
         queryset = models.Contract.objects.all().annotate(subcontracts_count=Count('subcontracts', distinct=True)
                                                           ).annotate(invoices_count=Count('invoices', distinct=True)).annotate(attachments_count=Value(0))
@@ -190,12 +209,15 @@ class InvoiceView(generic.ObjectView):
 
 class InvoiceListView(generic.ObjectListView):
     if attachments_model_exists:
-        invoice_content_type = ContentType.objects.get(
-            app_label='inventory_monitor', model='invoice')
-        subquery_attachments_count = NetBoxAttachment.objects.filter(object_id=OuterRef(
-            'id'), content_type=invoice_content_type).values('object_id').annotate(attachments_count=Count('*'))
-        queryset = models.Invoice.objects.all().annotate(attachments_count=Subquery(
-            subquery_attachments_count.values("attachments_count")))
+        try:
+            invoice_content_type = ContentType.objects.get(
+                app_label='inventory_monitor', model='invoice')
+            subquery_attachments_count = NetBoxAttachment.objects.filter(object_id=OuterRef(
+                'id'), content_type=invoice_content_type).values('object_id').annotate(attachments_count=Count('*'))
+            queryset = models.Invoice.objects.all().annotate(attachments_count=Subquery(
+                subquery_attachments_count.values("attachments_count")))
+        except ContentType.DoesNotExist as e:
+            queryset = models.Invoice.objects.all().annotate(attachments_count=Value(0))
     else:
         queryset = models.Invoice.objects.all().annotate(attachments_count=Value(0))
 
