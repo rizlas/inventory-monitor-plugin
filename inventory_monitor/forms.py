@@ -1,14 +1,17 @@
-from dcim.models import Device, Location, Site, InventoryItem
+import datetime
+
+from dcim.models import Device, InventoryItem, Location, Site
 from django import forms
 from django.utils.translation import gettext as _
 from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
 from utilities.forms.constants import BOOLEAN_WITH_BLANK_CHOICES
-from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
-from utilities.forms.fields import CommentField, DynamicModelChoiceField
-
+from utilities.forms.fields import (CommentField, DynamicModelChoiceField,
+                                    DynamicModelMultipleChoiceField,
+                                    TagFilterField)
 from utilities.forms.widgets.datetime import DatePicker, DateTimePicker
 
-from .models import Contract, Contractor, ContractTypeChoices, Invoice, Probe, Component, ComponentService
+from .models import (Component, ComponentService, Contract, Contractor,
+                     ContractTypeChoices, Invoice, Probe)
 
 # Probe
 class ProbeForm(NetBoxModelForm):
@@ -763,3 +766,32 @@ class ComponentServiceFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Contract')
     )
+
+
+class ProbeDiffForm(NetBoxModelForm):
+    date_from = forms.DateField(
+        required=True,
+        label=('Date From'),
+        widget=DatePicker(),
+        initial=datetime.date.today() - datetime.timedelta(days=90)
+    )
+
+    date_to = forms.DateField(
+        required=True,
+        label=('Date To'),
+        widget=DatePicker(),
+        initial=datetime.date.today()
+    )
+
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=True,
+        label=_('Device')
+    )
+
+    # Hidden field for tags
+    tags = forms.CharField(widget=forms.HiddenInput())
+
+    class Meta:
+        model = Probe
+        fields = ('date_from', 'date_to', 'device')

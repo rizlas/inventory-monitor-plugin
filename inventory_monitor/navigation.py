@@ -8,6 +8,9 @@ menu = PluginMenu(
          (
              PluginMenuItem(
                  link="plugins:inventory_monitor:probe_list", link_text="Probes"),
+             PluginMenuItem(
+                    link="plugins:inventory_monitor:probediff", link_text="Network Changes"
+             ),
          ),
          ),
         ("Contracts",
