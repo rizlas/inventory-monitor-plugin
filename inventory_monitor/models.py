@@ -6,7 +6,7 @@ from netbox.models import NetBoxModel
 from netbox.models.features import (CustomFieldsMixin, CustomLinksMixin,
                                     CustomValidationMixin,
                                     ExportTemplatesMixin, JournalingMixin,
-                                    TagsMixin, WebhooksMixin)
+                                    TagsMixin, EventRulesMixin)
 from utilities.choices import ChoiceSet
 from utilities.querysets import RestrictedQuerySet
 from django.utils import timezone
@@ -22,7 +22,7 @@ class ContractTypeChoices(ChoiceSet):
     ]
 
 
-class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTemplatesMixin, JournalingMixin, TagsMixin, WebhooksMixin, models.Model):
+class Probe(CustomFieldsMixin, CustomLinksMixin, CustomValidationMixin, ExportTemplatesMixin, JournalingMixin, TagsMixin, EventRulesMixin, models.Model):
     objects = RestrictedQuerySet.as_manager()
 
     time = models.DateTimeField()
