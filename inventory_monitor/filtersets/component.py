@@ -1,7 +1,7 @@
 import django_filters
 from dcim.models import Device, Location, InventoryItem
 from django.db.models import Q
-from netbox.filters import TagFilter
+from extras.filters import TagFilter
 from netbox.filtersets import NetBoxModelFilterSet
 
 from inventory_monitor.models import Component, Contract

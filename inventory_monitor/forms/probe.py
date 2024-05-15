@@ -8,7 +8,7 @@ from utilities.forms.constants import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import (CommentField, DynamicModelChoiceField,
                                     DynamicModelMultipleChoiceField,
                                     TagFilterField)
-from utilities.forms.widgets.datetime import DateTimePicker
+from utilities.forms.widgets.datetime import DateTimePicker, DatePicker
 
 from inventory_monitor.models import Probe
 

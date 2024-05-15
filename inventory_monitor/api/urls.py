@@ -1,6 +1,6 @@
 from netbox.api.routers import NetBoxRouter
 
-from inventory_monitor import views
+from inventory_monitor.api import views
 
 app_name = 'inventory_monitor'
 router = NetBoxRouter()
