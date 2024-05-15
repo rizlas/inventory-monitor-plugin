@@ -6,17 +6,19 @@ from utilities.forms.fields import (CommentField, DynamicModelChoiceField,
                                     DynamicModelMultipleChoiceField,
                                     TagFilterField)
 from utilities.forms.widgets.datetime import DatePicker
+from utilities.forms.rendering import FieldSet
 
 from inventory_monitor.models import Component,  Contract
 
 
 class ComponentForm(NetBoxModelForm):
     fieldsets = (
-        ('Component', ('serial', 'serial_actual', 'partnumber',
-         'asset_number', 'project', 'price', 'vendor', 'quantity')),
-        ('Linked', ('order_contract', 'device', 'site', 'location', 'inventory_item')),
-        ('Dates', ('warranty_start', 'warranty_end')),
-        ('Tag', ('tags',)),
+        FieldSet('serial', 'serial_actual', 'partnumber', 'asset_number',
+                 'project', 'price', 'vendor', 'quantity', name=_('Component')),
+        FieldSet('order_contract', 'device', 'site', 'location',
+                 'inventory_item', name=_('Linked')),
+        FieldSet('warranty_start', 'warranty_end', name=_('Dates')),
+        FieldSet('tags', name=_('Misc')),
     )
 
     comments = CommentField(
@@ -124,14 +126,16 @@ class ComponentFilterForm(NetBoxModelFilterSetForm):
     model = Component
 
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        ('Linked', ('order_contract', 'site', 'location', 'device', 'inventory_item')),
-        ('Dates', ('warranty_start', 'warranty_start__gte', 'warranty_start__lte',
-         'warranty_end', 'warranty_end__gte', 'warranty_end__lte')),
-        ('Component', ('serial', 'serial_actual',
-         'partnumber', 'asset_number', 'project', 'vendor',)),
-        ('Items', ('quantity', 'quantity__gte', 'quantity__lte')),
-        ('Price', ('price', 'price__gte', 'price__lte')),
+        FieldSet('q', 'filter_id', 'tag', name=_('Misc')),
+        FieldSet('order_contract', 'site', 'location',
+                 'device', 'inventory_item', name=_('Linked')),
+        FieldSet('warranty_start', 'warranty_start__gte', 'warranty_start__lte',
+                 'warranty_end', 'warranty_end__gte', 'warranty_end__lte', name=_('Dates')),
+        FieldSet('serial', 'serial_actual', 'partnumber',
+                 'asset_number', 'project', 'vendor', name=_('Component')),
+        FieldSet('quantity', 'quantity__gte',
+                 'quantity__lte', name=_('Items')),
+        FieldSet('price', 'price__gte', 'price__lte', name=_('Price')),
     )
 
     serial = forms.CharField(

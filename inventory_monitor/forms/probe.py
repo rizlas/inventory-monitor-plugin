@@ -9,6 +9,8 @@ from utilities.forms.fields import (CommentField, DynamicModelChoiceField,
                                     DynamicModelMultipleChoiceField,
                                     TagFilterField)
 from utilities.forms.widgets.datetime import DateTimePicker, DatePicker
+from utilities.forms.rendering import FieldSet
+
 
 from inventory_monitor.models import Probe
 
@@ -38,11 +40,12 @@ class ProbeFilterForm(NetBoxModelFilterSetForm):
 
     # TODO: Add FilterSets, Add FilterForm
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        ('Common', ('serial', 'category', 'device_descriptor', 'description')),
-        ('Linked', ('device_id',)),
-        ('Dates', ('time__gte', 'time__lte')),
-        ('Misc', ('latest_only_per_device', 'latest_only')),
+        FieldSet('q', 'filter_id', 'tag', name=_('Misc')),
+        FieldSet('device_id', name=_('Linked')),
+        FieldSet('time__gte', 'time__lte', name=_('Dates')),
+        FieldSet('serial', 'category', 'device_descriptor',
+                 'description', name=_('Common')),
+        FieldSet('latest_only_per_device', 'latest_only', name=_('Misc')),
     )
 
     tag = TagFilterField(model)

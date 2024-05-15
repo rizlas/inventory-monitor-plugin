@@ -5,17 +5,18 @@ from utilities.forms.fields import (CommentField, DynamicModelChoiceField,
                                     DynamicModelMultipleChoiceField,
                                     TagFilterField)
 from utilities.forms.widgets.datetime import DatePicker
+from utilities.forms.rendering import FieldSet
 
 from inventory_monitor.models import Component, ComponentService, Contract
 
 
 class ComponentServiceForm(NetBoxModelForm):
     fieldsets = (
-        ('Linked', ('contract', 'component')),
-        ('Dates', ('service_start', 'service_end')),
-        ('Service Params', ('service_price', 'service_category',
-         'service_category_vendor', 'service_param')),
-        ('Tag', ('tags',)),
+        FieldSet('contract', 'component', name=_('Linked')),
+        FieldSet('service_start', 'service_end', name=_('Dates')),
+        FieldSet('service_price', 'service_category', 'service_category_vendor',
+                 'service_param', name=_('Service Params')),
+        FieldSet('tags', name=_('Tag')),
     )
 
     comments = CommentField(
@@ -80,12 +81,12 @@ class ComponentServiceFilterForm(NetBoxModelFilterSetForm):
     model = ComponentService
 
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        ('Linked', ('component', 'contract')),
-        ('Dates', ('service_start', 'service_start__gte', 'service_start__lte',
-         'service_end', 'service_end__gte', 'service_end__lte')),
-        ('Service', ('service_param', 'service_price',
-         'service_category', 'service_category_vendor')),
+        FieldSet('q', 'filter_id', 'tag', name=_('Misc')),
+        FieldSet('component', 'contract', name=_('Linked')),
+        FieldSet('service_start', 'service_start__gte', 'service_start__lte',
+                 'service_end', 'service_end__gte', 'service_end__lte', name=_('Dates')),
+        FieldSet('service_param', 'service_price', 'service_category',
+                 'service_category_vendor', name=_('Service')),
     )
 
     tag = TagFilterField(model)

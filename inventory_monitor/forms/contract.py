@@ -5,6 +5,7 @@ from utilities.forms.fields import (CommentField, DynamicModelChoiceField,
                                     DynamicModelMultipleChoiceField,
                                     TagFilterField)
 from utilities.forms.widgets.datetime import DatePicker
+from utilities.forms.rendering import FieldSet
 
 from inventory_monitor.models import Contract, Contractor, ContractTypeChoices
 
@@ -60,11 +61,12 @@ class ContractFilterForm(NetBoxModelFilterSetForm):
     model = Contract
 
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        ('Common', ('name', 'name_internal', 'contract_type', 'type',)),
-        ('Linked', ('contractor_id', 'parent_id')),
-        ('Dates', ('signed', 'signed__gte', 'signed__lte', 'accepted', 'accepted__gte', 'accepted__lte', 'invoicing_start',
-         'invoicing_start__gte', 'invoicing_start__lte', 'invoicing_end', 'invoicing_end__gte', 'invoicing_end__lte')),
+        FieldSet('q', 'filter_id', 'tag', name=_('Misc')),
+        FieldSet('name', 'name_internal', 'contract_type',
+                 'type', name=_('Common')),
+        FieldSet('contractor_id', 'parent_id', name=_('Linked')),
+        FieldSet('signed', 'signed__gte', 'signed__lte', 'accepted', 'accepted__gte', 'accepted__lte', 'invoicing_start',
+                 'invoicing_start__gte', 'invoicing_start__lte', 'invoicing_end', 'invoicing_end__gte', 'invoicing_end__lte', name=_('Dates')),
     )
 
     tag = TagFilterField(model)
