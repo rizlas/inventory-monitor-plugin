@@ -1,5 +1,5 @@
 from dcim.models import InventoryItem
-from extras.plugins import PluginTemplateExtension
+from netbox.plugins import PluginTemplateExtension
 
 from .models import Probe
 

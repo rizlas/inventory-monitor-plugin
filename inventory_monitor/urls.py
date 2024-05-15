@@ -16,7 +16,7 @@ urlpatterns = (
     path("probes/delete/", views.ProbeBulkDeleteView.as_view(),
          name="probe_bulk_delete",),
     # Probe Diff
-     path('probe_diff/', views.ProbeDiffView.as_view(), name='probediff'),
+    path('probe_diff/', views.ProbeDiffView.as_view(), name='probediff'),
 
     # Contractors
     path('contractors/', views.ContractorListView.as_view(), name='contractor_list'),

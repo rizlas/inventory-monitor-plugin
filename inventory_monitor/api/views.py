@@ -1,6 +1,6 @@
 from netbox.api.viewsets import NetBoxModelViewSet
 
-from .. import filtersets, models
+from inventory_monitor import filtersets, models
 from .serializers import (ComponentSerializer, ComponentServiceSerializer,
                           ContractorSerializer, ContractSerializer,
                           InvoiceSerializer, ProbeSerializer)
@@ -31,7 +31,8 @@ class InvoiceViewSet(NetBoxModelViewSet):
 
 
 class ComponentViewSet(NetBoxModelViewSet):
-    queryset = models.Component.objects.prefetch_related('tags', 'order_contract')
+    queryset = models.Component.objects.prefetch_related(
+        'tags', 'order_contract')
     serializer_class = ComponentSerializer
     filterset_class = filtersets.ComponentFilterSet
 
