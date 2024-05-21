@@ -5,7 +5,8 @@ from django.contrib.contenttypes.models import ContentType
 
 def get_content_type_or_none(app_label, model):
     try:
-        content_type = ContentType.objects.get(app_label=app_label, model=model)
+        content_type = ContentType.objects.get(
+            app_label=app_label, model=model)
         return content_type
     except Exception as e:
         return None

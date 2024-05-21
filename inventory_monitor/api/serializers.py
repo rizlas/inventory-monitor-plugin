@@ -5,8 +5,8 @@ from netbox.api.serializers import (NetBoxModelSerializer,
                                     WritableNestedSerializer)
 from rest_framework import serializers
 
-from ..models import (Component, ComponentService, Contract, Contractor,
-                      Invoice, Probe)
+from inventory_monitor.models import (Component, ComponentService, Contract, Contractor,
+                                      Invoice, Probe)
 
 
 class ProbeSerializer(NetBoxModelSerializer):
@@ -50,7 +50,8 @@ class NestedProbeSerializer(WritableNestedSerializer):
 
     class Meta:
         model = Probe
-        fields = ['id', 'url', 'display', 'name', 'serial', 'time', 'creation_time']
+        fields = ['id', 'url', 'display', 'name',
+                  'serial', 'time', 'creation_time']
 
 
 class ContractorSerializer(NetBoxModelSerializer):

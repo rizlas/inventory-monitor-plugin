@@ -1,6 +1,7 @@
 from netbox.search import SearchIndex, register_search
 from .models import Contract, Contractor, Invoice, Probe, Component, ComponentService
 
+
 @register_search
 class ContractIndex(SearchIndex):
     model = Contract
@@ -10,6 +11,7 @@ class ContractIndex(SearchIndex):
         ('name_internal', 100),
         ('comments', 5000)
     )
+
 
 @register_search
 class ContractorIndex(SearchIndex):
@@ -22,6 +24,7 @@ class ContractorIndex(SearchIndex):
         ('address', 5000)
     )
 
+
 @register_search
 class InvoiceIndex(SearchIndex):
     model = Invoice
@@ -31,6 +34,7 @@ class InvoiceIndex(SearchIndex):
         ('project', 300),
         ('comments', 5000)
     )
+
 
 @register_search
 class ProbeIndex(SearchIndex):
@@ -46,6 +50,7 @@ class ProbeIndex(SearchIndex):
         ('comments', 5000)
     )
 
+
 @register_search
 class ComponentIndex(SearchIndex):
     model = Component
@@ -56,6 +61,7 @@ class ComponentIndex(SearchIndex):
         ('partnumber', 100),
         ('comments', 5000)
     )
+
 
 @register_search
 class ComponentServiceIndex(SearchIndex):
