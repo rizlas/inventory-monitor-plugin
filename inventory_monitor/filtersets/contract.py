@@ -48,110 +48,98 @@ class ContractFilterSet(NetBoxModelFilterSet):
 
 class ContractFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
-        method='search',
-        label='Search',
+        method="search",
+        label="Search",
     )
     tag = TagFilter()
-    name = django_filters.CharFilter(lookup_expr="exact", field_name='name')
+    name = django_filters.CharFilter(lookup_expr="exact", field_name="name")
     name__ic = django_filters.CharFilter(
-        field_name='name', lookup_expr="icontains", label="Name Contains")
+        field_name="name", lookup_expr="icontains", label="Name Contains"
+    )
     name_internal = django_filters.CharFilter(lookup_expr="icontains")
     contractor_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='contractor__id',
+        field_name="contractor__id",
         queryset=Contractor.objects.all(),
-        to_field_name='id',
-        label='Contractor (ID)',
+        to_field_name="id",
+        label="Contractor (ID)",
     )
     contractor = django_filters.ModelMultipleChoiceFilter(
-        field_name='contractor__name',
+        field_name="contractor__name",
         queryset=Contractor.objects.all(),
-        to_field_name='name',
-        label='Contractor (name)',
+        to_field_name="name",
+        label="Contractor (name)",
     )
 
     type = django_filters.MultipleChoiceFilter(
-        choices=ContractTypeChoices,
-        required=False
+        choices=ContractTypeChoices, required=False
     )
 
-    price = django_filters.NumberFilter(
-        required=False
-    )
-    signed__gte = django_filters.DateFilter(
-        field_name='signed',
-        lookup_expr='gte'
-    )
-    signed__lte = django_filters.DateFilter(
-        field_name='signed',
-        lookup_expr='lte'
-    )
-    signed = django_filters.DateFilter(
-        field_name='signed',
-        lookup_expr='contains'
-    )
-    accepted__gte = django_filters.DateFilter(
-        field_name='accepted',
-        lookup_expr='gte'
-    )
-    accepted__lte = django_filters.DateFilter(
-        field_name='accepted',
-        lookup_expr='lte'
-    )
-    accepted = django_filters.DateFilter(
-        field_name='accepted',
-        lookup_expr='contains'
-    )
+    price = django_filters.NumberFilter(required=False)
+    signed__gte = django_filters.DateFilter(field_name="signed", lookup_expr="gte")
+    signed__lte = django_filters.DateFilter(field_name="signed", lookup_expr="lte")
+    signed = django_filters.DateFilter(field_name="signed", lookup_expr="contains")
+    accepted__gte = django_filters.DateFilter(field_name="accepted", lookup_expr="gte")
+    accepted__lte = django_filters.DateFilter(field_name="accepted", lookup_expr="lte")
+    accepted = django_filters.DateFilter(field_name="accepted", lookup_expr="contains")
     invoicing_start__gte = django_filters.DateFilter(
-        field_name='invoicing_start',
-        lookup_expr='gte'
+        field_name="invoicing_start", lookup_expr="gte"
     )
     invoicing_start__lte = django_filters.DateFilter(
-        field_name='invoicing_start',
-        lookup_expr='lte'
+        field_name="invoicing_start", lookup_expr="lte"
     )
     invoicing_start = django_filters.DateFilter(
-        field_name='invoicing_start',
-        lookup_expr='contains'
+        field_name="invoicing_start", lookup_expr="contains"
     )
     invoicing_end__gte = django_filters.DateFilter(
-        field_name='invoicing_end',
-        lookup_expr='gte'
+        field_name="invoicing_end", lookup_expr="gte"
     )
     invoicing_end__lte = django_filters.DateFilter(
-        field_name='invoicing_end',
-        lookup_expr='lte'
+        field_name="invoicing_end", lookup_expr="lte"
     )
     invoicing_end = django_filters.DateFilter(
-        field_name='invoicing_end',
-        lookup_expr='contains'
+        field_name="invoicing_end", lookup_expr="contains"
     )
     parent_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='parent__id',
+        field_name="parent__id",
         queryset=Contract.objects.all(),
-        to_field_name='id',
-        label='Contract (ID)',
+        to_field_name="id",
+        label="Contract (ID)",
     )
     parent = django_filters.ModelMultipleChoiceFilter(
-        field_name='parent__name',
+        field_name="parent__name",
         queryset=Contract.objects.all(),
-        to_field_name='name',
-        label='Contract (name)',
+        to_field_name="name",
+        label="Contract (name)",
     )
     contract_type = django_filters.MultipleChoiceFilter(
-        choices=(('All', 'All'), ('Contract', 'Contract'),
-                 ('Subcontract', 'Subcontract')),
+        choices=(
+            ("All", "All"),
+            ("Contract", "Contract"),
+            ("Subcontract", "Subcontract"),
+        ),
         required=False,
-        label='Contract type',
-        method='_contract_type',
+        label="Contract type",
+        method="_contract_type",
     )
 
     master_contracts = django_filters.BooleanFilter(
-        method='_master_contracts', label='Master contracts only')
+        method="_master_contracts", label="Master contracts only"
+    )
 
     class Meta:
         model = Contract
-        fields = ('id', 'name', 'name_internal', 'contractor', 'type', 'price',
-                  'signed', 'accepted', 'invoicing_start', 'invoicing_end')
+        fields = (
+            "id",
+            "name",
+            "name_internal",
+            "contractor",
+            "type",
+            "price",
+            "signed",
+            "accepted",
+            "invoicing_start",
+            "invoicing_end",
+        )
 
     def search(self, queryset, name, value):
         name = Q(name__icontains=value)
@@ -165,11 +153,11 @@ class ContractFilterSet(NetBoxModelFilterSet):
             return queryset
 
     def _contract_type(self, queryset, name, value):
-        if value == ['All']:
+        if value == ["All"]:
             return queryset
-        elif value == ['Contract']:
+        elif value == ["Contract"]:
             return queryset.filter(parent=None)
-        elif value == ['Subcontract']:
+        elif value == ["Subcontract"]:
             return queryset.exclude(parent=None)
         else:
             return queryset

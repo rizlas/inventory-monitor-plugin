@@ -17,8 +17,7 @@ class ProbeView(generic.ObjectView):
         )
         probe_table = tables.ProbeTable(
             models.Probe.objects.filter(serial=instance.serial).annotate(
-                changes_count=Subquery(
-                    probes_sub_count_serial.values("changes_count"))
+                changes_count=Subquery(probes_sub_count_serial.values("changes_count"))
             )
         )
         probe_table.configure(request)

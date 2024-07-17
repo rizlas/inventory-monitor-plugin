@@ -8,84 +8,60 @@ from utilities.querysets import RestrictedQuerySet
 
 
 class ContractTypeChoices(ChoiceSet):
-    key = 'Contract.type'
+    key = "Contract.type"
 
     CHOICES = [
-        ('supply', 'Supply Contract', 'green'),
-        ('order', 'Order', 'red'),
-        ('service', 'Service Contract', 'orange'),
-        ('other', 'Other', 'blue')
+        ("supply", "Supply Contract", "green"),
+        ("order", "Order", "red"),
+        ("service", "Service Contract", "orange"),
+        ("other", "Other", "blue"),
     ]
 
 
 class Contract(NetBoxModel):
     objects = RestrictedQuerySet.as_manager()
-
-    name = models.CharField(
-        max_length=255,
-        blank=False,
-        null=False
-    )
-
-    name_internal = models.CharField(
-        max_length=255,
-        blank=False,
-        null=False
-    )
-
+    name = models.CharField(max_length=255, blank=False, null=False)
+    name_internal = models.CharField(max_length=255, blank=False, null=False)
     contractor = models.ForeignKey(
-        to='inventory_monitor.contractor',  # Contractor,
+        to="inventory_monitor.contractor",  # Contractor,
         on_delete=models.PROTECT,
         related_name="contracts",
         blank=True,
         null=True,
     )
-
-    type = models.CharField(
-        max_length=50,
-        choices=ContractTypeChoices
-    )
-
+    type = models.CharField(max_length=50, choices=ContractTypeChoices)
     price = models.DecimalField(
         max_digits=19,
         decimal_places=2,
         blank=True,
         null=True,
-        validators=[MinValueValidator(0)]
+        validators=[MinValueValidator(0)],
     )
-
     signed = models.DateField(
         blank=True,
         null=True,
     )
-
     accepted = models.DateField(
         blank=True,
         null=True,
     )
-
     invoicing_start = models.DateField(
         blank=True,
         null=True,
     )
-
     invoicing_end = models.DateField(
         blank=True,
         null=True,
     )
-
     parent = models.ForeignKey(
-        to='self',
+        to="self",
         on_delete=models.CASCADE,
-        related_name='subcontracts',
+        related_name="subcontracts",
         null=True,
         blank=True,
-        verbose_name='Parent contract'
+        verbose_name="Parent contract",
     )
-
-    comments = models.TextField(
-        blank=True
-    )
+    comments = models.TextField(blank=True)
 
     @property
     def contract_type(self):
@@ -95,8 +71,17 @@ class Contract(NetBoxModel):
             return "contract"
 
     class Meta:
-        ordering = ('name', 'name_internal', 'contractor', 'type', 'price',
-                    'signed', 'accepted', 'invoicing_start', 'invoicing_end')
+        ordering = (
+            "name",
+            "name_internal",
+            "contractor",
+            "type",
+            "price",
+            "signed",
+            "accepted",
+            "invoicing_start",
+            "invoicing_end",
+        )
 
     def __str__(self):
         if self.parent:
@@ -108,7 +93,7 @@ class Contract(NetBoxModel):
         return ContractTypeChoices.colors.get(self.type)
 
     def get_absolute_url(self):
-        return reverse('plugins:inventory_monitor:contract', args=[self.pk])
+        return reverse("plugins:inventory_monitor:contract", args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -116,17 +101,23 @@ class Contract(NetBoxModel):
         # Validate - subcontract cannot set parent which is subcontract
         if self.parent and self.parent.parent:
             raise ValidationError(
-                {'parent': "Subcontract cannot be set as Parent Contract"}
+                {"parent": "Subcontract cannot be set as Parent Contract"}
             )
 
         # Validate - if parent contract has different contractor
         if self.parent and self.parent.contractor != self.contractor:
             raise ValidationError(
-                {'contractor': f"Contractor must be same as Parent contractor: {self.parent.contractor}"}
+                {
+                    "contractor": f"Contractor must be same as Parent contractor: {self.parent.contractor}"
+                }
             )
 
         # Validate invoicing_start and invoicing_end
-        if self.invoicing_start and self.invoicing_end and self.invoicing_start > self.invoicing_end:
+        if (
+            self.invoicing_start
+            and self.invoicing_end
+            and self.invoicing_start > self.invoicing_end
+        ):
             raise ValidationError(
-                {'invoicing_start': f"Invoicing Start cannot be set after Invoicing End"}
+                {"invoicing_start": "Invoicing Start cannot be set after Invoicing End"}
             )

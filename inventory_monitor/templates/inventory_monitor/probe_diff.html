@@ -31,7 +31,8 @@
             {% for probe in probes_added %}
               <tr>
                 <td>
-                  <a href="{% url 'plugins:inventory_monitor:probe_list' %}{{ probe.id }}/" target="_blank">{% firstof probe.id %}</a>
+                  <a href="{% url 'plugins:inventory_monitor:probe_list' %}{{ probe.id }}/"
+                     target="_blank">{% firstof probe.id %}</a>
                 </td>
                 <td>{{ probe.creation_time|date:"Y-m-d" }}</td>
                 <td>{{ probe.time|date:"Y-m-d" }}</td>
@@ -65,11 +66,13 @@
               <th>Part</th>
               <th>Site</th>
               <th>Location</th>
-              <th>Device</th>            </tr>
+              <th>Device</th>
+            </tr>
             {% for probe in probes_removed %}
               <tr>
                 <td>
-                  <a href="{% url 'plugins:inventory_monitor:probe_list' %}{{ probe.id }}/" target="_blank">{% firstof probe.id %}</a>
+                  <a href="{% url 'plugins:inventory_monitor:probe_list' %}{{ probe.id }}/"
+                     target="_blank">{% firstof probe.id %}</a>
                 </td>
                 <td>{{ probe.creation_time|date:"Y-m-d" }}</td>
                 <td>{{ probe.time|date:"Y-m-d" }}</td>
@@ -78,7 +81,8 @@
                 <td>{{ probe.part }}</td>
                 <td>{{ probe.site_descriptor }}</td>
                 <td>{{ probe.location_descriptor }}</td>
-                <td>{{ probe.device_descriptor }}</td>              </tr>
+                <td>{{ probe.device_descriptor }}</td>
+              </tr>
             {% endfor %}
           </table>
         {% else %}

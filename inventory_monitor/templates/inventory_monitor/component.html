@@ -46,7 +46,6 @@
                 {% endif %}
               </td>
             </tr>
-
             <tr>
               <th>Site</th>
               <td>
@@ -101,9 +100,7 @@
               <td>{{ object.asset_number }}</td>
             </tr>
             <tr>
-              <th>
-                Order Contract
-              </th>
+              <th>Order Contract</th>
               <td>
                 {% if object.order_contract %}
                   <a href="{{ object.order_contract.get_absolute_url }}">{{ object.order_contract }}</a>
@@ -118,9 +115,7 @@
     </div>
   </div>
   <div class="row mb-3">
-    <div class="col col-md-6">
-      {% include "inc/panels/custom_fields.html" %}
-    </div>
+    <div class="col col-md-6">{% include "inc/panels/custom_fields.html" %}</div>
     <div class="col col-md-6">
       {% include "inc/panels/tags.html" %}
       {% include "inc/panels/comments.html" %}
@@ -129,9 +124,7 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">
-          Services
-        </h5>
+        <h5 class="card-header">Services</h5>
         <div class="card-body table-responsive">
           {% render_table component_services_table %}
           {% include "inc/paginator.html" with paginator=component_services_table.paginator page=component_services_table.page %}
@@ -150,16 +143,10 @@
     </div>
   </div>
   <div class="row mb-3">
-    <div class="col col-md-6">
-      {% plugin_left_page object %}
-    </div>
-    <div class="col col-md-6">
-      {% plugin_right_page object %}
-    </div>
+    <div class="col col-md-6">{% plugin_left_page object %}</div>
+    <div class="col col-md-6">{% plugin_right_page object %}</div>
   </div>
   <div class="row mb-3">
-    <div class="col col-md-12">
-      {% plugin_full_width_page object %}
-    </div>
+    <div class="col col-md-12">{% plugin_full_width_page object %}</div>
   </div>
 {% endblock content %}

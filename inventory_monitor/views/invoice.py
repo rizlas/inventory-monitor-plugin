@@ -1,16 +1,48 @@
-from django.contrib.contenttypes.models import ContentType
+from core.models import ObjectType
 from django.db.models import Count, OuterRef, Subquery, Value
 from netbox.views import generic
 
 from inventory_monitor import filtersets, forms, models, tables
-from inventory_monitor.helpers import get_content_type_or_none
+from inventory_monitor.helpers import get_object_type_or_none
 
+# Attempt to import NetBoxAttachment and set a flag based on its availability
 try:
     from netbox_attachments.models import NetBoxAttachment
 
     attachments_model_exists = True
-except ModuleNotFoundError:
+except (ModuleNotFoundError, Exception):
     attachments_model_exists = False
+
+
+def get_invoice_queryset():
+    """
+    Generates the queryset for Invoice objects, optionally annotating with attachment counts.
+    """
+    base_queryset = models.Invoice.objects.all()
+    if attachments_model_exists:
+        try:
+            invoice_object_type = get_object_type_or_none(
+                app_label="inventory_monitor", model="invoice"
+            )
+
+            if not invoice_object_type:
+                return base_queryset.annotate(attachments_count=Value(0))
+
+            subquery_attachments_count = (
+                NetBoxAttachment.objects.filter(
+                    object_id=OuterRef("id"), object_type=invoice_object_type
+                )
+                .values("object_id")
+                .annotate(attachments_count=Count("*"))
+            )
+            return base_queryset.annotate(
+                attachments_count=Subquery(
+                    subquery_attachments_count.values("attachments_count")
+                )
+            )
+        except (ObjectType.DoesNotExist, ValueError):
+            pass
+    return base_queryset.annotate(attachments_count=Value(0))
 
 
 class InvoiceView(generic.ObjectView):
@@ -18,31 +50,10 @@ class InvoiceView(generic.ObjectView):
 
 
 class InvoiceListView(generic.ObjectListView):
-    if attachments_model_exists:
-        try:
-            invoice_content_type = get_content_type_or_none(
-                app_label="inventory_monitor", model="invoice"
-            )
-            subquery_attachments_count = (
-                NetBoxAttachment.objects.filter(
-                    object_id=OuterRef("id"), content_type=invoice_content_type
-                )
-                .values("object_id")
-                .annotate(attachments_count=Count("*"))
-            )
-            queryset = models.Invoice.objects.all().annotate(
-                attachments_count=Subquery(
-                    subquery_attachments_count.values("attachments_count")
-                )
-            )
-        except (ContentType.DoesNotExist, ValueError) as e:
-            queryset = models.Invoice.objects.all().annotate(attachments_count=Value(0))
-    else:
-        queryset = models.Invoice.objects.all().annotate(attachments_count=Value(0))
-
     filterset = filtersets.InvoiceFilterSet
     filterset_form = forms.InvoiceFilterForm
     table = tables.InvoiceTable
+    queryset = get_invoice_queryset()
 
 
 class InvoiceEditView(generic.ObjectEditView):

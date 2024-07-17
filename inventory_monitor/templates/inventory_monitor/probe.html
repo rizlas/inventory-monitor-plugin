@@ -83,9 +83,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">
-                                Discovered Data
-                            </th>
+                            <th scope="row">Discovered Data</th>
                             <td>
                                 <pre>{{ object.discovered_data|json }}</pre>
                             </td>
@@ -105,9 +103,7 @@
     <div class="row mb-3">
         <div class="col col-md-12">
             <div class="card">
-                <h5 class="card-header">
-                    Inventory Items
-                </h5>
+                <h5 class="card-header">Inventory Items</h5>
                 <div class="card-body table-responsive">
                     {% render_table inventory_items_table %}
                     {% include "inc/paginator.html" with paginator=inventory_items_table.paginator page=inventory_items_table.page %}
@@ -118,9 +114,7 @@
     <div class="row mb-3">
         <div class="col col-md-12">
             <div class="card">
-                <h5 class="card-header">
-                    History
-                </h5>
+                <h5 class="card-header">History</h5>
                 <div class="card-body table-responsive">
                     {% render_table probe_table %}
                     {% include "inc/paginator.html" with paginator=probe_table.paginator page=probe_table.page %}
@@ -129,8 +123,6 @@
         </div>
     </div>
     <div class="row">
-        <div class="col col-md-12">
-            {% plugin_full_width_page object %}
-        </div>
+        <div class="col col-md-12">{% plugin_full_width_page object %}</div>
     </div>
 {% endblock content %}

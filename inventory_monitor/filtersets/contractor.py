@@ -28,9 +28,10 @@ class ContractorFilterSet(NetBoxModelFilterSet):
         search(queryset, name, value): A method for performing a case-insensitive search across the name, company, and address fields.
 
     """
+
     q = django_filters.CharFilter(
-        method='search',
-        label='Search',
+        method="search",
+        label="Search",
     )
     tag = TagFilter()
 
@@ -40,7 +41,7 @@ class ContractorFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Contractor
-        fields = ('id', 'name', 'company', 'address')
+        fields = ("id", "name", "company", "address")
 
     def search(self, queryset, name, value):
         """
