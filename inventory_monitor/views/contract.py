@@ -6,12 +6,13 @@ from inventory_monitor import filtersets, forms, models, tables
 from inventory_monitor.helpers import get_object_type_or_none
 
 # Attempt to import NetBoxAttachment and set a flag based on its availability
+attachments_model_exists = False
 try:
     from netbox_attachments.models import NetBoxAttachment
 
     attachments_model_exists = True
-except ModuleNotFoundError:
-    attachments_model_exists = False
+except (ModuleNotFoundError, RuntimeError):
+    pass
 
 
 def get_attachments_count_query(model_name):

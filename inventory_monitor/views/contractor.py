@@ -11,7 +11,7 @@ try:
     from netbox_attachments.models import NetBoxAttachment
 
     attachments_model_exists = True
-except ModuleNotFoundError:
+except (ModuleNotFoundError, RuntimeError):
     pass
 
 
