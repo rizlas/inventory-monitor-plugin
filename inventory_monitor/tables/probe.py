@@ -14,7 +14,38 @@ class ProbeTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = Probe
-        fields = ('pk', 'id', 'time', 'name', 'device_descriptor', 'site_descriptor', 'location_descriptor', 'description',
-                  'part', 'serial', 'device', 'site', 'location', 'comments', 'changes_count', 'actions', 'category', 'creation_time')
-        default_columns = ('id', 'time', 'creation_time', 'name', 'serial', 'part', 'device_descriptor', 'device',
-                           'site_descriptor', 'site', 'location_descriptor', 'location', 'changes_count')
+        fields = (
+            "pk",
+            "id",
+            "time",
+            "name",
+            "device_descriptor",
+            "site_descriptor",
+            "location_descriptor",
+            "description",
+            "part",
+            "serial",
+            "device",
+            "site",
+            "location",
+            "comments",
+            "changes_count",
+            "actions",
+            "category",
+            "creation_time",
+        )
+        default_columns = (
+            "id",
+            "time",
+            "creation_time",
+            "name",
+            "serial",
+            "part",
+            "device_descriptor",
+            "device",
+            "site_descriptor",
+            "site",
+            "location_descriptor",
+            "location",
+            "changes_count",
+        )

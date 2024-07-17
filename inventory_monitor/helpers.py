@@ -1,12 +1,11 @@
 import django_tables2
-from utilities.templatetags.builtins.filters import register
 from core.models import ObjectType
+from utilities.templatetags.builtins.filters import register
 
 
 def get_object_type_or_none(app_label, model):
     try:
-        object_type = ObjectType.objects.get(
-            app_label=app_label, model=model)
+        object_type = ObjectType.objects.get(app_label=app_label, model=model)
         return object_type
     except Exception:
         return None

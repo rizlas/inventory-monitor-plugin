@@ -32,43 +32,51 @@ class ProbeFilterSet(BaseFilterSet):
     """
 
     q = django_filters.CharFilter(
-        method='search',
-        label='Search',
+        method="search",
+        label="Search",
     )
     tag = TagFilter()
 
     serial = django_filters.CharFilter(lookup_expr="icontains")
-    time__gte = django_filters.DateTimeFilter(
-        field_name='time',
-        lookup_expr='gte'
-    )
-    time__lte = django_filters.DateTimeFilter(
-        field_name='time',
-        lookup_expr='lte'
-    )
+    time__gte = django_filters.DateTimeFilter(field_name="time", lookup_expr="gte")
+    time__lte = django_filters.DateTimeFilter(field_name="time", lookup_expr="lte")
     latest_only_per_device = django_filters.BooleanFilter(
-        method='_latest_only_per_device', label='Latest inventory (per device)')
+        method="_latest_only_per_device", label="Latest inventory (per device)"
+    )
 
     latest_only = django_filters.BooleanFilter(
-        method='_latest_only', label='Latest inventory')
+        method="_latest_only", label="Latest inventory"
+    )
 
     device_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__id',
+        field_name="device__id",
         queryset=Device.objects.all(),
-        to_field_name='id',
-        label='Device (ID)',
+        to_field_name="id",
+        label="Device (ID)",
     )
     device = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__name',
+        field_name="device__name",
         queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
+        to_field_name="name",
+        label="Device (name)",
     )
 
     class Meta:
         model = Probe
-        fields = ('id', 'device_descriptor', 'site_descriptor', 'location_descriptor', 'part', 'name',
-                  'serial', 'device', 'site', 'location', 'description', 'category')
+        fields = (
+            "id",
+            "device_descriptor",
+            "site_descriptor",
+            "location_descriptor",
+            "part",
+            "name",
+            "serial",
+            "device",
+            "site",
+            "location",
+            "description",
+            "category",
+        )
 
     def search(self, queryset, name, value):
         """
@@ -90,7 +98,15 @@ class ProbeFilterSet(BaseFilterSet):
         name = Q(name__icontains=value)
         serial = Q(serial__icontains=value)
         description = Q(description__icontains=value)
-        return queryset.filter(device_descriptor | part | name | serial | description | site_descriptor | location_descriptor)
+        return queryset.filter(
+            device_descriptor
+            | part
+            | name
+            | serial
+            | description
+            | site_descriptor
+            | location_descriptor
+        )
 
     def _latest_only_per_device(self, queryset, name, value):
         """
@@ -105,9 +121,13 @@ class ProbeFilterSet(BaseFilterSet):
             QuerySet: The filtered queryset with only the latest inventory per device.
 
         """
-        if value == True:
-            latest_inventory_pks = Probe.objects.all().order_by(
-                'serial', 'device_id', '-time').distinct('serial', 'device_id').values('pk')
+        if value:
+            latest_inventory_pks = (
+                Probe.objects.all()
+                .order_by("serial", "device_id", "-time")
+                .distinct("serial", "device_id")
+                .values("pk")
+            )
             return queryset.filter(pk__in=latest_inventory_pks)
         else:
             return queryset
@@ -125,9 +145,13 @@ class ProbeFilterSet(BaseFilterSet):
             QuerySet: The filtered queryset with only the latest inventory.
 
         """
-        if value == True:
-            latest_inventory_pks = Probe.objects.all().distinct(
-                'serial').order_by('serial', '-time').values('pk')
+        if value:
+            latest_inventory_pks = (
+                Probe.objects.all()
+                .distinct("serial")
+                .order_by("serial", "-time")
+                .values("pk")
+            )
             return queryset.filter(pk__in=latest_inventory_pks)
         else:
             return queryset

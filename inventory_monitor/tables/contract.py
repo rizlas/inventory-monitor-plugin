@@ -18,7 +18,38 @@ class ContractTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = Contract
-        fields = ('pk', 'id', 'name', 'name_internal', 'contractor', 'type', 'contract_type', 'price', 'signed',
-                  'accepted', 'invoicing_start',  'invoicing_end', 'parent', 'comments', 'invoices_count', 'subcontracts_count', 'attachments_count', 'actions')
-        default_columns = ('id', 'name', 'name_internal', 'contractor', 'type', 'contract_type', 'price',
-                           'signed', 'accepted', 'invoicing_start',  'invoicing_end', 'parent', 'attachments_count')
+        fields = (
+            "pk",
+            "id",
+            "name",
+            "name_internal",
+            "contractor",
+            "type",
+            "contract_type",
+            "price",
+            "signed",
+            "accepted",
+            "invoicing_start",
+            "invoicing_end",
+            "parent",
+            "comments",
+            "invoices_count",
+            "subcontracts_count",
+            "attachments_count",
+            "actions",
+        )
+        default_columns = (
+            "id",
+            "name",
+            "name_internal",
+            "contractor",
+            "type",
+            "contract_type",
+            "price",
+            "signed",
+            "accepted",
+            "invoicing_start",
+            "invoicing_end",
+            "parent",
+            "attachments_count",
+        )

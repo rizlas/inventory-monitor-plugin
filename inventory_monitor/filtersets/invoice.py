@@ -32,63 +32,64 @@ class InvoiceFilterSet(NetBoxModelFilterSet):
     """
 
     q = django_filters.CharFilter(
-        method='search',
-        label='Search',
+        method="search",
+        label="Search",
     )
     tag = TagFilter()
-    name = django_filters.CharFilter(lookup_expr="exact", field_name='name')
+    name = django_filters.CharFilter(lookup_expr="exact", field_name="name")
     name__ic = django_filters.CharFilter(
-        field_name='name', lookup_expr="icontains", label="Name Contains")
+        field_name="name", lookup_expr="icontains", label="Name Contains"
+    )
     name_internal = django_filters.CharFilter(lookup_expr="icontains")
     project = django_filters.CharFilter(lookup_expr="icontains")
 
     contract_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='contract__id',
+        field_name="contract__id",
         queryset=Contract.objects.all(),
-        to_field_name='id',
-        label='Contract (ID)',
+        to_field_name="id",
+        label="Contract (ID)",
     )
     contract = django_filters.ModelMultipleChoiceFilter(
-        field_name='contract__name',
+        field_name="contract__name",
         queryset=Contract.objects.all(),
-        to_field_name='name',
-        label='Contract (name)',
+        to_field_name="name",
+        label="Contract (name)",
     )
 
     # TODO: forms.DecimalField
-    price = django_filters.NumberFilter(
-        required=False
-    )
+    price = django_filters.NumberFilter(required=False)
 
     invoicing_start__gte = django_filters.DateFilter(
-        field_name='invoicing_start',
-        lookup_expr='gte'
+        field_name="invoicing_start", lookup_expr="gte"
     )
     invoicing_start__lte = django_filters.DateFilter(
-        field_name='invoicing_start',
-        lookup_expr='lte'
+        field_name="invoicing_start", lookup_expr="lte"
     )
     invoicing_start = django_filters.DateFilter(
-        field_name='invoicing_start',
-        lookup_expr='contains'
+        field_name="invoicing_start", lookup_expr="contains"
     )
     invoicing_end__gte = django_filters.DateFilter(
-        field_name='invoicing_end',
-        lookup_expr='gte'
+        field_name="invoicing_end", lookup_expr="gte"
     )
     invoicing_end__lte = django_filters.DateFilter(
-        field_name='invoicing_end',
-        lookup_expr='lte'
+        field_name="invoicing_end", lookup_expr="lte"
     )
     invoicing_end = django_filters.DateFilter(
-        field_name='invoicing_end',
-        lookup_expr='contains'
+        field_name="invoicing_end", lookup_expr="contains"
     )
 
     class Meta:
         model = Invoice
-        fields = ('id', 'name', 'name_internal', 'project', 'contract',
-                  'price', 'invoicing_start', 'invoicing_end')
+        fields = (
+            "id",
+            "name",
+            "name_internal",
+            "project",
+            "contract",
+            "price",
+            "invoicing_start",
+            "invoicing_end",
+        )
 
     def search(self, queryset, name, value):
         """

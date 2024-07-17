@@ -10,6 +10,14 @@ class ContractorTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = Contractor
-        fields = ('pk', 'id', 'name', 'company', 'address',
-                  'comments', 'contracts_count', 'actions')
-        default_columns = ('id', 'name', 'company', 'contracts_count')
+        fields = (
+            "pk",
+            "id",
+            "name",
+            "company",
+            "address",
+            "comments",
+            "contracts_count",
+            "actions",
+        )
+        default_columns = ("id", "name", "company", "contracts_count")
