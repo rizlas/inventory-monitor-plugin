@@ -1,14 +1,14 @@
 import django_tables2
 from utilities.templatetags.builtins.filters import register
-from django.contrib.contenttypes.models import ContentType
+from core.models import ObjectType
 
 
-def get_content_type_or_none(app_label, model):
+def get_object_type_or_none(app_label, model):
     try:
-        content_type = ContentType.objects.get(
+        object_type = ObjectType.objects.get(
             app_label=app_label, model=model)
-        return content_type
-    except Exception as e:
+        return object_type
+    except Exception:
         return None
 
 
