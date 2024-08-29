@@ -2,7 +2,7 @@ from dcim.models import InventoryItem
 from django.conf import settings
 from netbox.plugins import PluginTemplateExtension
 
-from inventory_monitor.models import Probe
+from inventory_monitor.models import Contractor
 
 plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
 import_component_url = plugin_settings.get(
@@ -13,23 +13,9 @@ import_component_url = plugin_settings.get(
 class DeviceProbeList(PluginTemplateExtension):
     model = "dcim.device"
 
-    def right_page(self):
-        obj = self.context["object"]
-
-        device_probes = (
-            Probe.objects.all()
-            .order_by("serial", "device_id", "-time")
-            .distinct("serial", "device_id")
-            .filter(device=obj)
-            .prefetch_related("tags", "device")
-        )
-
+    def full_width_page(self):
         return self.render(
             "inventory_monitor/device_probes_include.html",
-            extra_context={
-                "device_probes": device_probes[:10],
-                "total_device_probes_count": device_probes.count(),
-            },
         )
 
 
@@ -65,8 +51,28 @@ class ImportComponentScriptButton(PluginTemplateExtension):
         )
 
 
+class TenantContractorExtension(PluginTemplateExtension):
+    model = "tenancy.tenant"
+
+    def left_page(self):
+        contractor = Contractor.objects.filter(
+            tenant_id=self.context["object"].pk
+        ).first()
+
+        contracts_count = contractor.contracts.count() if contractor else 0
+
+        return self.render(
+            "inventory_monitor/tenant_contractor_extension.html",
+            extra_context={
+                "contractor": contractor,
+                "contracts_count": contracts_count,
+            },
+        )
+
+
 template_extensions = [
     DeviceProbeList,
     InventoryItemDuplicates,
     ImportComponentScriptButton,
+    TenantContractorExtension,
 ]

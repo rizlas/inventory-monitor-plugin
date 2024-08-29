@@ -2,6 +2,7 @@ import django_filters
 from django.db.models import Q
 from extras.filters import TagFilter
 from netbox.filtersets import NetBoxModelFilterSet
+from tenancy.models import Tenant
 
 from inventory_monitor.models import Contractor
 
@@ -39,9 +40,22 @@ class ContractorFilterSet(NetBoxModelFilterSet):
     company = django_filters.CharFilter(lookup_expr="icontains")
     address = django_filters.CharFilter(lookup_expr="icontains")
 
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        field_name="tenant__id",
+        queryset=Tenant.objects.all(),
+        to_field_name="id",
+        label="Tenant (ID)",
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        field_name="tenant__name",
+        queryset=Tenant.objects.all(),
+        to_field_name="name",
+        label="Tenant (name)",
+    )
+
     class Meta:
         model = Contractor
-        fields = ("id", "name", "company", "address")
+        fields = ("id", "name", "company", "address", "tenant")
 
     def search(self, queryset, name, value):
         """
@@ -59,4 +73,5 @@ class ContractorFilterSet(NetBoxModelFilterSet):
         name = Q(name__icontains=value)
         company = Q(company__icontains=value)
         address = Q(address__icontains=value)
-        return queryset.filter(name | company | address)
+        tenant_name = Q(tenant__name__icontains=value)
+        return queryset.filter(name | company | address | tenant_name)

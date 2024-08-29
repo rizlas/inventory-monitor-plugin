@@ -8,14 +8,6 @@ from inventory_monitor import filtersets, forms, models, tables
 class ComponentView(generic.ObjectView):
     queryset = models.Component.objects.all()
 
-    def get_extra_context(self, request, instance):
-        table = tables.ComponentServiceTable(instance.services.all())
-        table.configure(request)
-
-        return {
-            "component_services_table": table,
-        }
-
 
 class ComponentListView(generic.ObjectListView):
     queryset = (

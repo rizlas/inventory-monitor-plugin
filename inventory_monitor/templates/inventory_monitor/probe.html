@@ -104,10 +104,7 @@
         <div class="col col-md-12">
             <div class="card">
                 <h5 class="card-header">Inventory Items</h5>
-                <div class="card-body table-responsive">
-                    {% render_table inventory_items_table %}
-                    {% include "inc/paginator.html" with paginator=inventory_items_table.paginator page=inventory_items_table.page %}
-                </div>
+                {% htmx_table 'dcim:inventoryitem_list' cf_inventory_monitor_probe=object.pk %}
             </div>
         </div>
     </div>
@@ -115,10 +112,7 @@
         <div class="col col-md-12">
             <div class="card">
                 <h5 class="card-header">History</h5>
-                <div class="card-body table-responsive">
-                    {% render_table probe_table %}
-                    {% include "inc/paginator.html" with paginator=probe_table.paginator page=probe_table.page %}
-                </div>
+                {% htmx_table 'plugins:inventory_monitor:probe_list' serial=object.serial %}
             </div>
         </div>
     </div>

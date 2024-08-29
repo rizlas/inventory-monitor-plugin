@@ -18,7 +18,7 @@ class ProbeViewSet(NetBoxModelViewSet):
 
 
 class ContractorViewSet(NetBoxModelViewSet):
-    queryset = models.Contractor.objects.prefetch_related("tags")
+    queryset = models.Contractor.objects.prefetch_related("tags", "tenant")
     serializer_class = ContractorSerializer
     filterset_class = filtersets.ContractorFilterSet
 

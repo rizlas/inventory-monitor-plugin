@@ -1,6 +1,7 @@
+from dcim.api.serializers import DeviceSerializer, LocationSerializer, SiteSerializer
 from netbox.api.serializers import NetBoxModelSerializer
-from dcim.api.serializers import DeviceSerializer, SiteSerializer, LocationSerializer
 from rest_framework import serializers
+from tenancy.api.serializers import TenantSerializer
 
 from inventory_monitor.models import (
     Component,
@@ -52,6 +53,7 @@ class ContractorSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:inventory_monitor-api:contractor-detail"
     )
+    tenant = TenantSerializer(nested=True)
 
     class Meta:
         model = Contractor
@@ -62,6 +64,7 @@ class ContractorSerializer(NetBoxModelSerializer):
             "name",
             "company",
             "address",
+            "tenant",
             "tags",
             "comments",
             "custom_fields",

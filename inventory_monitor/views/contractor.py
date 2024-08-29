@@ -40,20 +40,6 @@ def annotate_contracts_with_attachments(contracts, instance):
 class ContractorView(generic.ObjectView):
     queryset = models.Contractor.objects.all()
 
-    def get_extra_context(self, request, instance):
-        contracts = models.Contract.objects.filter(contractor=instance).annotate(
-            subcontracts_count=Count("subcontracts", distinct=True),
-            invoices_count=Count("invoices", distinct=True),
-        )
-
-        if attachments_model_exists:
-            contracts = annotate_contracts_with_attachments(contracts, instance)
-
-        contracts_table = tables.ContractTable(contracts)
-        contracts_table.configure(request)
-
-        return {"contracts_table": contracts_table}
-
 
 class ContractorListView(generic.ObjectListView):
     queryset = models.Contractor.objects.prefetch_related("tags").annotate(
