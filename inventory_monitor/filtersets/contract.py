@@ -45,8 +45,6 @@ class ContractFilterSet(NetBoxModelFilterSet):
 
     # Rest of the code...
 
-
-class ContractFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method="search",
         label="Search",
