@@ -51,24 +51,6 @@ def annotate_queryset_with_counts(queryset):
 class ContractView(generic.ObjectView):
     queryset = annotate_queryset_with_counts(models.Contract.objects.all())
 
-    def get_extra_context(self, request, instance):
-        subcontracts = annotate_queryset_with_counts(
-            models.Contract.objects.filter(parent=instance)
-        )
-        invoices = instance.invoices.all().annotate(
-            attachments_count=get_attachments_count_query("invoice")
-        )
-
-        subcontracts_table = tables.ContractTable(subcontracts)
-        subcontracts_table.configure(request)
-        invoices_table = tables.InvoiceTable(invoices)
-        invoices_table.configure(request)
-
-        return {
-            "subcontracts_table": subcontracts_table,
-            "invoices_table": invoices_table,
-        }
-
 
 class ContractListView(generic.ObjectListView):
     queryset = annotate_queryset_with_counts(models.Contract.objects.all())
