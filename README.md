@@ -7,6 +7,86 @@ Discover inventory from devices in NetBox
 
 ---
 
+```mermaid
+classDiagram
+    class Contractor {
+        +name: str
+        +company: str
+        +address: str
+        +tenant: FK
+    }
+    
+    class Contract {
+        +name: str
+        +name_internal: str
+        +type: str
+        +price: decimal
+        +signed: date
+        +accepted: date
+        +invoicing_start: date
+        +invoicing_end: date
+    }
+    
+    class Invoice {
+        +name: str
+        +name_internal: str
+        +project: str
+        +price: decimal
+        +invoicing_start: date
+        +invoicing_end: date
+    }
+    
+    class Component {
+        +serial: str
+        +serial_actual: str
+        +partnumber: str
+        +asset_number: str
+        +project: str
+        +vendor: str
+        +quantity: int
+        +price: decimal
+        +warranty_start: date
+        +warranty_end: date
+    }
+    
+    class ComponentService {
+        +service_start: date
+        +service_end: date
+        +service_param: str
+        +service_price: decimal
+        +service_category: str
+        +service_category_vendor: str
+    }
+    
+    class Probe {
+        +time: datetime
+        +device_descriptor: str
+        +site_descriptor: str
+        +location_descriptor: str
+        +part: str
+        +name: str
+        +serial: str
+        +description: str
+    }
+
+    Contractor "1" -- "*" Contract: has
+    Contract "1" -- "*" Invoice: has
+    Contract "1" -- "*" Contract: parent/subcontracts
+    Contract "1" -- "*" Component: order_contract
+    Contract "1" -- "*" ComponentService: has
+    Component "1" -- "*" ComponentService: has
+    Component "*" -- "1" Device: belongs to
+    Component "*" -- "1" Site: belongs to
+    Component "*" -- "1" Location: belongs to
+    Component "*" -- "1" InventoryItem: belongs to
+    Probe "*" -- "1" Device: belongs to
+    Probe "*" -- "1" Site: belongs to
+    Probe "*" -- "1" Location: belongs to
+```
+
+---
+
+
 ### **How the Data Model Works**
 1. **Contractor**
    - Represents an external company or individual providing services or components.
@@ -113,3 +193,4 @@ Discover inventory from devices in NetBox
 4. A **probe** captures performance data (temperature) for the router at a specific time.
 
 This structure enables easy tracking of components, contracts, invoices, and services within the NetBox plugin.
+
