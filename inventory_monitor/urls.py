@@ -1,10 +1,11 @@
-from django.urls import path
+from django.urls import include, path
 from netbox.views.generic import ObjectChangeLogView
+from utilities.urls import get_model_urls
 
 from inventory_monitor import models, views
 
 urlpatterns = (
-    # Probes
+    ## Probes
     path("probes/", views.ProbeListView.as_view(), name="probe_list"),
     path("probes/add/", views.ProbeEditView.as_view(), name="probe_add"),
     path("probes/<int:pk>/", views.ProbeView.as_view(), name="probe"),
@@ -13,19 +14,29 @@ urlpatterns = (
         "probes/<int:pk>/delete/", views.ProbeDeleteView.as_view(), name="probe_delete"
     ),
     path(
+        "probes/delete/",
+        views.ProbeBulkDeleteView.as_view(),
+        name="probe_bulk_delete",
+    ),
+    # INFO: Changelog needs to be add manually, cause Probe model is not derived from NetBoxModel
+    path(
         "probes/<int:pk>/changelog/",
         ObjectChangeLogView.as_view(),
         name="probe_changelog",
         kwargs={"model": models.Probe},
     ),
+    # Adds url's like changelog, journal, attachments (from plugin) and etc.
     path(
-        "probes/delete/",
-        views.ProbeBulkDeleteView.as_view(),
-        name="probe_bulk_delete",
+        "probes/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "probe")),
     ),
-    # Probe Diff
+    path(
+        "probes/",
+        include(get_model_urls("inventory_monitor", "probe", detail=False)),
+    ),
+    ## Probe Diff
     path("probe_diff/", views.ProbeDiffView.as_view(), name="probediff"),
-    # Contractors
+    ## Contractors
     path("contractors/", views.ContractorListView.as_view(), name="contractor_list"),
     path("contractors/add/", views.ContractorEditView.as_view(), name="contractor_add"),
     path("contractors/<int:pk>/", views.ContractorView.as_view(), name="contractor"),
@@ -39,13 +50,16 @@ urlpatterns = (
         views.ContractorDeleteView.as_view(),
         name="contractor_delete",
     ),
+    # Adds url's like changelog, journal, attachments (from plugin) and etc.
     path(
-        "contractors/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="contractor_changelog",
-        kwargs={"model": models.Contractor},
+        "contractors/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "contractor")),
     ),
-    # Contracts
+    path(
+        "contractors/",
+        include(get_model_urls("inventory_monitor", "contractor", detail=False)),
+    ),
+    ## Contracts
     path("contracts/", views.ContractListView.as_view(), name="contract_list"),
     path("contracts/add/", views.ContractEditView.as_view(), name="contract_add"),
     path("contracts/<int:pk>/", views.ContractView.as_view(), name="contract"),
@@ -59,13 +73,16 @@ urlpatterns = (
         views.ContractDeleteView.as_view(),
         name="contract_delete",
     ),
+    # Adds url's like changelog, journal, attachments (from plugin) and etc.
     path(
-        "contracts/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="contract_changelog",
-        kwargs={"model": models.Contract},
+        "contracts/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "contract")),
     ),
-    # Invoice
+    path(
+        "contracts/",
+        include(get_model_urls("inventory_monitor", "contract", detail=False)),
+    ),
+    ## Invoice
     path("invoices/", views.InvoiceListView.as_view(), name="invoice_list"),
     path("invoices/add/", views.InvoiceEditView.as_view(), name="invoice_add"),
     path("invoices/<int:pk>/", views.InvoiceView.as_view(), name="invoice"),
@@ -77,13 +94,16 @@ urlpatterns = (
         views.InvoiceDeleteView.as_view(),
         name="invoice_delete",
     ),
+    # Adds url's like changelog, journal, attachments (from plugin) and etc.
     path(
-        "invoices/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="invoice_changelog",
-        kwargs={"model": models.Invoice},
+        "invoices/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "invoice")),
     ),
-    # Component
+    path(
+        "invoices/",
+        include(get_model_urls("inventory_monitor", "invoice", detail=False)),
+    ),
+    ## Component
     path("components/", views.ComponentListView.as_view(), name="component_list"),
     path("components/add/", views.ComponentEditView.as_view(), name="component_add"),
     path("components/<int:pk>/", views.ComponentView.as_view(), name="component"),
@@ -97,13 +117,16 @@ urlpatterns = (
         views.ComponentDeleteView.as_view(),
         name="component_delete",
     ),
+    # Adds url's like changelog, journal, attachments (from plugin) and etc.
     path(
-        "components/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="component_changelog",
-        kwargs={"model": models.Component},
+        "components/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "component")),
     ),
-    # ComponentService
+    path(
+        "components/",
+        include(get_model_urls("inventory_monitor", "component", detail=False)),
+    ),
+    ## ComponentService
     path(
         "component-services/",
         views.ComponentServiceListView.as_view(),
@@ -129,10 +152,13 @@ urlpatterns = (
         views.ComponentServiceDeleteView.as_view(),
         name="componentservice_delete",
     ),
+    # Adds url's like changelog, journal, attachments (from plugin) and etc.
     path(
-        "component-services/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="componentservice_changelog",
-        kwargs={"model": models.ComponentService},
+        "component-services/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "componentservice")),
+    ),
+    path(
+        "component-services/",
+        include(get_model_urls("inventory_monitor", "componentservice", detail=False)),
     ),
 )
