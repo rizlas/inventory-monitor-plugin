@@ -69,10 +69,23 @@ class TenantContractorExtension(PluginTemplateExtension):
             },
         )
 
+class InventoryItemAssetExtenstion(PluginTemplateExtension):
+    model = "dcim.inventoryitem"
+
+    def right_page(self):
+        assets = self.context["object"].assets.all()
+
+        return self.render(
+            "inventory_monitor/inventory_item_asset_extension.html",
+            extra_context={
+                "assets": assets,
+            },
+        )
 
 template_extensions = [
     DeviceProbeList,
     InventoryItemDuplicates,
     ImportAssetScriptButton,
     TenantContractorExtension,
+    InventoryItemAssetExtenstion,
 ]
