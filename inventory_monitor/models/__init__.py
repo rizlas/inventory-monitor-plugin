@@ -4,3 +4,4 @@ from inventory_monitor.models.contract import *
 from inventory_monitor.models.contractor import *
 from inventory_monitor.models.invoice import *
 from inventory_monitor.models.probe import *
+from inventory_monitor.models.rma import *
