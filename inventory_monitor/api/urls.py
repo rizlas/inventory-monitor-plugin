@@ -10,6 +10,6 @@ router.register("contracts", views.ContractViewSet)
 router.register("invoices", views.InvoiceViewSet)
 router.register("assets", views.AssetViewSet)
 router.register("component-services", views.ComponentServiceViewSet)
-
+router.register("rmas", views.RMAViewSet)
 
 urlpatterns = router.urls

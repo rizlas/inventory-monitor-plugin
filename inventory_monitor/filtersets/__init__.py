@@ -4,3 +4,4 @@ from inventory_monitor.filtersets.contract import *
 from inventory_monitor.filtersets.contractor import *
 from inventory_monitor.filtersets.invoice import *
 from inventory_monitor.filtersets.probe import *
+from inventory_monitor.filtersets.rma import *

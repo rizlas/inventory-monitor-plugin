@@ -61,7 +61,7 @@ class RMA(NetBoxModel):
     )
 
     date_issued = models.DateField(
-        auto_now_add=True, help_text="Date when RMA was created"
+        null=True, blank=True, help_text="Date when RMA was created"
     )
 
     date_shipped = models.DateField(
@@ -92,7 +92,7 @@ class RMA(NetBoxModel):
         return reverse("plugins:inventory_monitor:rma", args=[self.pk])
 
     def get_status_color(self):
-        return RMAStatusChoices.get_color_for_value(self.status, "gray")
+        return RMAStatusChoices.colors.get(self.status, "gray")
 
     def save(self, *args, **kwargs):
         # Automatically populate original_serial from asset if not set

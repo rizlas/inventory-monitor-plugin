@@ -8,6 +8,7 @@ from inventory_monitor.api.serializers import (
     ContractSerializer,
     InvoiceSerializer,
     ProbeSerializer,
+    RMASerializer,
 )
 
 
@@ -45,3 +46,9 @@ class ComponentServiceViewSet(NetBoxModelViewSet):
     queryset = models.ComponentService.objects.prefetch_related("tags", "contract")
     serializer_class = ComponentServiceSerializer
     filterset_class = filtersets.ComponentServiceFilterSet
+
+
+class RMAViewSet(NetBoxModelViewSet):
+    queryset = models.RMA.objects.prefetch_related("tags", "asset")
+    serializer_class = RMASerializer
+    filterset_class = filtersets.RMAFilterSet

@@ -148,6 +148,7 @@
     <div class="col col-md-6">{% plugin_right_page object %}</div>
   </div>
   <div class="row mb-3">
+    {% include 'inventory_monitor/inc/asset_rmas.html' with rmas=object.rmas.all %}
     <div class="col col-md-12">{% plugin_full_width_page object %}</div>
   </div>
 {% endblock content %}

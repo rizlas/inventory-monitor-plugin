@@ -52,6 +52,11 @@ menu = PluginMenu(
                     link_text="Services",
                     permissions=["inventory_monitor.view_componentservice"],
                 ),
+                PluginMenuItem(
+                    link="plugins:inventory_monitor:rma_list",
+                    link_text="RMA",
+                    permissions=["inventory_monitor.view_rma"],
+                ),
             ),
         ),
     ),

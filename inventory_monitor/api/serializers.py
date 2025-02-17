@@ -4,6 +4,7 @@ from rest_framework import serializers
 from tenancy.api.serializers import TenantSerializer
 
 from inventory_monitor.models import (
+    RMA,
     Asset,
     ComponentService,
     Contract,
@@ -218,4 +219,33 @@ class ComponentServiceSerializer(NetBoxModelSerializer):
             "service_price",
             "asset",
             "contract",
+        ]
+
+
+class RMASerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="plugins-api:inventory_monitor-api:rma-detail"
+    )
+    asset = AssetSerializer(nested=True)
+
+    class Meta:
+        model = RMA
+        fields = [
+            "id",
+            "url",
+            "display",
+            "rma_number",
+            "asset",
+            "original_serial",
+            "replacement_serial",
+            "status",
+            "date_issued",
+            "date_shipped",
+            "tracking_number",
+            "issue_description",
+            "vendor_response",
+            "tags",
+            "custom_fields",
+            "created",
+            "last_updated",
         ]

@@ -161,4 +161,12 @@ urlpatterns = (
         "component-services/",
         include(get_model_urls("inventory_monitor", "componentservice", detail=False)),
     ),
+    ## RMA
+    path("rmas/", views.RMAListView.as_view(), name="rma_list"),
+    path("rmas/add/", views.RMAEditView.as_view(), name="rma_add"),
+    path("rmas/<int:pk>/", views.RMAView.as_view(), name="rma"),
+    path("rmas/<int:pk>/edit/", views.RMAEditView.as_view(), name="rma_edit"),
+    path("rmas/<int:pk>/delete/", views.RMADeleteView.as_view(), name="rma_delete"),
+    path("rmas/", include(get_model_urls("inventory_monitor", "rma"))),
+    path("rmas/<int:pk>/", include(get_model_urls("inventory_monitor", "rma", detail=True))),
 )
