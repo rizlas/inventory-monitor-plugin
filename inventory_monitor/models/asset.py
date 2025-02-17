@@ -4,6 +4,8 @@ from django.urls import reverse
 from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
 
+from inventory_monitor.models.probe import Probe
+
 
 class Asset(NetBoxModel):
     objects = RestrictedQuerySet.as_manager()
@@ -92,6 +94,31 @@ class Asset(NetBoxModel):
             "warranty_start",
             "warranty_end",
         )
+
+    def get_related_probes(self):
+        """
+        Get all probe records related to this asset through various serial number matches:
+        - serial_actual (current serial)
+        - serial (original serial)
+        - RMA serial numbers (from related RMAs)
+
+        Returns:
+        - QuerySet of Probe objects ordered by time descending
+        """
+
+        serials = {self.serial_actual, self.serial}
+        rma_original_serials = set(self.rmas.values_list("original_serial", flat=True))
+        rma_replacement_serials = set(
+            self.rmas.values_list("replacement_serial", flat=True)
+        )
+
+        # add rma_original_serials and rma_replacement_serials to serials
+        serials.update(rma_original_serials)
+        serials.update(rma_replacement_serials)
+        # get rid of None values
+        serials = [s for s in serials if s]
+
+        return Probe.objects.filter(serial__in=serials).order_by("-time")
 
     def __str__(self):
         return f"{self.serial}"

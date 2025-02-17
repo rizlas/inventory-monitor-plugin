@@ -1,7 +1,7 @@
-from inventory_monitor.models.asset import *
 from inventory_monitor.models.component_service import *
 from inventory_monitor.models.contract import *
 from inventory_monitor.models.contractor import *
 from inventory_monitor.models.invoice import *
 from inventory_monitor.models.probe import *
+from inventory_monitor.models.asset import *  # !After the Probe
 from inventory_monitor.models.rma import *

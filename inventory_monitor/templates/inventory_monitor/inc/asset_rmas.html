@@ -6,7 +6,7 @@
             <h5 class="card-header">
                 RMA's
                 <div class="card-actions">
-                    <a href="{% url 'plugins:inventory_monitor:rma_list' %}?asset={{ object.pk }}"
+                    <a href="{% url 'plugins:inventory_monitor:rma_list' %}?asset_id={{ object.pk }}"
                        class="btn btn-primary btn-sm">
                         <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>RMA's List
                     </a>
@@ -18,7 +18,7 @@
                     {% endif %}
                 </div>
             </h5>
-            {% htmx_table 'plugins:inventory_monitor:rma_list' asset=object.pk %}
+            {% htmx_table 'plugins:inventory_monitor:rma_list' asset_id=object.pk %}
         </div>
     </div>
 </div>

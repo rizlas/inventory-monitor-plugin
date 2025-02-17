@@ -1,0 +1,14 @@
+{% extends "generic/object_children.html" %}
+{% load render_table from django_tables2 %}
+{% load static %}
+{% load helpers %}
+{% if perms.inventory_monitor.view_probe %}
+    {% block content %}
+        {% block table_controls %}
+            {% include "inc/table_controls_htmx.html" with table_modal="ProbeTable_config" %}
+        {% endblock table_controls %}
+        <div class="card">
+            <div class="card-body" id="object_list">{% include 'inc/table.html' with table=table %}</div>
+        </div>
+    {% endblock content %}
+{% endif %}

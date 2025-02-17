@@ -30,6 +30,8 @@ class RMATable(NetBoxTable):
         default_columns = (
             "rma_number",
             "asset",
+            "original_serial",
+            "replacement_serial",
             "status",
             "date_issued",
             "date_shipped",
