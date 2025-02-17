@@ -6,10 +6,10 @@ from inventory_monitor.helpers import (
     TEMPLATE_SERVICES_END,
     NumberColumn,
 )
-from inventory_monitor.models import Component
+from inventory_monitor.models import Asset
 
 
-class ComponentTable(NetBoxTable):
+class AssetTable(NetBoxTable):
     serial = tables.Column(linkify=True)
     device = tables.Column(linkify=True)
     inventory_item = tables.Column(linkify=True)
@@ -24,7 +24,7 @@ class ComponentTable(NetBoxTable):
     )
 
     class Meta(NetBoxTable.Meta):
-        model = Component
+        model = Asset
         fields = (
             "pk",
             "id",

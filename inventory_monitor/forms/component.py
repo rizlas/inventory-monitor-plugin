@@ -11,10 +11,10 @@ from utilities.forms.fields import (
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets.datetime import DatePicker
 
-from inventory_monitor.models import Component, Contract
+from inventory_monitor.models import Asset, Contract
 
 
-class ComponentForm(NetBoxModelForm):
+class AssetForm(NetBoxModelForm):
     fieldsets = (
         FieldSet(
             "serial",
@@ -25,7 +25,7 @@ class ComponentForm(NetBoxModelForm):
             "price",
             "vendor",
             "quantity",
-            name=_("Component"),
+            name=_("Asset"),
         ),
         FieldSet(
             "order_contract",
@@ -108,7 +108,7 @@ class ComponentForm(NetBoxModelForm):
     )
 
     class Meta:
-        model = Component
+        model = Asset
         fields = (
             "serial",
             "serial_actual",
@@ -130,8 +130,8 @@ class ComponentForm(NetBoxModelForm):
         )
 
 
-class ComponentFilterForm(NetBoxModelFilterSetForm):
-    model = Component
+class AssetFilterForm(NetBoxModelFilterSetForm):
+    model = Asset
 
     fieldsets = (
         FieldSet("q", "filter_id", "tag", name=_("Misc")),
@@ -159,7 +159,7 @@ class ComponentFilterForm(NetBoxModelFilterSetForm):
             "asset_number",
             "project",
             "vendor",
-            name=_("Component"),
+            name=_("Asset"),
         ),
         FieldSet("quantity", "quantity__gte", "quantity__lte", name=_("Items")),
         FieldSet("price", "price__gte", "price__lte", name=_("Price")),

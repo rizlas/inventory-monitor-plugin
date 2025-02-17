@@ -10,12 +10,12 @@ from utilities.forms.fields import (
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets.datetime import DatePicker
 
-from inventory_monitor.models import Component, ComponentService, Contract
+from inventory_monitor.models import Asset, ComponentService, Contract
 
 
 class ComponentServiceForm(NetBoxModelForm):
     fieldsets = (
-        FieldSet("contract", "component", name=_("Linked")),
+        FieldSet("contract", "asset", name=_("Linked")),
         FieldSet("service_start", "service_end", name=_("Dates")),
         FieldSet(
             "service_price",
@@ -53,10 +53,10 @@ class ComponentServiceForm(NetBoxModelForm):
         required=False,
         label="Service Category Vendor",
     )
-    component = DynamicModelChoiceField(
-        queryset=Component.objects.all(),
+    asset = DynamicModelChoiceField(
+        queryset=Asset.objects.all(),
         required=True,
-        label="Service Component",
+        label="Service Asset",
     )
     contract = DynamicModelChoiceField(
         queryset=Contract.objects.all(),
@@ -73,7 +73,7 @@ class ComponentServiceForm(NetBoxModelForm):
             "service_price",
             "service_category",
             "service_category_vendor",
-            "component",
+            "asset",
             "contract",
             "comments",
             "tags",
@@ -85,7 +85,7 @@ class ComponentServiceFilterForm(NetBoxModelFilterSetForm):
 
     fieldsets = (
         FieldSet("q", "filter_id", "tag", name=_("Misc")),
-        FieldSet("component", "contract", name=_("Linked")),
+        FieldSet("asset", "contract", name=_("Linked")),
         FieldSet(
             "service_start",
             "service_start__gte",
@@ -143,8 +143,8 @@ class ComponentServiceFilterForm(NetBoxModelFilterSetForm):
         label="Service Category Vendor",
     )
 
-    component = DynamicModelMultipleChoiceField(
-        queryset=Component.objects.all(), required=False, label=_("Component")
+    asset = DynamicModelMultipleChoiceField(
+        queryset=Asset.objects.all(), required=False, label=_("Asset")
     )
     contract = DynamicModelMultipleChoiceField(
         queryset=Contract.objects.all(), required=False, label=_("Contract")

@@ -5,8 +5,8 @@ from netbox.plugins import PluginTemplateExtension
 from inventory_monitor.models import Contractor
 
 plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
-import_component_url = plugin_settings.get(
-    "import_component_url", "/extras/scripts/component_import.ImportComponent/"
+import_asset_url = plugin_settings.get(
+    "import_asset_url", "/extras/scripts/asset_import.ImportAsset/"
 )
 
 
@@ -41,13 +41,13 @@ class InventoryItemDuplicates(PluginTemplateExtension):
         )
 
 
-class ImportComponentScriptButton(PluginTemplateExtension):
-    model = "inventory_monitor.component"
+class ImportAssetScriptButton(PluginTemplateExtension):
+    model = "inventory_monitor.asset"
 
     def list_buttons(self):
         return self.render(
-            "inventory_monitor/import_component_button.html",
-            extra_context={"url": import_component_url},
+            "inventory_monitor/import_asset_button.html",
+            extra_context={"url": import_asset_url},
         )
 
 
@@ -73,6 +73,6 @@ class TenantContractorExtension(PluginTemplateExtension):
 template_extensions = [
     DeviceProbeList,
     InventoryItemDuplicates,
-    ImportComponentScriptButton,
+    ImportAssetScriptButton,
     TenantContractorExtension,
 ]

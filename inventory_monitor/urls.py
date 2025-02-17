@@ -103,28 +103,28 @@ urlpatterns = (
         "invoices/",
         include(get_model_urls("inventory_monitor", "invoice", detail=False)),
     ),
-    ## Component
-    path("components/", views.ComponentListView.as_view(), name="component_list"),
-    path("components/add/", views.ComponentEditView.as_view(), name="component_add"),
-    path("components/<int:pk>/", views.ComponentView.as_view(), name="component"),
+    ## Asset
+    path("assets/", views.AssetListView.as_view(), name="asset_list"),
+    path("assets/add/", views.AssetEditView.as_view(), name="asset_add"),
+    path("assets/<int:pk>/", views.AssetView.as_view(), name="asset"),
     path(
-        "components/<int:pk>/edit/",
-        views.ComponentEditView.as_view(),
-        name="component_edit",
+        "assets/<int:pk>/edit/",
+        views.AssetEditView.as_view(),
+        name="asset_edit",
     ),
     path(
-        "components/<int:pk>/delete/",
-        views.ComponentDeleteView.as_view(),
-        name="component_delete",
+        "assets/<int:pk>/delete/",
+        views.AssetDeleteView.as_view(),
+        name="asset_delete",
     ),
     # Adds url's like changelog, journal, attachments (from plugin) and etc.
     path(
-        "components/<int:pk>/",
-        include(get_model_urls("inventory_monitor", "component")),
+        "assets/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "asset")),
     ),
     path(
-        "components/",
-        include(get_model_urls("inventory_monitor", "component", detail=False)),
+        "assets/",
+        include(get_model_urls("inventory_monitor", "asset", detail=False)),
     ),
     ## ComponentService
     path(

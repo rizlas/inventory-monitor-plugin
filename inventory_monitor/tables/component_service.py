@@ -6,7 +6,7 @@ from inventory_monitor.models import ComponentService
 
 
 class ComponentServiceTable(NetBoxTable):
-    component = tables.Column(linkify=True)
+    asset = tables.Column(linkify=True)
     contract = tables.Column(linkify=True)
     service_price = NumberColumn(accessor="service_price")
 
@@ -21,7 +21,7 @@ class ComponentServiceTable(NetBoxTable):
             "service_price",
             "service_category",
             "service_category_vendor",
-            "component",
+            "asset",
             "contract",
             "comments",
             "actions",

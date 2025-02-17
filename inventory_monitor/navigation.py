@@ -40,12 +40,12 @@ menu = PluginMenu(
             ),
         ),
         (
-            "Components",
+            "Assets",
             (
                 PluginMenuItem(
-                    link="plugins:inventory_monitor:component_list",
-                    link_text="Components",
-                    permissions=["inventory_monitor.view_component"],
+                    link="plugins:inventory_monitor:asset_list",
+                    link_text="Assets",
+                    permissions=["inventory_monitor.view_asset"],
                 ),
                 PluginMenuItem(
                     link="plugins:inventory_monitor:componentservice_list",

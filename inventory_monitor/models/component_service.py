@@ -26,8 +26,8 @@ class ComponentService(NetBoxModel):
     )
     service_category = models.CharField(max_length=255, blank=True, null=True)
     service_category_vendor = models.CharField(max_length=255, blank=True, null=True)
-    component = models.ForeignKey(
-        to="inventory_monitor.component",
+    asset = models.ForeignKey(
+        to="inventory_monitor.asset",
         on_delete=models.PROTECT,
         related_name="services",
         blank=True,
@@ -50,7 +50,7 @@ class ComponentService(NetBoxModel):
             "service_price",
             "service_category",
             "service_category_vendor",
-            "component",
+            "asset",
             "contract",
         )
 

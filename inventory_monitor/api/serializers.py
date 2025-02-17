@@ -4,7 +4,7 @@ from rest_framework import serializers
 from tenancy.api.serializers import TenantSerializer
 
 from inventory_monitor.models import (
-    Component,
+    Asset,
     ComponentService,
     Contract,
     Contractor,
@@ -141,14 +141,14 @@ class InvoiceSerializer(NetBoxModelSerializer):
         brief_fields = ["id", "url", "display", "name", "name_internal"]
 
 
-class ComponentSerializer(NetBoxModelSerializer):
+class AssetSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:component-detail"
+        view_name="plugins-api:inventory_monitor-api:asset-detail"
     )
     order_contract = ContractSerializer(nested=True)
 
     class Meta:
-        model = Component
+        model = Asset
         fields = [
             "id",
             "url",
@@ -188,7 +188,7 @@ class ComponentServiceSerializer(NetBoxModelSerializer):
         view_name="plugins-api:inventory_monitor-api:componentservice-detail"
     )
     contract = ContractSerializer(nested=True)
-    component = ComponentSerializer(nested=True)
+    asset = AssetSerializer(nested=True)
 
     class Meta:
         model = ComponentService
@@ -202,7 +202,7 @@ class ComponentServiceSerializer(NetBoxModelSerializer):
             "service_price",
             "service_category",
             "service_category_vendor",
-            "component",
+            "asset",
             "contract",
             "tags",
             "comments",
@@ -216,6 +216,6 @@ class ComponentServiceSerializer(NetBoxModelSerializer):
             "service_start",
             "service_end",
             "service_price",
-            "component",
+            "asset",
             "contract",
         ]

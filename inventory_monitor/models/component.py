@@ -5,7 +5,7 @@ from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
 
 
-class Component(NetBoxModel):
+class Asset(NetBoxModel):
     objects = RestrictedQuerySet.as_manager()
     serial = models.CharField(max_length=255, blank=False, null=False)
     serial_actual = models.CharField(max_length=255, blank=False, null=False)
@@ -13,7 +13,7 @@ class Component(NetBoxModel):
     device = models.ForeignKey(
         to="dcim.device",
         on_delete=models.PROTECT,
-        related_name="components",
+        related_name="assets",
         blank=True,
         null=True,
     )
@@ -23,21 +23,21 @@ class Component(NetBoxModel):
     site = models.ForeignKey(
         to="dcim.site",  # Locality,
         on_delete=models.PROTECT,
-        related_name="components",
+        related_name="assets",
         blank=True,
         null=True,
     )
     location = models.ForeignKey(
         to="dcim.location",
         on_delete=models.PROTECT,
-        related_name="components",
+        related_name="assets",
         blank=True,
         null=True,
     )
     inventory_item = models.ForeignKey(
         to="dcim.inventoryitem",
         on_delete=models.PROTECT,
-        related_name="components",
+        related_name="assets",
         blank=True,
         null=True,
     )
@@ -59,7 +59,7 @@ class Component(NetBoxModel):
     order_contract = models.ForeignKey(
         to="inventory_monitor.contract",  # Contractor,
         on_delete=models.PROTECT,
-        related_name="components",
+        related_name="assets",
         blank=True,
         null=True,
     )
@@ -97,7 +97,7 @@ class Component(NetBoxModel):
         return f"{self.serial}"
 
     def get_absolute_url(self):
-        return reverse("plugins:inventory_monitor:component", args=[self.pk])
+        return reverse("plugins:inventory_monitor:asset", args=[self.pk])
 
     def clean(self):
         super().clean()

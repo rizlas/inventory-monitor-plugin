@@ -5,28 +5,28 @@ from netbox.views import generic
 from inventory_monitor import filtersets, forms, models, tables
 
 
-class ComponentView(generic.ObjectView):
-    queryset = models.Component.objects.all()
+class AssetView(generic.ObjectView):
+    queryset = models.Asset.objects.all()
 
 
-class ComponentListView(generic.ObjectListView):
+class AssetListView(generic.ObjectListView):
     queryset = (
-        models.Component.objects.all()
+        models.Asset.objects.all()
         .prefetch_related("services")
         .prefetch_related("tags")
         .annotate(services_count=Count("services"))
         .annotate(services_to=ArrayAgg("services__service_end"))
         .annotate(services_contracts=ArrayAgg("services__contract__name"))
     )
-    filterset = filtersets.ComponentFilterSet
-    filterset_form = forms.ComponentFilterForm
-    table = tables.ComponentTable
+    filterset = filtersets.AssetFilterSet
+    filterset_form = forms.AssetFilterForm
+    table = tables.AssetTable
 
 
-class ComponentEditView(generic.ObjectEditView):
-    queryset = models.Component.objects.all()
-    form = forms.ComponentForm
+class AssetEditView(generic.ObjectEditView):
+    queryset = models.Asset.objects.all()
+    form = forms.AssetForm
 
 
-class ComponentDeleteView(generic.ObjectDeleteView):
-    queryset = models.Component.objects.all()
+class AssetDeleteView(generic.ObjectDeleteView):
+    queryset = models.Asset.objects.all()

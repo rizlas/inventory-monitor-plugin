@@ -4,14 +4,14 @@ from django.db.models import Q
 from extras.filters import TagFilter
 from netbox.filtersets import NetBoxModelFilterSet
 
-from inventory_monitor.models import Component, Contract
+from inventory_monitor.models import Asset, Contract
 
 
-class ComponentFilterSet(NetBoxModelFilterSet):
+class AssetFilterSet(NetBoxModelFilterSet):
     """
-    Filter set for filtering Component objects in NetBox inventory.
+    Filter set for filtering Asset objects in NetBox inventory.
 
-    This filter set provides various filters for searching and filtering Component objects based on different criteria such as serial number, part number, device, location, inventory item, asset number, project, vendor, price, quantity, order contract, warranty start date, and warranty end date.
+    This filter set provides various filters for searching and filtering Asset objects based on different criteria such as serial number, part number, device, location, inventory item, asset number, project, vendor, price, quantity, order contract, warranty start date, and warranty end date.
 
     Attributes:
         q (django_filters.CharFilter): Filter for searching based on a general query string.
@@ -43,7 +43,7 @@ class ComponentFilterSet(NetBoxModelFilterSet):
     # Rest of the code...
 
 
-class ComponentFilterSet(NetBoxModelFilterSet):
+class AssetFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method="search",
         label="Search",
@@ -138,7 +138,7 @@ class ComponentFilterSet(NetBoxModelFilterSet):
     )
 
     class Meta:
-        model = Component
+        model = Asset
         fields = (
             "id",
             "serial",
