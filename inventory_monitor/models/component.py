@@ -74,6 +74,7 @@ class Component(NetBoxModel):
     comments = models.TextField(blank=True)
 
     class Meta:
+        db_table = "inventory_monitor_asset"
         ordering = (
             "serial",
             "serial_actual",
