@@ -24,6 +24,26 @@ class AssignmentStatusChoices(ChoiceSet):
     ]
 
 
+class LifecycleStatusChoices(ChoiceSet):
+    key = "inventory_monitor.asset.lifecycle_status"
+
+    NEW = "new"
+    IN_STOCK = "in_stock"
+    IN_USE = "in_use"
+    IN_MAINTENANCE = "in_maintenance"
+    RETIRED = "retired"
+    DISPOSED = "disposed"
+
+    CHOICES = [
+        (NEW, "New", "green"),
+        (IN_STOCK, "In Stock", "blue"),
+        (IN_USE, "In Use", "cyan"),
+        (IN_MAINTENANCE, "In Maintenance", "orange"),
+        (RETIRED, "Retired", "red"),
+        (DISPOSED, "Disposed", "gray"),
+    ]
+
+
 class Asset(NetBoxModel):
     objects = RestrictedQuerySet.as_manager()
     serial = models.CharField(max_length=255, blank=False, null=False)
@@ -98,6 +118,13 @@ class Asset(NetBoxModel):
         blank=False,
         null=False,
     )
+    lifecycle_status = models.CharField(
+        max_length=30,
+        choices=LifecycleStatusChoices,
+        default=LifecycleStatusChoices.NEW,
+        blank=False,
+        null=False,
+    )
 
     class Meta:
         db_table = "inventory_monitor_asset"
@@ -155,3 +182,6 @@ class Asset(NetBoxModel):
 
     def get_assignment_status_color(self):
         return AssignmentStatusChoices.colors.get(self.assignment_status, "gray")
+
+    def get_lifecycle_status_color(self):
+        return LifecycleStatusChoices.colors.get(self.lifecycle_status, "gray")

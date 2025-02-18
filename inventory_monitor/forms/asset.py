@@ -12,7 +12,10 @@ from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets.datetime import DatePicker
 
 from inventory_monitor.models import Asset, Contract
-from inventory_monitor.models.asset import AssignmentStatusChoices
+from inventory_monitor.models.asset import (
+    AssignmentStatusChoices,
+    LifecycleStatusChoices,
+)
 
 
 class AssetForm(NetBoxModelForm):
@@ -29,6 +32,7 @@ class AssetForm(NetBoxModelForm):
             name=_("Asset"),
         ),
         FieldSet("assignment_status", name=_("Assignment Status")),
+        FieldSet("lifecycle_status", name=_("Lifecycle Status")),
         FieldSet(
             "order_contract",
             "device",
@@ -117,6 +121,7 @@ class AssetForm(NetBoxModelForm):
             "partnumber",
             "device",
             "asset_number",
+            "lifecycle_status",
             "assignment_status",
             "site",
             "location",
@@ -139,6 +144,7 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet("q", "filter_id", "tag", name=_("Misc")),
         FieldSet("assignment_status", name=_("Assignment Status")),
+        FieldSet("lifecycle_status", name=_("Lifecycle Status")),
         FieldSet(
             "order_contract",
             "site",
@@ -176,6 +182,7 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     assignment_status = forms.ChoiceField(
         choices=AssignmentStatusChoices, required=False
     )
+    lifecycle_status = forms.ChoiceField(choices=LifecycleStatusChoices, required=False)
     device = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(), required=False, label=_("Device")
     )

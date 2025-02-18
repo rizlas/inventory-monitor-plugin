@@ -8,42 +8,6 @@ from inventory_monitor.models import Asset, Contract
 
 
 class AssetFilterSet(NetBoxModelFilterSet):
-    """
-    Filter set for filtering Asset objects in NetBox inventory.
-
-    This filter set provides various filters for searching and filtering Asset objects based on different criteria such as serial number, part number, device, location, inventory item, asset number, project, vendor, price, quantity, order contract, warranty start date, and warranty end date.
-
-    Attributes:
-        q (django_filters.CharFilter): Filter for searching based on a general query string.
-        tag (TagFilter): Filter for filtering based on tags.
-        serial (django_filters.CharFilter): Filter for filtering based on the exact serial number.
-        serial_actual (django_filters.CharFilter): Filter for filtering based on the exact actual serial number.
-        partnumber (django_filters.CharFilter): Filter for filtering based on the exact part number.
-        device (django_filters.ModelMultipleChoiceFilter): Filter for filtering based on multiple devices.
-        location (django_filters.ModelMultipleChoiceFilter): Filter for filtering based on multiple locations.
-        inventory_item (django_filters.ModelMultipleChoiceFilter): Filter for filtering based on multiple inventory items.
-        asset_number (django_filters.CharFilter): Filter for filtering based on the asset number.
-        project (django_filters.CharFilter): Filter for filtering based on the project.
-        vendor (django_filters.CharFilter): Filter for filtering based on the vendor.
-        price (django_filters.NumberFilter): Filter for filtering based on the exact price.
-        price__gte (django_filters.NumberFilter): Filter for filtering based on the price greater than or equal to a given value.
-        price__lte (django_filters.NumberFilter): Filter for filtering based on the price less than or equal to a given value.
-        quantity (django_filters.NumberFilter): Filter for filtering based on the exact quantity.
-        quantity__gte (django_filters.NumberFilter): Filter for filtering based on the quantity greater than or equal to a given value.
-        quantity__lte (django_filters.NumberFilter): Filter for filtering based on the quantity less than or equal to a given value.
-        order_contract (django_filters.ModelMultipleChoiceFilter): Filter for filtering based on multiple order contracts.
-        warranty_start (django_filters.DateFilter): Filter for filtering based on the warranty start date.
-        warranty_start__gte (django_filters.DateFilter): Filter for filtering based on the warranty start date greater than or equal to a given date.
-        warranty_start__lte (django_filters.DateFilter): Filter for filtering based on the warranty start date less than or equal to a given date.
-        warranty_end (django_filters.DateFilter): Filter for filtering based on the warranty end date.
-        warranty_end__gte (django_filters.DateFilter): Filter for filtering based on the warranty end date greater than or equal to a given date.
-        warranty_end__lte (django_filters.DateFilter): Filter for filtering based on the warranty end date less than or equal to a given date.
-    """
-
-    # Rest of the code...
-
-
-class AssetFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method="search",
         label="Search",
@@ -59,6 +23,10 @@ class AssetFilterSet(NetBoxModelFilterSet):
 
     assignment_status = django_filters.MultipleChoiceFilter(
         choices=Asset.assignment_status.field.choices,
+    )
+
+    lifecycle_status = django_filters.MultipleChoiceFilter(
+        choices=Asset.lifecycle_status.field.choices,
     )
 
     device = django_filters.ModelMultipleChoiceFilter(
@@ -151,6 +119,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
             "partnumber",
             "asset_number",
             "assignment_status",
+            "lifecycle_status",
             "project",
             "device",
             "site",

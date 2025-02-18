@@ -166,6 +166,7 @@ class AssetSerializer(NetBoxModelSerializer):
             "warranty_start",
             "warranty_end",
             "order_contract",
+            "lifecycle_status",
             "tags",
             "comments",
             "custom_fields",

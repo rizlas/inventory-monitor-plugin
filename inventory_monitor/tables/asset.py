@@ -12,6 +12,7 @@ from inventory_monitor.models import Asset
 class AssetTable(NetBoxTable):
     serial = tables.Column(linkify=True)
     assignment_status = columns.ChoiceFieldColumn()
+    lifecycle_status = columns.ChoiceFieldColumn()
     device = tables.Column(linkify=True)
     inventory_item = tables.Column(linkify=True)
     site = tables.Column(linkify=True)
@@ -36,6 +37,7 @@ class AssetTable(NetBoxTable):
             "asset_number",
             "project",
             "assignment_status",
+            "lifecycle_status",
             "location",
             "site",
             "vendor",
@@ -59,6 +61,7 @@ class AssetTable(NetBoxTable):
             "serial_actual",
             "device",
             "assignment_status",
+            "lifecycle_status",
             "asset_number",
             "site",
             "quantity",
