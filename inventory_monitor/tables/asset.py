@@ -24,6 +24,13 @@ class AssetTable(NetBoxTable):
     services_contracts = tables.TemplateColumn(
         template_code=TEMPLATE_SERVICES_CONTRACTS
     )
+    warranty_status = tables.TemplateColumn(
+        template_code="""
+            {% include 'inventory_monitor/inc/warranty_status_badge.html' %}
+        """,
+        verbose_name="Warranty Status",
+        orderable=False,
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Asset
@@ -47,6 +54,7 @@ class AssetTable(NetBoxTable):
             "inventory_item",
             "warranty_start",
             "warranty_end",
+            "warranty_status",
             "comments",
             "actions",
             "tags",

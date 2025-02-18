@@ -100,6 +100,10 @@
                             <td>{{ object.warranty_end | placeholder }}</td>
                         </tr>
                         <tr>
+                            <th scope="row">Warranty Status</th>
+                            <td>{% include 'inventory_monitor/inc/warranty_status_badge.html' with record=object %}</td>
+                        </tr>
+                        <tr>
                             <th>Items</th>
                             <td>{{ object.quantity }}</td>
                         </tr>

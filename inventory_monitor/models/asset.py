@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from netbox.models import NetBoxModel
 from utilities.choices import ChoiceSet
 from utilities.querysets import RestrictedQuerySet
@@ -185,3 +186,74 @@ class Asset(NetBoxModel):
 
     def get_lifecycle_status_color(self):
         return LifecycleStatusChoices.colors.get(self.lifecycle_status, "gray")
+
+    def get_warranty_status(self):
+        """Returns the warranty status and color for progress bar"""
+        today = timezone.now().date()
+        warning_days = 14
+
+        def format_days_message(days, message_type=None):
+            if message_type is None:
+                message_type = "ago" if days < 0 else "in"
+            days = abs(days)
+            day_text = "day" if days == 1 else "days"
+            return f"{message_type} {days} {day_text}"
+
+        def get_expiration_status(days_until):
+            if days_until <= 0:
+                return {
+                    "color": "danger",
+                    "message": f"Expired {format_days_message(days_until)}",
+                }
+            if days_until <= warning_days:
+                return {
+                    "color": "warning",
+                    "message": f"Expires {format_days_message(days_until)}",
+                }
+            return {
+                "color": "success",
+                "message": f"Valid until {self.warranty_end.strftime('%Y-%m-%d')}",
+            }
+
+        # No dates set
+        if not self.warranty_start and not self.warranty_end:
+            return None
+
+        # Only end date set
+        if not self.warranty_start and self.warranty_end:
+            days_until = (self.warranty_end - today).days
+            return get_expiration_status(days_until)
+
+        # Future warranty
+        if self.warranty_start and today < self.warranty_start:
+            days_until = (self.warranty_start - today).days
+            return {
+                "color": "info",
+                "message": f"Starts {format_days_message(days_until)}",
+            }
+
+        # Both dates set
+        if self.warranty_start and self.warranty_end:
+            total_duration = (self.warranty_end - self.warranty_start).days
+            days_until_expiration = (self.warranty_end - today).days
+
+            # Simple logic for very short durations (2 days or less)
+            if total_duration <= 2:
+                if days_until_expiration <= 0:
+                    return {
+                        "color": "danger",
+                        "message": f"Expired {format_days_message(days_until_expiration)}",
+                    }
+                return {
+                    "color": "warning",
+                    "message": f"Expires {format_days_message(days_until_expiration)}",
+                }
+
+            # Normal duration segment
+            return get_expiration_status(days_until_expiration)
+
+        # Active without end date
+        return {
+            "color": "success",
+            "message": "Active",
+        }
