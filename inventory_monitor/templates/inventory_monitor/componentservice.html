@@ -3,6 +3,7 @@
 {% load django_tables2 %}
 {% load plugins %}
 {% load tabs %}
+{% load inventory_monitor %}
 {% block content %}
     <div class="row mb-3">
         <div class="col col-md-6">
@@ -28,7 +29,7 @@
                         </tr>
                         <tr>
                             <th scope="row">Service Status</th>
-                            <td>{% include 'inventory_monitor/inc/service_status_badge.html' with record=object %}</td>
+                            <td>{% include 'inventory_monitor/inc/status_badge.html' with record=object status_type='service' %}</td>
                         </tr>
                         <tr>
                             <td>Service Param</td>

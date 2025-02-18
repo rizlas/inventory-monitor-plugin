@@ -11,7 +11,7 @@ class ComponentServiceTable(NetBoxTable):
     service_price = NumberColumn(accessor="service_price")
     service_status = tables.TemplateColumn(
         template_code="""
-            {% include 'inventory_monitor/inc/service_status_badge.html' %}
+            {% include 'inventory_monitor/inc/status_badge.html' with status_type='service' %}
         """,
         verbose_name="Service Status",
         orderable=False,
