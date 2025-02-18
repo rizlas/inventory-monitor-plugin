@@ -2,9 +2,26 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from netbox.models import NetBoxModel
+from utilities.choices import ChoiceSet
 from utilities.querysets import RestrictedQuerySet
 
 from inventory_monitor.models.probe import Probe
+
+
+class AssignmentStatusChoices(ChoiceSet):
+    key = "inventory_monitor.asset.assignment_status"
+
+    RESERVED = "reserved"
+    DEPLOYED = "deployed"
+    LOANED = "loaned"
+    STOCKED = "stocked"
+
+    CHOICES = [
+        (RESERVED, "Reserved", "cyan"),
+        (DEPLOYED, "Deployed", "green"),
+        (LOANED, "Loaned", "blue"),
+        (STOCKED, "Stocked", "gray"),
+    ]
 
 
 class Asset(NetBoxModel):
@@ -74,6 +91,13 @@ class Asset(NetBoxModel):
         null=True,
     )
     comments = models.TextField(blank=True)
+    assignment_status = models.CharField(
+        max_length=30,
+        choices=AssignmentStatusChoices,
+        default=AssignmentStatusChoices.STOCKED,
+        blank=False,
+        null=False,
+    )
 
     class Meta:
         db_table = "inventory_monitor_asset"
@@ -128,3 +152,6 @@ class Asset(NetBoxModel):
 
     def clean(self):
         super().clean()
+
+    def get_assignment_status_color(self):
+        return AssignmentStatusChoices.colors.get(self.assignment_status, "gray")

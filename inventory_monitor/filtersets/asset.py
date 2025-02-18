@@ -56,6 +56,11 @@ class AssetFilterSet(NetBoxModelFilterSet):
     partnumber = django_filters.CharFilter(
         lookup_expr="iexact", field_name="partnumber"
     )
+
+    assignment_status = django_filters.MultipleChoiceFilter(
+        choices=Asset.assignment_status.field.choices,
+    )
+
     device = django_filters.ModelMultipleChoiceFilter(
         required=False,
         field_name="device__id",
@@ -145,6 +150,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
             "serial_actual",
             "partnumber",
             "asset_number",
+            "assignment_status",
             "project",
             "device",
             "site",

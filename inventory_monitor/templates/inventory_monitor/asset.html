@@ -27,6 +27,12 @@
                             <td>{{ object.vendor }}</td>
                         </tr>
                         <tr>
+                            <th scope="row">Assignment Status</th>
+                            <td>
+                                <span class="badge text-bg-{{ object.get_assignment_status_color }}">{{ object.get_assignment_status_display }}</span>
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Device</th>
                             <td>
                                 {% if object.device %}

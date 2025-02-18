@@ -157,6 +157,7 @@ class AssetSerializer(NetBoxModelSerializer):
             "serial",
             "serial_actual",
             "partnumber",
+            "assignment_status",
             "asset_number",
             "project",
             "vendor",
