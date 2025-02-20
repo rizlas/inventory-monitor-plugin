@@ -57,7 +57,6 @@ class Asset(NetBoxModel, DateStatusMixin):
         blank=True,
         null=True,
     )
-    # TODO: Asset Number
     asset_number = models.CharField(max_length=255, blank=True, null=True)
     project = models.CharField(max_length=32, blank=True, null=True)
     site = models.ForeignKey(

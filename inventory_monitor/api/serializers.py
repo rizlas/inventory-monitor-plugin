@@ -48,7 +48,15 @@ class ProbeSerializer(NetBoxModelSerializer):
             "creation_time",
         ]
 
-    brief_fields = ["id", "url", "display", "name", "serial", "time", "creation_time"]
+        brief_fields = [
+            "id",
+            "url",
+            "display",
+            "name",
+            "serial",
+            "time",
+            "creation_time",
+        ]
 
 
 class ContractorSerializer(NetBoxModelSerializer):
@@ -145,12 +153,33 @@ class InvoiceSerializer(NetBoxModelSerializer):
 
 class AssetTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name='plugins-api:inventory_monitor-api:assettype-detail'
+        view_name="plugins-api:inventory_monitor-api:assettype-detail"
     )
 
     class Meta:
         model = AssetType
-        fields = ['id', 'url', 'name', 'slug', 'description', 'display', 'custom_fields', 'created', 'last_updated']
+        fields = [
+            "id",
+            "url",
+            "name",
+            "slug",
+            "description",
+            "color",  # Add color field
+            "display",
+            "custom_fields",
+            "created",
+            "last_updated",
+            "tags",  # Add tags field
+        ]
+
+        brief_fields = [
+            "id",
+            "url",
+            "name",
+            "slug",
+            "color",
+            "display",
+        ]
 
 
 class AssetSerializer(NetBoxModelSerializer):
@@ -162,41 +191,42 @@ class AssetSerializer(NetBoxModelSerializer):
 
     class Meta:
         model = Asset
-        fields = [
+        fields = (
             "id",
             "url",
             "display",
             "serial",
             "serial_actual",
             "partnumber",
-            "assignment_status",
+            "device",
             "asset_number",
             "project",
+            "assignment_status",
+            "lifecycle_status",
+            "location",
+            "site",
             "vendor",
             "quantity",
             "price",
+            "order_contract",
+            "inventory_item",
             "warranty_start",
             "warranty_end",
-            "order_contract",
             "type",
-            "lifecycle_status",
-            "tags",
             "comments",
-            "custom_fields",
-        ]
-
-        brief_fields = [
+            "tags",
+            "created",
+            "last_updated",
+        )
+        brief_fields = (
             "id",
             "url",
             "display",
             "serial",
-            "serial_actual",
-            "partnumber",
-            "asset_number",
-            "quantity",
-            "price",
-            "order_contract",
-        ]
+            "type",
+            "assignment_status",
+            "lifecycle_status",
+        )
 
 
 class ComponentServiceSerializer(NetBoxModelSerializer):
@@ -263,4 +293,15 @@ class RMASerializer(NetBoxModelSerializer):
             "custom_fields",
             "created",
             "last_updated",
+        ]
+
+        brief_fields = [
+            "id",
+            "url",
+            "display",
+            "rma_number",
+            "asset",
+            "status",
+            "date_issued",
+            "date_shipped",
         ]
