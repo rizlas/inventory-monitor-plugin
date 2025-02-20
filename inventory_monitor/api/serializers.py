@@ -6,6 +6,7 @@ from tenancy.api.serializers import TenantSerializer
 from inventory_monitor.models import (
     RMA,
     Asset,
+    AssetType,
     ComponentService,
     Contract,
     Contractor,
@@ -142,11 +143,22 @@ class InvoiceSerializer(NetBoxModelSerializer):
         brief_fields = ["id", "url", "display", "name", "name_internal"]
 
 
+class AssetTypeSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='plugins-api:inventory_monitor-api:assettype-detail'
+    )
+
+    class Meta:
+        model = AssetType
+        fields = ['id', 'url', 'name', 'slug', 'description', 'display', 'custom_fields', 'created', 'last_updated']
+
+
 class AssetSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:inventory_monitor-api:asset-detail"
     )
     order_contract = ContractSerializer(nested=True)
+    type = AssetTypeSerializer(nested=True)
 
     class Meta:
         model = Asset
@@ -166,6 +178,7 @@ class AssetSerializer(NetBoxModelSerializer):
             "warranty_start",
             "warranty_end",
             "order_contract",
+            "type",
             "lifecycle_status",
             "tags",
             "comments",

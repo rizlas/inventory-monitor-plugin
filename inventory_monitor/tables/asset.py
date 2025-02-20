@@ -11,6 +11,23 @@ from inventory_monitor.models import Asset
 
 class AssetTable(NetBoxTable):
     serial = tables.Column(linkify=True)
+    type = columns.TemplateColumn(
+        template_code="""
+        {% if record.type %}
+            <a href="{{ record.type.get_absolute_url }}">
+                {% if record.type.color %}
+                    <span class="badge" style="background-color: #{{ record.type.color }}">
+                        {{ record.type.name }}
+                    </span>
+                {% else %}
+                    {{ record.type.name }}
+                {% endif %}
+            </a>
+        {% endif %}
+        """,
+        verbose_name="Type",
+        orderable=True,
+    )
     assignment_status = columns.ChoiceFieldColumn()
     lifecycle_status = columns.ChoiceFieldColumn()
     device = tables.Column(linkify=True)
@@ -24,9 +41,10 @@ class AssetTable(NetBoxTable):
     services_contracts = tables.TemplateColumn(
         template_code=TEMPLATE_SERVICES_CONTRACTS
     )
+
     warranty_status = tables.TemplateColumn(
         template_code="""
-            {% include 'inventory_monitor/inc/warranty_status_badge.html' %}
+            {% include 'inventory_monitor/inc/status_badge.html' with status_type='warranty' %}
         """,
         verbose_name="Warranty Status",
         orderable=False,
@@ -61,6 +79,7 @@ class AssetTable(NetBoxTable):
             "services_count",
             "services_contracts",
             "services_to",
+            "type",
         )
 
         default_columns = (
@@ -75,4 +94,5 @@ class AssetTable(NetBoxTable):
             "quantity",
             "price",
             "actions",
+            "type",
         )

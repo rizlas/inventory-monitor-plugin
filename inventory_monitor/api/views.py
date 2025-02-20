@@ -3,6 +3,7 @@ from netbox.api.viewsets import NetBoxModelViewSet
 from inventory_monitor import filtersets, models
 from inventory_monitor.api.serializers import (
     AssetSerializer,
+    AssetTypeSerializer,
     ComponentServiceSerializer,
     ContractorSerializer,
     ContractSerializer,
@@ -40,6 +41,12 @@ class AssetViewSet(NetBoxModelViewSet):
     queryset = models.Asset.objects.prefetch_related("tags", "order_contract")
     serializer_class = AssetSerializer
     filterset_class = filtersets.AssetFilterSet
+
+
+class AssetTypeViewSet(NetBoxModelViewSet):
+    queryset = models.AssetType.objects.prefetch_related("tags")
+    serializer_class = AssetTypeSerializer
+    filterset_class = filtersets.AssetTypeFilterSet
 
 
 class ComponentServiceViewSet(NetBoxModelViewSet):

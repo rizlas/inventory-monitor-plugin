@@ -4,6 +4,8 @@ from utilities.urls import get_model_urls
 
 from inventory_monitor import models, views
 
+app_name = "inventory_monitor"  # Add this line to define the app namespace
+
 urlpatterns = (
     ## Probes
     path("probes/", views.ProbeListView.as_view(), name="probe_list"),
@@ -126,6 +128,29 @@ urlpatterns = (
         "assets/",
         include(get_model_urls("inventory_monitor", "asset", detail=False)),
     ),
+    ## AssetType
+    path("asset-types/", views.AssetTypeListView.as_view(), name="assettype_list"),
+    path("asset-types/add/", views.AssetTypeEditView.as_view(), name="assettype_add"),
+    path("asset-types/<int:pk>/", views.AssetTypeView.as_view(), name="assettype"),
+    path(
+        "asset-types/<int:pk>/edit/",
+        views.AssetTypeEditView.as_view(),
+        name="assettype_edit",
+    ),
+    path(
+        "asset-types/<int:pk>/delete/",
+        views.AssetTypeDeleteView.as_view(),
+        name="assettype_delete",
+    ),
+    # Adds url's like changelog, journal, attachments (from plugin) and etc.
+    path(
+        "asset-types/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "assettype")),
+    ),
+    path(
+        "asset-types/",
+        include(get_model_urls("inventory_monitor", "assettype", detail=False)),
+    ),
     ## ComponentService
     path(
         "component-services/",
@@ -168,5 +193,8 @@ urlpatterns = (
     path("rmas/<int:pk>/edit/", views.RMAEditView.as_view(), name="rma_edit"),
     path("rmas/<int:pk>/delete/", views.RMADeleteView.as_view(), name="rma_delete"),
     path("rmas/", include(get_model_urls("inventory_monitor", "rma"))),
-    path("rmas/<int:pk>/", include(get_model_urls("inventory_monitor", "rma", detail=True))),
+    path(
+        "rmas/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "rma", detail=True)),
+    ),
 )

@@ -28,6 +28,19 @@
                             <td>{{ object.vendor }}</td>
                         </tr>
                         <tr>
+                            <th scope="row">Type</th>
+                            <td>
+                                {% if object.type %}
+                                    <a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a>
+                                    {% if object.type.color %}
+                                        <span class="badge color-label" style="background-color: #{{ object.type.color }}">&nbsp;</span>
+                                    {% endif %}
+                                {% else %}
+                                    {{ ''|placeholder }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
                             <th scope="row">Assignment Status</th>
                             <td>
                                 <span class="badge text-bg-{{ object.get_assignment_status_color }}">{{ object.get_assignment_status_display }}</span>

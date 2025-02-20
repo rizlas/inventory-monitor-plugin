@@ -5,3 +5,4 @@ from inventory_monitor.models.invoice import *
 from inventory_monitor.models.probe import *
 from inventory_monitor.models.asset import *  # !After the Probe
 from inventory_monitor.models.rma import *
+from inventory_monitor.models.asset_type import *

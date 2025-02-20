@@ -1,7 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
-from django.utils import timezone
 from netbox.models import NetBoxModel
 from utilities.choices import ChoiceSet
 from utilities.querysets import RestrictedQuerySet
@@ -126,6 +125,13 @@ class Asset(NetBoxModel, DateStatusMixin):
         default=LifecycleStatusChoices.NEW,
         blank=False,
         null=False,
+    )
+    type = models.ForeignKey(
+        to="inventory_monitor.AssetType",
+        on_delete=models.PROTECT,
+        related_name="assets",
+        blank=True,
+        null=True,
     )
 
     class Meta:

@@ -48,6 +48,11 @@ menu = PluginMenu(
                     permissions=["inventory_monitor.view_asset"],
                 ),
                 PluginMenuItem(
+                    link="plugins:inventory_monitor:assettype_list",
+                    link_text="Asset Types",
+                    permissions=["inventory_monitor.view_assettype"],
+                ),
+                PluginMenuItem(
                     link="plugins:inventory_monitor:componentservice_list",
                     link_text="Services",
                     permissions=["inventory_monitor.view_componentservice"],

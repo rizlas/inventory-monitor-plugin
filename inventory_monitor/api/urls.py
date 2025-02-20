@@ -9,6 +9,7 @@ router.register("contractors", views.ContractorViewSet)
 router.register("contracts", views.ContractViewSet)
 router.register("invoices", views.InvoiceViewSet)
 router.register("assets", views.AssetViewSet)
+router.register("asset-types", views.AssetTypeViewSet)
 router.register("component-services", views.ComponentServiceViewSet)
 router.register("rmas", views.RMAViewSet)
 

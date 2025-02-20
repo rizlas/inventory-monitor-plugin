@@ -4,7 +4,7 @@ from django.db.models import Q
 from extras.filters import TagFilter
 from netbox.filtersets import NetBoxModelFilterSet
 
-from inventory_monitor.models import Asset, Contract
+from inventory_monitor.models import Asset, AssetType, Contract
 
 
 class AssetFilterSet(NetBoxModelFilterSet):
@@ -27,6 +27,14 @@ class AssetFilterSet(NetBoxModelFilterSet):
 
     lifecycle_status = django_filters.MultipleChoiceFilter(
         choices=Asset.lifecycle_status.field.choices,
+    )
+
+    type_id = django_filters.ModelMultipleChoiceFilter(
+        required=False,
+        field_name="type__id",
+        queryset=AssetType.objects.all(),
+        to_field_name="id",
+        label="Type (ID)",
     )
 
     device = django_filters.ModelMultipleChoiceFilter(
