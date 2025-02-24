@@ -75,7 +75,7 @@ class AssetForm(NetBoxModelForm):
     )
     asset_number = forms.CharField(
         required=False,
-        label="Inventory / AN",
+        label="Inventory / Asset Number",
     )
     project = forms.CharField(
         required=False,

@@ -11,8 +11,16 @@ class NetBoxInventoryMonitorConfig(PluginConfig):
 
     default_settings = {}
     required_settings = []
-    min_version = '4.2.0'
-    max_version = '4.2.99'
+    min_version = "4.2.0"
+    max_version = "4.2.99"
+
+    def ready(self):
+        # Call the original ready method
+        super().ready()
+
+        from netbox.models.features import register_models
+
+        register_models(*self.get_models())
 
 
 config = NetBoxInventoryMonitorConfig
