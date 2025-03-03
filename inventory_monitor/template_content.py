@@ -3,7 +3,6 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from netbox.plugins import PluginTemplateExtension
 from netbox.views import generic
-from tenancy.models import Tenant
 from utilities.views import ViewTab, register_model_view
 
 from inventory_monitor.models import Asset, Contractor, Probe
@@ -78,13 +77,15 @@ class TenantContractorExtension(PluginTemplateExtension):
 class InventoryItemAssetExtenstion(PluginTemplateExtension):
     model = "dcim.inventoryitem"
 
-    def right_page(self):
+    def full_width_page(self):
         assets = self.context["object"].assets.all()
+        asset_table = AssetTable(assets)
 
         return self.render(
-            "inventory_monitor/inventory_item_asset_extension.html",
+            "inventory_monitor/inc/inventory_item_asset_extension.html",
             extra_context={
                 "assets": assets,
+                "asset_table": asset_table,
             },
         )
 
