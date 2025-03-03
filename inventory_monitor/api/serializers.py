@@ -1,13 +1,21 @@
-from dcim.api.serializers import DeviceSerializer, LocationSerializer, SiteSerializer
+# NetBox serializers
+from dcim.api.serializers import (
+    DeviceSerializer,
+    InventoryItemSerializer,
+    LocationSerializer,
+    SiteSerializer,
+)
+from django.contrib.contenttypes.models import ContentType
+from drf_spectacular.utils import extend_schema_field
+from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import NetBoxModelSerializer
 from rest_framework import serializers
-from django.contrib.contenttypes.models import ContentType
-from netbox.api.fields import ContentTypeField
 from tenancy.api.serializers import TenantSerializer
-from drf_spectacular.utils import extend_schema_field
 from utilities.api import get_serializer_for_model
 
+# Local models
 from inventory_monitor.models import (
+    ASSIGNED_OBJECT_MODELS,
     RMA,
     Asset,
     AssetType,
@@ -16,11 +24,209 @@ from inventory_monitor.models import (
     Contractor,
     Invoice,
     Probe,
-    ASSIGNED_OBJECT_MODELS,
 )
+
+#
+# Base serializers
+#
+
+
+class AssetTypeSerializer(NetBoxModelSerializer):
+    """Serializer for AssetType objects"""
+
+    url = serializers.HyperlinkedIdentityField(
+        view_name="plugins-api:inventory_monitor-api:assettype-detail"
+    )
+
+    class Meta:
+        model = AssetType
+        fields = [
+            "id",
+            "url",
+            "name",
+            "slug",
+            "description",
+            "color",
+            "display",
+            "custom_fields",
+            "created",
+            "last_updated",
+            "tags",
+        ]
+
+        brief_fields = [
+            "id",
+            "url",
+            "name",
+            "slug",
+            "color",
+            "display",
+        ]
+
+
+class ContractorSerializer(NetBoxModelSerializer):
+    """Serializer for Contractor objects"""
+
+    url = serializers.HyperlinkedIdentityField(
+        view_name="plugins-api:inventory_monitor-api:contractor-detail"
+    )
+    tenant = TenantSerializer(nested=True)
+
+    class Meta:
+        model = Contractor
+        fields = [
+            "id",
+            "url",
+            "display",
+            "name",
+            "company",
+            "address",
+            "tenant",
+            "tags",
+            "comments",
+            "custom_fields",
+        ]
+
+        brief_fields = ["id", "url", "display", "name", "company", "address"]
+
+
+class ContractSerializer(NetBoxModelSerializer):
+    """Serializer for Contract objects"""
+
+    url = serializers.HyperlinkedIdentityField(
+        view_name="plugins-api:inventory_monitor-api:contract-detail"
+    )
+    contractor = ContractorSerializer(nested=True)
+
+    class Meta:
+        model = Contract
+        fields = [
+            "id",
+            "url",
+            "display",
+            "name",
+            "name_internal",
+            "contractor",
+            "type",
+            "contract_type",
+            "price",
+            "signed",
+            "accepted",
+            "invoicing_start",
+            "invoicing_end",
+            "parent",
+            "tags",
+            "comments",
+            "custom_fields",
+        ]
+        brief_fields = [
+            "id",
+            "url",
+            "display",
+            "name",
+            "name_internal",
+        ]
+
+    def get_fields(self):
+        """Handle nested parent contract references"""
+        fields = super(ContractSerializer, self).get_fields()
+        fields["parent"] = ContractSerializer(nested=True)
+        return fields
+
+
+#
+# Main objects serializers
+#
+
+
+class AssetSerializer(NetBoxModelSerializer):
+    """
+    Serializer for Asset objects supporting GenericForeignKey relationships
+    """
+
+    url = serializers.HyperlinkedIdentityField(
+        view_name="plugins-api:inventory_monitor-api:asset-detail"
+    )
+    # Related object serializers
+    order_contract = ContractSerializer(nested=True)
+    type = AssetTypeSerializer(nested=True)
+    inventory_item = InventoryItemSerializer(nested=True)
+
+    # Generic relationship fields
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(ASSIGNED_OBJECT_MODELS),
+        required=False,
+        allow_null=True,
+    )
+    assigned_object = serializers.SerializerMethodField(read_only=True, allow_null=True)
+
+    class Meta:
+        model = Asset
+        fields = (
+            # Identification fields
+            "id",
+            "url",
+            "display",
+            "serial",
+            "serial_actual",
+            "partnumber",
+            "asset_number",
+            # Assignment fields
+            "assigned_object_type",
+            "assigned_object_id",
+            "assigned_object",
+            "assignment_status",
+            "lifecycle_status",
+            # Related objects
+            "type",
+            "inventory_item",
+            "order_contract",
+            # Additional information
+            "project",
+            "vendor",
+            "quantity",
+            "price",
+            # Warranty information
+            "warranty_start",
+            "warranty_end",
+            # Notes and metadata
+            "comments",
+            "tags",
+            "created",
+            "last_updated",
+        )
+        brief_fields = (
+            "id",
+            "url",
+            "display",
+            "serial",
+            "type",
+            "assignment_status",
+            "assigned_object",
+            "inventory_item",
+            "order_contract",
+            "lifecycle_status",
+        )
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_assigned_object(self, obj):
+        """
+        Dynamically serialize the assigned object based on its type
+
+        Returns:
+            dict: Serialized representation of the assigned object
+            None: If no object is assigned
+        """
+        if obj.assigned_object is None:
+            return None
+        serializer = get_serializer_for_model(obj.assigned_object)
+        context = {"request": self.context["request"]}
+        return serializer(obj.assigned_object, nested=True, context=context).data
 
 
 class ProbeSerializer(NetBoxModelSerializer):
+    """Serializer for Probe objects"""
+
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:inventory_monitor-api:probe-detail"
     )
@@ -64,72 +270,9 @@ class ProbeSerializer(NetBoxModelSerializer):
         ]
 
 
-class ContractorSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:contractor-detail"
-    )
-    tenant = TenantSerializer(nested=True)
-
-    class Meta:
-        model = Contractor
-        fields = [
-            "id",
-            "url",
-            "display",
-            "name",
-            "company",
-            "address",
-            "tenant",
-            "tags",
-            "comments",
-            "custom_fields",
-        ]
-
-        brief_fields = ["id", "url", "display", "name", "company", "address"]
-
-
-class ContractSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:contract-detail"
-    )
-    contractor = ContractorSerializer(nested=True)
-
-    class Meta:
-        model = Contract
-        fields = [
-            "id",
-            "url",
-            "display",
-            "name",
-            "name_internal",
-            "contractor",
-            "type",
-            "contract_type",
-            "price",
-            "signed",
-            "accepted",
-            "invoicing_start",
-            "invoicing_end",
-            "parent",
-            "tags",
-            "comments",
-            "custom_fields",
-        ]
-        brief_fields = [
-            "id",
-            "url",
-            "display",
-            "name",
-            "name_internal",
-        ]
-
-    def get_fields(self):
-        fields = super(ContractSerializer, self).get_fields()
-        fields["parent"] = ContractSerializer(nested=True)
-        return fields
-
-
 class InvoiceSerializer(NetBoxModelSerializer):
+    """Serializer for Invoice objects"""
+
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:inventory_monitor-api:invoice-detail"
     )
@@ -156,99 +299,9 @@ class InvoiceSerializer(NetBoxModelSerializer):
         brief_fields = ["id", "url", "display", "name", "name_internal"]
 
 
-class AssetTypeSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:assettype-detail"
-    )
-
-    class Meta:
-        model = AssetType
-        fields = [
-            "id",
-            "url",
-            "name",
-            "slug",
-            "description",
-            "color",  # Add color field
-            "display",
-            "custom_fields",
-            "created",
-            "last_updated",
-            "tags",  # Add tags field
-        ]
-
-        brief_fields = [
-            "id",
-            "url",
-            "name",
-            "slug",
-            "color",
-            "display",
-        ]
-
-
-class AssetSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:asset-detail"
-    )
-    order_contract = ContractSerializer(nested=True)
-    assigned_object_type = ContentTypeField(
-        queryset=ContentType.objects.filter(ASSIGNED_OBJECT_MODELS),
-        required=False,
-        allow_null=True
-    )
-    assigned_object = serializers.SerializerMethodField(read_only=True, allow_null=True)
-    type = AssetTypeSerializer(nested=True)
-
-    class Meta:
-        model = Asset
-        fields = (
-            "id",
-            "url",
-            "display",
-            "serial",
-            "serial_actual",
-            "partnumber",
-            "assigned_object_type",
-            "assigned_object_id",
-            "assigned_object",
-            "asset_number",
-            "project",
-            "assignment_status",
-            "lifecycle_status",
-            "vendor",
-            "quantity",
-            "price",
-            "order_contract",
-            "inventory_item",
-            "warranty_start",
-            "warranty_end",
-            "type",
-            "comments",
-            "tags",
-            "created",
-            "last_updated",
-        )
-        brief_fields = (
-            "id",
-            "url",
-            "display",
-            "serial",
-            "type",
-            "assignment_status",
-            "assigned_object",
-            "lifecycle_status",
-        )
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_assigned_object(self, obj):
-        if obj.assigned_object is None:
-            return None
-        serializer = get_serializer_for_model(obj.assigned_object)
-        context = {'request': self.context['request']}
-        return serializer(obj.assigned_object, nested=True, context=context).data
-
-
 class ComponentServiceSerializer(NetBoxModelSerializer):
+    """Serializer for ComponentService objects"""
+
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:inventory_monitor-api:componentservice-detail"
     )
@@ -287,6 +340,8 @@ class ComponentServiceSerializer(NetBoxModelSerializer):
 
 
 class RMASerializer(NetBoxModelSerializer):
+    """Serializer for RMA (Return Merchandise Authorization) objects"""
+
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:inventory_monitor-api:rma-detail"
     )

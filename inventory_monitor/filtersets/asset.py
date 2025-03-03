@@ -1,5 +1,7 @@
 import django_filters
-from dcim.models import Device, InventoryItem, Location, Rack, Site
+
+# NetBox model imports
+from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from extras.filters import TagFilter
@@ -13,11 +15,22 @@ from inventory_monitor.models import Asset, AssetType, Contract
 
 
 class AssetFilterSet(NetBoxModelFilterSet):
+    """
+    Filterset for Asset objects providing comprehensive search and filtering capabilities.
+    """
+
+    #
+    # Basic search filters
+    #
     q = django_filters.CharFilter(
         method="search",
         label="Search",
     )
     tag = TagFilter()
+
+    #
+    # Identification filters
+    #
     serial = django_filters.CharFilter(lookup_expr="iexact", field_name="serial")
     serial_actual = django_filters.CharFilter(
         lookup_expr="iexact", field_name="serial_actual"
@@ -25,39 +38,35 @@ class AssetFilterSet(NetBoxModelFilterSet):
     partnumber = django_filters.CharFilter(
         lookup_expr="iexact", field_name="partnumber"
     )
+    asset_number = django_filters.CharFilter(
+        lookup_expr="icontains", field_name="asset_number"
+    )
 
+    #
+    # Status filters
+    #
     assignment_status = django_filters.MultipleChoiceFilter(
         choices=Asset.assignment_status.field.choices,
     )
-
-    assigned_object_type = ContentTypeFilter()
-    assigned_object_id = MultiValueNumberFilter()
-
     lifecycle_status = django_filters.MultipleChoiceFilter(
         choices=Asset.lifecycle_status.field.choices,
     )
 
+    #
+    # Assignment filters
+    #
+    assigned_object_type = ContentTypeFilter()
+    assigned_object_id = MultiValueNumberFilter()
+
+    #
+    # Related object filters
+    #
     type_id = django_filters.ModelMultipleChoiceFilter(
         required=False,
         field_name="type__id",
         queryset=AssetType.objects.all(),
         to_field_name="id",
         label="Type (ID)",
-    )
-
-    device = django_filters.ModelMultipleChoiceFilter(
-        required=False,
-        field_name="device__id",
-        queryset=Device.objects.all(),
-        to_field_name="id",
-        label="Device (ID)",
-    )
-    location = django_filters.ModelMultipleChoiceFilter(
-        required=False,
-        field_name="location__id",
-        queryset=Location.objects.all(),
-        to_field_name="id",
-        label="Device (ID)",
     )
     inventory_item = django_filters.ModelMultipleChoiceFilter(
         required=False,
@@ -66,11 +75,20 @@ class AssetFilterSet(NetBoxModelFilterSet):
         to_field_name="id",
         label="Inventory Item (ID)",
     )
-    asset_number = django_filters.CharFilter(
-        lookup_expr="icontains", field_name="asset_number"
+    order_contract = django_filters.ModelMultipleChoiceFilter(
+        field_name="order_contract__id",
+        queryset=Contract.objects.all(),
+        to_field_name="id",
+        label="Order Contract (ID)",
     )
+
+    #
+    # Additional information filters
+    #
     project = django_filters.CharFilter(lookup_expr="icontains")
     vendor = django_filters.CharFilter(lookup_expr="icontains", field_name="vendor")
+
+    # Price range filters
     price = django_filters.NumberFilter(
         required=False,
         field_name="price",
@@ -86,6 +104,8 @@ class AssetFilterSet(NetBoxModelFilterSet):
         field_name="price",
         lookup_expr="lte",
     )
+
+    # Quantity range filters
     quantity = django_filters.NumberFilter(
         required=False,
         field_name="quantity",
@@ -101,12 +121,10 @@ class AssetFilterSet(NetBoxModelFilterSet):
         field_name="quantity",
         lookup_expr="lte",
     )
-    order_contract = django_filters.ModelMultipleChoiceFilter(
-        field_name="order_contract__id",
-        queryset=Contract.objects.all(),
-        to_field_name="id",
-        label="Order Contract (ID)",
-    )
+
+    #
+    # Warranty filters
+    #
     warranty_start = django_filters.DateFilter(
         field_name="warranty_start", lookup_expr="contains"
     )
@@ -146,18 +164,37 @@ class AssetFilterSet(NetBoxModelFilterSet):
         )
 
     def search(self, queryset, name, value):
+        """
+        Perform global search across multiple fields and related objects
+
+        Searches through:
+        - Asset fields (serial, serial_actual, project, vendor)
+        - Related order contract names
+        - Assigned objects (devices, sites, locations, racks)
+
+        Args:
+            queryset: Base queryset to filter
+            name: Name of the filter parameter
+            value: Search term to filter by
+
+        Returns:
+            Filtered queryset containing matching assets
+        """
+        # Basic field searches
         serial = Q(serial__icontains=value)
         serial_actual = Q(serial_actual__icontains=value)
         project = Q(project__icontains=value)
         vendor = Q(vendor__icontains=value)
         order_contract = Q(order_contract__name__icontains=value)
 
-        # Search in assigned objects
+        # Get content types for assigned object types
         device_type = ContentType.objects.get_for_model(Device)
         site_type = ContentType.objects.get_for_model(Site)
         location_type = ContentType.objects.get_for_model(Location)
         rack_type = ContentType.objects.get_for_model(Rack)
+        module_type = ContentType.objects.get_for_model(Module)
 
+        # Search through assigned objects
         device_search = Q(
             assigned_object_type=device_type,
             assigned_object_id__in=Device.objects.filter(
@@ -182,7 +219,14 @@ class AssetFilterSet(NetBoxModelFilterSet):
                 name__icontains=value
             ).values_list("pk", flat=True),
         )
+        module_search = Q(
+            assigned_object_type=module_type,
+            assigned_object_id__in=Module.objects.filter(
+                name__icontains=value
+            ).values_list("pk", flat=True),
+        )
 
+        # Combine all search conditions
         return queryset.filter(
             serial
             | serial_actual
@@ -193,4 +237,5 @@ class AssetFilterSet(NetBoxModelFilterSet):
             | site_search
             | location_search
             | rack_search
+            | module_search
         )

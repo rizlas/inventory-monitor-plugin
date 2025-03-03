@@ -60,19 +60,36 @@ class LifecycleStatusChoices(ChoiceSet):
 
 class Asset(NetBoxModel, DateStatusMixin):
     objects = RestrictedQuerySet.as_manager()
+
+    #
+    # Basic identification fields
+    #
     serial = models.CharField(max_length=255, blank=False, null=False)
     serial_actual = models.CharField(max_length=255, blank=False, null=False)
     partnumber = models.CharField(max_length=64, blank=True, null=True)
-    device = models.ForeignKey(
-        to="dcim.device",
-        on_delete=models.PROTECT,
-        related_name="assets",
-        blank=True,
-        null=True,
-    )
     asset_number = models.CharField(max_length=255, blank=True, null=True)
-    project = models.CharField(max_length=32, blank=True, null=True)
 
+    #
+    # Status fields
+    #
+    assignment_status = models.CharField(
+        max_length=30,
+        choices=AssignmentStatusChoices,
+        default=AssignmentStatusChoices.STOCKED,
+        blank=False,
+        null=False,
+    )
+    lifecycle_status = models.CharField(
+        max_length=30,
+        choices=LifecycleStatusChoices,
+        default=LifecycleStatusChoices.NEW,
+        blank=False,
+        null=False,
+    )
+
+    #
+    # Assignment fields using GenericForeignKey
+    #
     assigned_object_type = models.ForeignKey(
         to="contenttypes.ContentType",
         limit_choices_to=ASSIGNED_OBJECT_MODELS,
@@ -86,20 +103,9 @@ class Asset(NetBoxModel, DateStatusMixin):
         ct_field="assigned_object_type", fk_field="assigned_object_id"
     )
 
-    site = models.ForeignKey(
-        to="dcim.site",  # Locality,
-        on_delete=models.PROTECT,
-        related_name="assets",
-        blank=True,
-        null=True,
-    )
-    location = models.ForeignKey(
-        to="dcim.location",
-        on_delete=models.PROTECT,
-        related_name="assets",
-        blank=True,
-        null=True,
-    )
+    #
+    # Related objects
+    #
     inventory_item = models.ForeignKey(
         to="dcim.inventoryitem",
         on_delete=models.PROTECT,
@@ -107,6 +113,25 @@ class Asset(NetBoxModel, DateStatusMixin):
         blank=True,
         null=True,
     )
+    type = models.ForeignKey(
+        to="inventory_monitor.AssetType",
+        on_delete=models.PROTECT,
+        related_name="assets",
+        blank=True,
+        null=True,
+    )
+    order_contract = models.ForeignKey(
+        to="inventory_monitor.contract",
+        on_delete=models.PROTECT,
+        related_name="assets",
+        blank=True,
+        null=True,
+    )
+
+    #
+    # Additional information
+    #
+    project = models.CharField(max_length=32, blank=True, null=True)
     vendor = models.CharField(max_length=32, blank=True, null=True)
     quantity = models.PositiveIntegerField(
         blank=False,
@@ -122,13 +147,10 @@ class Asset(NetBoxModel, DateStatusMixin):
         validators=[MinValueValidator(0)],
         default=0,
     )
-    order_contract = models.ForeignKey(
-        to="inventory_monitor.contract",  # Contractor,
-        on_delete=models.PROTECT,
-        related_name="assets",
-        blank=True,
-        null=True,
-    )
+
+    #
+    # Warranty information
+    #
     warranty_start = models.DateField(
         blank=True,
         null=True,
@@ -137,28 +159,11 @@ class Asset(NetBoxModel, DateStatusMixin):
         blank=True,
         null=True,
     )
+
+    #
+    # Notes
+    #
     comments = models.TextField(blank=True)
-    assignment_status = models.CharField(
-        max_length=30,
-        choices=AssignmentStatusChoices,
-        default=AssignmentStatusChoices.STOCKED,
-        blank=False,
-        null=False,
-    )
-    lifecycle_status = models.CharField(
-        max_length=30,
-        choices=LifecycleStatusChoices,
-        default=LifecycleStatusChoices.NEW,
-        blank=False,
-        null=False,
-    )
-    type = models.ForeignKey(
-        to="inventory_monitor.AssetType",
-        on_delete=models.PROTECT,
-        related_name="assets",
-        blank=True,
-        null=True,
-    )
 
     class Meta:
         db_table = "inventory_monitor_asset"
@@ -166,11 +171,8 @@ class Asset(NetBoxModel, DateStatusMixin):
             "serial",
             "serial_actual",
             "partnumber",
-            "device",
             "asset_number",
             "project",
-            "site",
-            "location",
             "inventory_item",
             "vendor",
             "quantity",

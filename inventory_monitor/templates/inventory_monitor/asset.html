@@ -6,12 +6,18 @@
 {% load inventory_monitor %}
 {% load i18n %}
 {% block content %}
+    <!--
+    Asset Information Section
+    Contains basic asset details and assignment information
+    -->
     <div class="row mb-3">
+        <!-- Left column: Basic Asset Information -->
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">Asset</h5>
+                <h5 class="card-header">Asset Identification</h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
+                        <!-- Serial Numbers -->
                         <tr>
                             <th>Serial</th>
                             <td>{{ object.serial }}</td>
@@ -24,10 +30,7 @@
                             <th>Part Number</th>
                             <td>{{ object.partnumber }}</td>
                         </tr>
-                        <tr>
-                            <th>Vendor</th>
-                            <td>{{ object.vendor }}</td>
-                        </tr>
+                        <!-- Classification -->
                         <tr>
                             <th scope="row">Type</th>
                             <td>
@@ -43,6 +46,11 @@
                             </td>
                         </tr>
                         <tr>
+                            <th>Vendor</th>
+                            <td>{{ object.vendor }}</td>
+                        </tr>
+                        <!-- Assignment Information -->
+                        <tr>
                             <th scope="row">Assignment Status</th>
                             <td>
                                 <span class="badge text-bg-{{ object.get_assignment_status_color }}">{{ object.get_assignment_status_display }}</span>
@@ -55,6 +63,11 @@
                             </td>
                         </tr>
                         <tr>
+                            <th scope="row">{% trans "Assigned Object" %}</th>
+                            <td>{{ object.assigned_object|linkify|placeholder }}</td>
+                        </tr>
+                        <!-- Related Objects -->
+                        <tr>
                             <th>Inventory Item</th>
                             <td>
                                 {% if object.inventory_item %}
@@ -65,10 +78,6 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">{% trans "Assigned Object" %}</th>
-                            <td>{{ object.assigned_object|linkify|placeholder }}</td>
-                        </tr>
-                        <tr>
                             <th>Project</th>
                             <td>{{ object.project }}</td>
                         </tr>
@@ -76,11 +85,13 @@
                 </div>
             </div>
         </div>
+        <!-- Right column: Additional Asset Information -->
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">Asset Info</h5>
+                <h5 class="card-header">Asset Details</h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
+                        <!-- Warranty Information -->
                         <tr>
                             <th>Warranty Start</th>
                             <td>{{ object.warranty_start | placeholder }}</td>
@@ -93,6 +104,7 @@
                             <th scope="row">Warranty Status</th>
                             <td>{% include 'inventory_monitor/inc/status_badge.html' with record=object status_type='warranty' %}</td>
                         </tr>
+                        <!-- Financial and Inventory Information -->
                         <tr>
                             <th>Items</th>
                             <td>{{ object.quantity }}</td>
@@ -105,6 +117,7 @@
                             <th>Asset Number</th>
                             <td>{{ object.asset_number }}</td>
                         </tr>
+                        <!-- Contract Information -->
                         <tr>
                             <th>Order Contract</th>
                             <td>
@@ -120,23 +133,35 @@
             </div>
         </div>
     </div>
+    <!--
+    Metadata Section
+    Contains custom fields, tags, and comments 
+    -->
     <div class="row mb-3">
+        <!-- Left column: Custom Fields -->
         <div class="col col-md-6">{% include "inc/panels/custom_fields.html" %}</div>
+        <!-- Right column: Tags and Comments -->
         <div class="col col-md-6">
             {% include "inc/panels/tags.html" %}
             {% include "inc/panels/comments.html" %}
         </div>
     </div>
+    <!--
+    Services Section
+    Lists all services associated with this asset
+    -->
     <div class="row mb-3">
         <div class="col col-md-12">
             <div class="card">
                 <h5 class="card-header">
                     Services
                     <div class="card-actions">
+                        <!-- View service list action -->
                         <a href="{% url 'plugins:inventory_monitor:componentservice_list' %}?asset={{ object.pk }}"
                            class="btn btn-primary btn-sm">
                             <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>Service List
                         </a>
+                        <!-- Add service action (if user has permission) -->
                         {% if perms.inventory_monitor.add_componentservice %}
                             <a href="{% url 'plugins:inventory_monitor:componentservice_add' %}?asset={{ object.id }}&return_url={{ request.path }}"
                                class="btn btn-success btn-sm">
@@ -145,17 +170,27 @@
                         {% endif %}
                     </div>
                 </h5>
+                <!-- HTMX powered service table -->
                 {% htmx_table 'plugins:inventory_monitor:componentservice_list' asset=object.pk %}
             </div>
         </div>
     </div>
+    <!--
+    Plugin Extension Sections
+    Reserved for plugin-provided content
+    -->
     <div class="row mb-3">
         <div class="col col-md-6">{% plugin_left_page object %}</div>
         <div class="col col-md-6">{% plugin_right_page object %}</div>
     </div>
+    <!--
+    RMA Section and Additional Plugin Content
+    Lists all RMA requests associated with this asset
+    -->
     <div class="row mb-3">
+        <!-- RMA (Return Merchandise Authorization) information -->
         {% include 'inventory_monitor/inc/asset_rmas.html' %}
-        <!-- with rmas=object.rmas.all %} -->
+        <!-- Additional plugin content -->
         <div class="col col-md-12">{% plugin_full_width_page object %}</div>
     </div>
 {% endblock content %}

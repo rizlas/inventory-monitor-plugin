@@ -1,6 +1,7 @@
 import django_tables2 as tables
 from netbox.tables import NetBoxTable, columns
 
+# Helper imports for custom columns and templates
 from inventory_monitor.helpers import (
     TEMPLATE_SERVICES_CONTRACTS,
     TEMPLATE_SERVICES_END,
@@ -10,7 +11,21 @@ from inventory_monitor.models import Asset
 
 
 class AssetTable(NetBoxTable):
+    """
+    Table configuration for displaying Asset objects in list views
+    """
+
+    #
+    # Basic identification columns
+    #
     serial = tables.Column(linkify=True)
+    serial_actual = tables.Column()
+    partnumber = tables.Column()
+    asset_number = tables.Column()
+
+    #
+    # Type and classification columns
+    #
     type = columns.TemplateColumn(
         template_code="""
         {% if record.type %}
@@ -28,17 +43,14 @@ class AssetTable(NetBoxTable):
         verbose_name="Type",
         orderable=True,
     )
+
+    #
+    # Status columns
+    #
     assignment_status = columns.ChoiceFieldColumn()
     lifecycle_status = columns.ChoiceFieldColumn()
-    inventory_item = tables.Column(linkify=True)
-    order_contract = tables.Column(linkify=True)
-    price = NumberColumn()
-    tags = columns.TagColumn()
-    services_to = columns.TemplateColumn(template_code=TEMPLATE_SERVICES_END)
-    services_contracts = tables.TemplateColumn(
-        template_code=TEMPLATE_SERVICES_CONTRACTS
-    )
 
+    # Formatted column for warranty status using a template
     warranty_status = tables.TemplateColumn(
         template_code="""
             {% include 'inventory_monitor/inc/status_badge.html' with status_type='warranty' %}
@@ -46,44 +58,98 @@ class AssetTable(NetBoxTable):
         verbose_name="Warranty Status",
         orderable=False,
     )
+
+    #
+    # Assignment columns
+    #
     assigned_object = tables.Column(
         verbose_name="Assigned Object", orderable=False, linkify=True
     )
 
+    #
+    # Related object columns
+    #
+    inventory_item = tables.Column(linkify=True)
+    order_contract = tables.Column(linkify=True)
+
+    #
+    # Additional information columns
+    #
+    project = tables.Column()
+    vendor = tables.Column()
+    quantity = tables.Column()
+    price = NumberColumn()  # Custom column for proper price formatting
+
+    #
+    # Service information columns
+    #
+    services_to = columns.TemplateColumn(
+        template_code=TEMPLATE_SERVICES_END, verbose_name="Service End"
+    )
+    services_contracts = tables.TemplateColumn(
+        template_code=TEMPLATE_SERVICES_CONTRACTS, verbose_name="Service Contracts"
+    )
+
+    #
+    # Warranty information columns
+    #
+    warranty_start = tables.Column()
+    warranty_end = tables.Column()
+
+    #
+    # Metadata columns
+    #
+    tags = columns.TagColumn()
+    comments = tables.Column()
+
     class Meta(NetBoxTable.Meta):
         model = Asset
+
+        # Define all available fields that can be displayed in the table
         fields = (
+            # Key identifiers
             "pk",
             "id",
+            # Basic identification
             "serial",
             "serial_actual",
             "partnumber",
             "asset_number",
-            "project",
+            # Type and classification
+            "type",
+            # Status
             "assignment_status",
-            "assigned_object",
             "lifecycle_status",
+            # Assignment
+            "assigned_object",
+            # Additional information
+            "project",
             "vendor",
             "quantity",
             "price",
+            # Related objects
             "order_contract",
             "inventory_item",
+            # Warranty information
             "warranty_start",
             "warranty_end",
             "warranty_status",
-            "comments",
-            "actions",
-            "tags",
+            # Service information
             "services_count",
             "services_contracts",
             "services_to",
-            "type",
+            # Metadata
+            "comments",
+            "tags",
+            "actions",
         )
 
+        # Define the default columns that are shown when the table first loads
         default_columns = (
             "id",
             "serial",
             "serial_actual",
+            "type",
             "assigned_object",
             "assignment_status",
             "lifecycle_status",
@@ -91,5 +157,4 @@ class AssetTable(NetBoxTable):
             "quantity",
             "price",
             "actions",
-            "type",
         )
