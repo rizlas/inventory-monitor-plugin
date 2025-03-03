@@ -8,7 +8,7 @@ from utilities.forms.fields import (
     DynamicModelMultipleChoiceField,
     TagFilterField,
 )
-from utilities.forms.rendering import FieldSet
+from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.widgets.datetime import DatePicker
 
 from inventory_monitor.models import Asset, AssetType, Contract
@@ -35,12 +35,18 @@ class AssetForm(NetBoxModelForm):
         FieldSet("assignment_status", name=_("Assignment Status")),
         FieldSet("lifecycle_status", name=_("Lifecycle Status")),
         FieldSet(
+            TabbedGroups(
+                # FieldSet('interface', name=_('Interface')),
+                FieldSet("device", name=_("Device")),
+                FieldSet("site", name=_("Site")),
+                FieldSet("location", name=_("Location")),
+            ),
+            name=_("Component Assignment"),
+        ),
+        FieldSet("inventory_item", name=_("Inventory Item")),
+        FieldSet(
             "order_contract",
-            "device",
-            "site",
-            "location",
-            "inventory_item",
-            name=_("Linked"),
+            name=_("Order Contract"),
         ),
         FieldSet("warranty_start", "warranty_end", name=_("Dates")),
         FieldSet("tags", name=_("Misc")),
@@ -67,11 +73,13 @@ class AssetForm(NetBoxModelForm):
         queryset=Device.objects.all(),
         required=False,
         label="Device",
+        selector=True,
     )
     inventory_item = DynamicModelChoiceField(
         queryset=InventoryItem.objects.all(),
         required=False,
         label="Inventory Item",
+        selector=True,
     )
     asset_number = forms.CharField(
         required=False,
@@ -85,11 +93,13 @@ class AssetForm(NetBoxModelForm):
         queryset=Site.objects.all(),
         required=False,
         label="Site",
+        selector=True,
     )
     location = DynamicModelChoiceField(
         queryset=Location.objects.all(),
         required=False,
         label="Location",
+        selector=True,
     )
     vendor = forms.CharField(
         required=False,
@@ -141,6 +151,50 @@ class AssetForm(NetBoxModelForm):
             "comments",
             "tags",
         )
+
+    def clean(self):
+        super().clean()
+
+        # Handle object assignment
+        selected_objects = [
+            field
+            for field in ("device", "inventory_item", "site", "location")
+            if self.cleaned_data[field]
+        ]
+        if len(selected_objects) > 1:
+            raise forms.ValidationError(
+                _("An Asset can only be assigned to a single component.")
+            )
+        elif len(selected_objects) == 1:
+            if selected_objects[0] == "device":
+                self.instance.inventory_item = None
+                self.instance.site = None
+                self.instance.location = None
+                self.instance.device = self.cleaned_data[selected_objects[0]]
+
+            if selected_objects[0] == "inventory_item":
+                self.instance.device = None
+                self.instance.site = None
+                self.instance.location = None
+                self.instance.inventory_item = self.cleaned_data[selected_objects[0]]
+
+            if selected_objects[0] == "site":
+                self.instance.device = None
+                self.instance.inventory_item = None
+                self.instance.location = None
+                self.instance.site = self.cleaned_data[selected_objects[0]]
+
+            if selected_objects[0] == "location":
+                self.instance.device = None
+                self.instance.inventory_item = None
+                self.instance.site = None
+                self.instance.location = self.cleaned_data[selected_objects[0]]
+
+        else:
+            self.instance.device = None
+            self.instance.inventory_item = None
+            self.instance.site = None
+            self.instance.location = None
 
 
 class AssetFilterForm(NetBoxModelFilterSetForm):
