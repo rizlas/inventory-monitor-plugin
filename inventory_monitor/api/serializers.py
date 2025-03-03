@@ -1,7 +1,11 @@
 from dcim.api.serializers import DeviceSerializer, LocationSerializer, SiteSerializer
 from netbox.api.serializers import NetBoxModelSerializer
 from rest_framework import serializers
+from django.contrib.contenttypes.models import ContentType
+from netbox.api.fields import ContentTypeField
 from tenancy.api.serializers import TenantSerializer
+from drf_spectacular.utils import extend_schema_field
+from utilities.api import get_serializer_for_model
 
 from inventory_monitor.models import (
     RMA,
@@ -12,6 +16,7 @@ from inventory_monitor.models import (
     Contractor,
     Invoice,
     Probe,
+    ASSIGNED_OBJECT_MODELS,
 )
 
 
@@ -187,6 +192,12 @@ class AssetSerializer(NetBoxModelSerializer):
         view_name="plugins-api:inventory_monitor-api:asset-detail"
     )
     order_contract = ContractSerializer(nested=True)
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(ASSIGNED_OBJECT_MODELS),
+        required=False,
+        allow_null=True
+    )
+    assigned_object = serializers.SerializerMethodField(read_only=True, allow_null=True)
     type = AssetTypeSerializer(nested=True)
 
     class Meta:
@@ -198,13 +209,13 @@ class AssetSerializer(NetBoxModelSerializer):
             "serial",
             "serial_actual",
             "partnumber",
-            "device",
+            "assigned_object_type",
+            "assigned_object_id",
+            "assigned_object",
             "asset_number",
             "project",
             "assignment_status",
             "lifecycle_status",
-            "location",
-            "site",
             "vendor",
             "quantity",
             "price",
@@ -225,8 +236,16 @@ class AssetSerializer(NetBoxModelSerializer):
             "serial",
             "type",
             "assignment_status",
+            "assigned_object",
             "lifecycle_status",
         )
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_assigned_object(self, obj):
+        if obj.assigned_object is None:
+            return None
+        serializer = get_serializer_for_model(obj.assigned_object)
+        context = {'request': self.context['request']}
+        return serializer(obj.assigned_object, nested=True, context=context).data
 
 
 class ComponentServiceSerializer(NetBoxModelSerializer):

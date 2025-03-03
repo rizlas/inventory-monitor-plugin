@@ -4,6 +4,7 @@
 {% load plugins %}
 {% load tabs %}
 {% load inventory_monitor %}
+{% load i18n %}
 {% block content %}
     <div class="row mb-3">
         <div class="col col-md-6">
@@ -33,7 +34,8 @@
                                 {% if object.type %}
                                     <a href="{{ object.type.get_absolute_url }}">{{ object.type }}</a>
                                     {% if object.type.color %}
-                                        <span class="badge color-label" style="background-color: #{{ object.type.color }}">&nbsp;</span>
+                                        <span class="badge color-label"
+                                              style="background-color: #{{ object.type.color }}">&nbsp;</span>
                                     {% endif %}
                                 {% else %}
                                     {{ ''|placeholder }}
@@ -53,16 +55,6 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Device</th>
-                            <td>
-                                {% if object.device %}
-                                    <a href="{{ object.device.get_absolute_url }}">{{ object.device }}</a>
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
                             <th>Inventory Item</th>
                             <td>
                                 {% if object.inventory_item %}
@@ -73,24 +65,8 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Site</th>
-                            <td>
-                                {% if object.site %}
-                                    <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Location</th>
-                            <td>
-                                {% if object.location %}
-                                    <a href="{{ object.location.get_absolute_url }}">{{ object.location }}</a>
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
-                            </td>
+                            <th scope="row">{% trans "Assigned Object" %}</th>
+                            <td>{{ object.assigned_object|linkify|placeholder }}</td>
                         </tr>
                         <tr>
                             <th>Project</th>

@@ -30,10 +30,7 @@ class AssetTable(NetBoxTable):
     )
     assignment_status = columns.ChoiceFieldColumn()
     lifecycle_status = columns.ChoiceFieldColumn()
-    device = tables.Column(linkify=True)
     inventory_item = tables.Column(linkify=True)
-    site = tables.Column(linkify=True)
-    location = tables.Column(linkify=True)
     order_contract = tables.Column(linkify=True)
     price = NumberColumn()
     tags = columns.TagColumn()
@@ -49,6 +46,9 @@ class AssetTable(NetBoxTable):
         verbose_name="Warranty Status",
         orderable=False,
     )
+    assigned_object = tables.Column(
+        verbose_name="Assigned Object", orderable=False, linkify=True
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Asset
@@ -58,13 +58,11 @@ class AssetTable(NetBoxTable):
             "serial",
             "serial_actual",
             "partnumber",
-            "device",
             "asset_number",
             "project",
             "assignment_status",
+            "assigned_object",
             "lifecycle_status",
-            "location",
-            "site",
             "vendor",
             "quantity",
             "price",
@@ -86,11 +84,10 @@ class AssetTable(NetBoxTable):
             "id",
             "serial",
             "serial_actual",
-            "device",
+            "assigned_object",
             "assignment_status",
             "lifecycle_status",
             "asset_number",
-            "site",
             "quantity",
             "price",
             "actions",

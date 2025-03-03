@@ -1,5 +1,6 @@
-from dcim.models import Device, InventoryItem, Location, Site
+from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
 from utilities.forms.fields import (
@@ -13,6 +14,7 @@ from utilities.forms.widgets.datetime import DatePicker
 
 from inventory_monitor.models import Asset, AssetType, Contract
 from inventory_monitor.models.asset import (
+    ASSIGNED_OBJECT_MODELS,
     AssignmentStatusChoices,
     LifecycleStatusChoices,
 )
@@ -36,10 +38,11 @@ class AssetForm(NetBoxModelForm):
         FieldSet("lifecycle_status", name=_("Lifecycle Status")),
         FieldSet(
             TabbedGroups(
-                # FieldSet('interface', name=_('Interface')),
-                FieldSet("device", name=_("Device")),
                 FieldSet("site", name=_("Site")),
                 FieldSet("location", name=_("Location")),
+                FieldSet("rack", name=_("Rack")),
+                FieldSet("device", name=_("Device")),
+                FieldSet("module", name=_("Module")),
             ),
             name=_("Component Assignment"),
         ),
@@ -69,12 +72,37 @@ class AssetForm(NetBoxModelForm):
     type = DynamicModelChoiceField(
         queryset=AssetType.objects.all(), required=False, label="Type"
     )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        label="Site",
+        selector=True,
+    )
+    location = DynamicModelChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label="Location",
+        selector=True,
+    )
+    rack = DynamicModelChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        label="Rack",
+        selector=True,
+    )
     device = DynamicModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         label="Device",
         selector=True,
     )
+    module = DynamicModelChoiceField(
+        queryset=Module.objects.all(),
+        required=False,
+        label="Module",
+        selector=True,
+    )
+
     inventory_item = DynamicModelChoiceField(
         queryset=InventoryItem.objects.all(),
         required=False,
@@ -88,18 +116,6 @@ class AssetForm(NetBoxModelForm):
     project = forms.CharField(
         required=False,
         label="Project",
-    )
-    site = DynamicModelChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        label="Site",
-        selector=True,
-    )
-    location = DynamicModelChoiceField(
-        queryset=Location.objects.all(),
-        required=False,
-        label="Location",
-        selector=True,
     )
     vendor = forms.CharField(
         required=False,
@@ -134,12 +150,14 @@ class AssetForm(NetBoxModelForm):
             "serial_actual",
             "partnumber",
             "type",
-            "device",
             "asset_number",
             "lifecycle_status",
             "assignment_status",
             "site",
             "location",
+            "rack",
+            "device",
+            "module",
             "inventory_item",
             "project",
             "vendor",
@@ -152,49 +170,64 @@ class AssetForm(NetBoxModelForm):
             "tags",
         )
 
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get("instance")
+        initial = kwargs.get("initial", {}).copy()
+        assigned_object_type = initial.get("assigned_object_type")
+        assigned_object_id = initial.get("assigned_object_id")
+
+        if instance:
+            # When editing set the initial value for assigned_object selection
+            for assigned_object_model in ContentType.objects.filter(
+                ASSIGNED_OBJECT_MODELS
+            ):
+                if (
+                    type(instance.assigned_object)
+                    is assigned_object_model.model_class()
+                ):
+                    initial[assigned_object_model.model] = instance.assigned_object
+                    break
+        elif assigned_object_type and assigned_object_id:
+            # When adding the InventoryItem from a assigned_object page
+            if (
+                content_type := ContentType.objects.filter(ASSIGNED_OBJECT_MODELS)
+                .filter(pk=assigned_object_type)
+                .first()
+            ):
+                if (
+                    assigned_object := content_type.model_class()
+                    .objects.filter(pk=assigned_object_id)
+                    .first()
+                ):
+                    initial[content_type.model] = assigned_object
+
+        kwargs["initial"] = initial
+
+        super().__init__(*args, **kwargs)
+
     def clean(self):
         super().clean()
 
         # Handle object assignment
         selected_objects = [
             field
-            for field in ("device", "inventory_item", "site", "location")
+            for field in (
+                "site",
+                "location",
+                "rack",
+                "device",
+                "module",
+            )
             if self.cleaned_data[field]
         ]
         if len(selected_objects) > 1:
             raise forms.ValidationError(
-                _("An Asset can only be assigned to a single component.")
+                _("An InventoryItem can only be assigned to a single assigned_object.")
             )
-        elif len(selected_objects) == 1:
-            if selected_objects[0] == "device":
-                self.instance.inventory_item = None
-                self.instance.site = None
-                self.instance.location = None
-                self.instance.device = self.cleaned_data[selected_objects[0]]
-
-            if selected_objects[0] == "inventory_item":
-                self.instance.device = None
-                self.instance.site = None
-                self.instance.location = None
-                self.instance.inventory_item = self.cleaned_data[selected_objects[0]]
-
-            if selected_objects[0] == "site":
-                self.instance.device = None
-                self.instance.inventory_item = None
-                self.instance.location = None
-                self.instance.site = self.cleaned_data[selected_objects[0]]
-
-            if selected_objects[0] == "location":
-                self.instance.device = None
-                self.instance.inventory_item = None
-                self.instance.site = None
-                self.instance.location = self.cleaned_data[selected_objects[0]]
-
+        elif selected_objects:
+            self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
         else:
-            self.instance.device = None
-            self.instance.inventory_item = None
-            self.instance.site = None
-            self.instance.location = None
+            self.instance.assigned_object = None
 
 
 class AssetFilterForm(NetBoxModelFilterSetForm):
@@ -206,9 +239,9 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         FieldSet("lifecycle_status", name=_("Lifecycle Status")),
         FieldSet(
             "order_contract",
-            "site",
-            "location",
-            "device",
+            # "site",
+            # "location",
+            # "device",
             "inventory_item",
             name=_("Linked"),
         ),
@@ -246,18 +279,18 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     type_id = DynamicModelMultipleChoiceField(
         queryset=AssetType.objects.all(), required=False, label=_("Type")
     )
-    device = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.all(), required=False, label=_("Device")
-    )
+    # device = DynamicModelMultipleChoiceField(
+    #    queryset=Device.objects.all(), required=False, label=_("Device")
+    # )
     inventory_item = DynamicModelMultipleChoiceField(
         queryset=InventoryItem.objects.all(), required=False, label=_("Inventory Item")
     )
-    site = DynamicModelMultipleChoiceField(
-        queryset=Site.objects.all(), required=False, label=_("Site")
-    )
-    location = DynamicModelMultipleChoiceField(
-        queryset=Location.objects.all(), required=False, label=_("Location")
-    )
+    # site = DynamicModelMultipleChoiceField(
+    #    queryset=Site.objects.all(), required=False, label=_("Site")
+    # )
+    # location = DynamicModelMultipleChoiceField(
+    #    queryset=Location.objects.all(), required=False, label=_("Location")
+    # )
     quantity = forms.IntegerField(required=False, label="Items")
     quantity__gte = forms.IntegerField(required=False, label=("Items: From"))
     quantity__lte = forms.IntegerField(required=False, label=("Items: Till"))

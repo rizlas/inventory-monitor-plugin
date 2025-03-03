@@ -1,4 +1,4 @@
-from dcim.models import InventoryItem, Site
+from dcim.models import InventoryItem
 from django.conf import settings
 from netbox.plugins import PluginTemplateExtension
 from netbox.views import generic

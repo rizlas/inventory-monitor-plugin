@@ -1,8 +1,13 @@
 import django_filters
-from dcim.models import Device, InventoryItem, Location
+from dcim.models import Device, InventoryItem, Location, Rack, Site
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from extras.filters import TagFilter
 from netbox.filtersets import NetBoxModelFilterSet
+from utilities.filters import (
+    ContentTypeFilter,
+    MultiValueNumberFilter,
+)
 
 from inventory_monitor.models import Asset, AssetType, Contract
 
@@ -24,6 +29,9 @@ class AssetFilterSet(NetBoxModelFilterSet):
     assignment_status = django_filters.MultipleChoiceFilter(
         choices=Asset.assignment_status.field.choices,
     )
+
+    assigned_object_type = ContentTypeFilter()
+    assigned_object_id = MultiValueNumberFilter()
 
     lifecycle_status = django_filters.MultipleChoiceFilter(
         choices=Asset.lifecycle_status.field.choices,
@@ -129,8 +137,6 @@ class AssetFilterSet(NetBoxModelFilterSet):
             "assignment_status",
             "lifecycle_status",
             "project",
-            "device",
-            "site",
             "vendor",
             "price",
             "order_contract",
@@ -142,11 +148,49 @@ class AssetFilterSet(NetBoxModelFilterSet):
     def search(self, queryset, name, value):
         serial = Q(serial__icontains=value)
         serial_actual = Q(serial_actual__icontains=value)
-        device = Q(device__name__icontains=value)
         project = Q(project__icontains=value)
-        site = Q(site__name__icontains=value)
         vendor = Q(vendor__icontains=value)
         order_contract = Q(order_contract__name__icontains=value)
+
+        # Search in assigned objects
+        device_type = ContentType.objects.get_for_model(Device)
+        site_type = ContentType.objects.get_for_model(Site)
+        location_type = ContentType.objects.get_for_model(Location)
+        rack_type = ContentType.objects.get_for_model(Rack)
+
+        device_search = Q(
+            assigned_object_type=device_type,
+            assigned_object_id__in=Device.objects.filter(
+                name__icontains=value
+            ).values_list("pk", flat=True),
+        )
+        site_search = Q(
+            assigned_object_type=site_type,
+            assigned_object_id__in=Site.objects.filter(
+                name__icontains=value
+            ).values_list("pk", flat=True),
+        )
+        location_search = Q(
+            assigned_object_type=location_type,
+            assigned_object_id__in=Location.objects.filter(
+                name__icontains=value
+            ).values_list("pk", flat=True),
+        )
+        rack_search = Q(
+            assigned_object_type=rack_type,
+            assigned_object_id__in=Rack.objects.filter(
+                name__icontains=value
+            ).values_list("pk", flat=True),
+        )
+
         return queryset.filter(
-            serial | serial_actual | project | site | vendor | order_contract | device
+            serial
+            | serial_actual
+            | project
+            | vendor
+            | order_contract
+            | device_search
+            | site_search
+            | location_search
+            | rack_search
         )

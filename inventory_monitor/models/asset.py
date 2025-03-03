@@ -1,5 +1,7 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from netbox.models import NetBoxModel
 from utilities.choices import ChoiceSet
@@ -7,6 +9,17 @@ from utilities.querysets import RestrictedQuerySet
 
 from inventory_monitor.models.mixins import DateStatusMixin
 from inventory_monitor.models.probe import Probe
+
+ASSIGNED_OBJECT_MODELS = Q(
+    app_label="dcim",
+    model__in=(
+        "site",
+        "location",
+        "rack",
+        "device",
+        "module",
+    ),
+)
 
 
 class AssignmentStatusChoices(ChoiceSet):
@@ -59,6 +72,20 @@ class Asset(NetBoxModel, DateStatusMixin):
     )
     asset_number = models.CharField(max_length=255, blank=True, null=True)
     project = models.CharField(max_length=32, blank=True, null=True)
+
+    assigned_object_type = models.ForeignKey(
+        to="contenttypes.ContentType",
+        limit_choices_to=ASSIGNED_OBJECT_MODELS,
+        on_delete=models.PROTECT,
+        related_name="+",
+        blank=True,
+        null=True,
+    )
+    assigned_object_id = models.PositiveBigIntegerField(blank=True, null=True)
+    assigned_object = GenericForeignKey(
+        ct_field="assigned_object_type", fk_field="assigned_object_id"
+    )
+
     site = models.ForeignKey(
         to="dcim.site",  # Locality,
         on_delete=models.PROTECT,
