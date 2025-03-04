@@ -5,7 +5,7 @@ from netbox.plugins import PluginTemplateExtension
 from netbox.views import generic
 from utilities.views import ViewTab, register_model_view
 
-from inventory_monitor.models import Asset, Contractor, Probe
+from inventory_monitor.models import Asset, Contract, Contractor, Probe
 from inventory_monitor.tables import AssetTable, ProbeTable
 
 plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
@@ -107,6 +107,26 @@ class AssetProbesView(generic.ObjectChildrenView):
         return parent.get_related_probes()
 
 
+@register_model_view(Contract, name="assets", path="assets")
+class ContractAssetsView(generic.ObjectChildrenView):
+    """View to display assets ordered through this contract"""
+
+    queryset = Contract.objects.all()
+    child_model = Asset
+    table = AssetTable
+    template_name = "inventory_monitor/inc/contract_assets.html"
+    hide_if_empty = False
+    tab = ViewTab(
+        label="Assets",
+        badge=lambda obj: obj.assets.count(),
+        permission="inventory_monitor.view_asset",
+    )
+
+    def get_children(self, request, parent):
+        """Get assets where this contract is the order_contract"""
+        return parent.assets.all()
+
+
 class AssignedAssetsView(generic.ObjectChildrenView):
     """Generic view to display assets assigned to an object"""
 
@@ -162,5 +182,5 @@ template_extensions = [
     DeviceProbeList,
     InventoryItemDuplicates,
     TenantContractorExtension,
-    InventoryItemAssetExtension
+    InventoryItemAssetExtension,
 ]
