@@ -27,6 +27,7 @@ class RMATable(NetBoxTable):
             "actions",
         )
         default_columns = (
+            "id",
             "rma_number",
             "asset",
             "original_serial",
