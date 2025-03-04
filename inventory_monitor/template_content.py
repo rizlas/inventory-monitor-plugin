@@ -74,7 +74,7 @@ class TenantContractorExtension(PluginTemplateExtension):
         )
 
 
-class InventoryItemAssetExtenstion(PluginTemplateExtension):
+class InventoryItemAssetExtension(PluginTemplateExtension):
     model = "dcim.inventoryitem"
 
     def full_width_page(self):
@@ -162,5 +162,5 @@ template_extensions = [
     DeviceProbeList,
     InventoryItemDuplicates,
     TenantContractorExtension,
-    InventoryItemAssetExtenstion,
+    InventoryItemAssetExtension
 ]
