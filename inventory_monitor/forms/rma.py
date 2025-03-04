@@ -9,6 +9,12 @@ from inventory_monitor.models import RMA, Asset
 
 
 class RMAForm(NetBoxModelForm):
+    rma_number = forms.CharField(
+        required=False,
+        label=_("RMA Number"),
+        help_text=_("RMA identifier provided by vendor"),
+    )
+
     fieldsets = (
         FieldSet(
             "rma_number",
@@ -16,10 +22,9 @@ class RMAForm(NetBoxModelForm):
             "status",
             "original_serial",
             "replacement_serial",
-            "tracking_number",
             name="RMA Information",
         ),
-        FieldSet("date_issued", "date_shipped", name="Dates"),
+        FieldSet("date_issued", "date_replaced", name="Dates"),
         FieldSet("issue_description", "vendor_response", name="Description"),
         FieldSet("tags", name="Tags"),
     )
@@ -36,8 +41,7 @@ class RMAForm(NetBoxModelForm):
             "replacement_serial",
             "status",
             "date_issued",
-            "date_shipped",
-            "tracking_number",
+            "date_replaced",
             "issue_description",
             "vendor_response",
             "tags",
@@ -45,7 +49,7 @@ class RMAForm(NetBoxModelForm):
         )
         widgets = {
             "date_issued": DatePicker(),
-            "date_shipped": DatePicker(),
+            "date_replaced": DatePicker(),
             "issue_description": forms.Textarea(attrs={"rows": 3}),
             "vendor_response": forms.Textarea(attrs={"rows": 3}),
         }
@@ -64,8 +68,7 @@ class RMAFilterForm(NetBoxModelFilterSetForm):
             "asset_id",
             "status",
             "date_issued",
-            "date_shipped",
-            "tracking_number",
+            "date_replaced",
             name="RMA",
         ),
     )
@@ -74,4 +77,4 @@ class RMAFilterForm(NetBoxModelFilterSetForm):
     asset_id = DynamicModelChoiceField(queryset=Asset.objects.all(), required=False)
     tag = TagFilterField(model)
     date_issued = forms.DateField(required=False, widget=DatePicker())
-    date_shipped = forms.DateField(required=False, widget=DatePicker())
+    date_replaced = forms.DateField(required=False, widget=DatePicker())

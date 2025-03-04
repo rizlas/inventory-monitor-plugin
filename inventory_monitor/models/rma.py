@@ -31,7 +31,11 @@ class RMA(NetBoxModel):
     objects = RestrictedQuerySet.as_manager()
 
     rma_number = models.CharField(
-        max_length=50, unique=True, help_text="RMA number provided by vendor"
+        max_length=100,
+        unique=True,
+        help_text="RMA identifier provided by vendor",
+        blank=True,
+        null=True,
     )
 
     asset = models.ForeignKey(
@@ -64,12 +68,8 @@ class RMA(NetBoxModel):
         null=True, blank=True, help_text="Date when RMA was created"
     )
 
-    date_shipped = models.DateField(
-        null=True, blank=True, help_text="Date when item was shipped to vendor"
-    )
-
-    tracking_number = models.CharField(
-        max_length=100, blank=True, null=True, help_text="Shipping tracking number"
+    date_replaced = models.DateField(
+        null=True, blank=True, help_text="Date when item was replaced"
     )
 
     issue_description = models.TextField(
@@ -86,7 +86,9 @@ class RMA(NetBoxModel):
         verbose_name_plural = "RMAs"
 
     def __str__(self):
-        return f"RMA {self.rma_number} - {self.asset}"
+        if self.rma_number:
+            return f"RMA {self.rma_number} - {self.asset}"
+        return f"RMA {self.pk} - {self.asset}"
 
     def get_absolute_url(self):
         return reverse("plugins:inventory_monitor:rma", args=[self.pk])

@@ -359,8 +359,7 @@ class RMASerializer(NetBoxModelSerializer):
             "replacement_serial",
             "status",
             "date_issued",
-            "date_shipped",
-            "tracking_number",
+            "date_replaced",
             "issue_description",
             "vendor_response",
             "tags",
@@ -377,5 +376,5 @@ class RMASerializer(NetBoxModelSerializer):
             "asset",
             "status",
             "date_issued",
-            "date_shipped",
+            "date_replaced",
         ]

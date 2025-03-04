@@ -21,8 +21,7 @@ class RMATable(NetBoxTable):
             "replacement_serial",
             "status",
             "date_issued",
-            "date_shipped",
-            "tracking_number",
+            "date_replaced",
             "issue_description",
             "vendor_response",
             "actions",
@@ -34,6 +33,6 @@ class RMATable(NetBoxTable):
             "replacement_serial",
             "status",
             "date_issued",
-            "date_shipped",
+            "date_replaced",
             "actions",
         )

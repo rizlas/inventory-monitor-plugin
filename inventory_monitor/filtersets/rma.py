@@ -22,8 +22,7 @@ class RMAFilterSet(NetBoxModelFilterSet):
             "replacement_serial",
             "status",
             "date_issued",
-            "date_shipped",
-            "tracking_number",
+            "date_replaced",
         ]
 
     def search(self, queryset, name, value):
@@ -33,7 +32,6 @@ class RMAFilterSet(NetBoxModelFilterSet):
             Q(rma_number__icontains=value)
             | Q(original_serial__icontains=value)
             | Q(replacement_serial__icontains=value)
-            | Q(tracking_number__icontains=value)
             | Q(issue_description__icontains=value)
             | Q(vendor_response__icontains=value)
         )
