@@ -4,6 +4,11 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
+    """
+    This migration removes the serial_actual field after migration 0027 has:
+    1. Created RMAs for assets where serial != serial_actual
+    2. Updated the serial field to match serial_actual
+    """
 
     dependencies = [
         ("inventory_monitor", "0027_generate_rma_from_serial"),

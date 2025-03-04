@@ -179,6 +179,25 @@ class Asset(NetBoxModel, DateStatusMixin):
             "warranty_start",
             "warranty_end",
         )
+        indexes = [
+            models.Index(fields=["serial"], name="invmon_asset_serial_idx"),
+            models.Index(fields=["partnumber"], name="invmon_asset_partnumber_idx"),
+            models.Index(fields=["asset_number"], name="invmon_asset_assetnum_idx"),
+            models.Index(
+                fields=["assignment_status"], name="invmon_asset_assign_status_idx"
+            ),
+            models.Index(
+                fields=["lifecycle_status"], name="invmon_asset_lifecycle_idx"
+            ),
+            models.Index(fields=["vendor"], name="invmon_asset_vendor_idx"),
+            models.Index(fields=["project"], name="invmon_asset_project_idx"),
+            models.Index(fields=["warranty_start"], name="invmon_asset_warr_start_idx"),
+            models.Index(fields=["warranty_end"], name="invmon_asset_warr_end_idx"),
+            models.Index(
+                fields=["assigned_object_type", "assigned_object_id"],
+                name="invmon_asset_assigned_obj_idx",
+            ),
+        ]
 
     def get_related_probes(self):
         """
