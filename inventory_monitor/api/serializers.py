@@ -168,7 +168,6 @@ class AssetSerializer(NetBoxModelSerializer):
             "url",
             "display",
             "serial",
-            "serial_actual",
             "partnumber",
             "asset_number",
             # Assignment fields

@@ -39,11 +39,6 @@ class AssetForm(NetBoxModelForm):
         label="Serial",
         widget=forms.TextInput(attrs={"placeholder": "Serial"}),
     )
-    serial_actual = forms.CharField(
-        required=True,
-        label="Serial Actual",
-        widget=forms.TextInput(attrs={"placeholder": "Serial Actual"}),
-    )
     partnumber = forms.CharField(
         required=False,
         label="Part Number",
@@ -143,7 +138,6 @@ class AssetForm(NetBoxModelForm):
         # Basic asset information
         FieldSet(
             "serial",
-            "serial_actual",
             "partnumber",
             "asset_number",
             "type",
@@ -184,7 +178,6 @@ class AssetForm(NetBoxModelForm):
         fields = (
             # Identification fields
             "serial",
-            "serial_actual",
             "partnumber",
             "asset_number",
             # Type and classification
@@ -317,7 +310,6 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         # Asset information filters
         FieldSet(
             "serial",
-            "serial_actual",
             "partnumber",
             "asset_number",
             "type_id",
@@ -339,7 +331,6 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
 
     # Identification filters
     serial = forms.CharField(required=False)
-    serial_actual = forms.CharField(required=False)
     partnumber = forms.CharField(required=False)
     asset_number = forms.CharField(
         required=False,

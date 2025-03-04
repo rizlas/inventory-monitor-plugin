@@ -65,7 +65,6 @@ class Asset(NetBoxModel, DateStatusMixin):
     # Basic identification fields
     #
     serial = models.CharField(max_length=255, blank=False, null=False)
-    serial_actual = models.CharField(max_length=255, blank=False, null=False)
     partnumber = models.CharField(max_length=64, blank=True, null=True)
     asset_number = models.CharField(max_length=255, blank=True, null=True)
 
@@ -169,7 +168,6 @@ class Asset(NetBoxModel, DateStatusMixin):
         db_table = "inventory_monitor_asset"
         ordering = (
             "serial",
-            "serial_actual",
             "partnumber",
             "asset_number",
             "project",
@@ -185,15 +183,14 @@ class Asset(NetBoxModel, DateStatusMixin):
     def get_related_probes(self):
         """
         Get all probe records related to this asset through various serial number matches:
-        - serial_actual (current serial)
-        - serial (original serial)
+        - serial (Current serial)
         - RMA serial numbers (from related RMAs)
 
         Returns:
         - QuerySet of Probe objects ordered by time descending
         """
 
-        serials = {self.serial_actual, self.serial}
+        serials = {self.serial}
         rma_original_serials = set(self.rmas.values_list("original_serial", flat=True))
         rma_replacement_serials = set(
             self.rmas.values_list("replacement_serial", flat=True)

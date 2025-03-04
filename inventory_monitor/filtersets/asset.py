@@ -32,9 +32,6 @@ class AssetFilterSet(NetBoxModelFilterSet):
     # Identification filters
     #
     serial = django_filters.CharFilter(lookup_expr="iexact", field_name="serial")
-    serial_actual = django_filters.CharFilter(
-        lookup_expr="iexact", field_name="serial_actual"
-    )
     partnumber = django_filters.CharFilter(
         lookup_expr="iexact", field_name="partnumber"
     )
@@ -149,7 +146,6 @@ class AssetFilterSet(NetBoxModelFilterSet):
         fields = (
             "id",
             "serial",
-            "serial_actual",
             "partnumber",
             "asset_number",
             "assignment_status",
@@ -168,7 +164,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
         Perform global search across multiple fields and related objects
 
         Searches through:
-        - Asset fields (serial, serial_actual, project, vendor)
+        - Asset fields (serial, project, vendor)
         - Related order contract names
         - Assigned objects (devices, sites, locations, racks)
 
@@ -182,7 +178,6 @@ class AssetFilterSet(NetBoxModelFilterSet):
         """
         # Basic field searches
         serial = Q(serial__icontains=value)
-        serial_actual = Q(serial_actual__icontains=value)
         project = Q(project__icontains=value)
         vendor = Q(vendor__icontains=value)
         order_contract = Q(order_contract__name__icontains=value)
@@ -192,7 +187,6 @@ class AssetFilterSet(NetBoxModelFilterSet):
         site_type = ContentType.objects.get_for_model(Site)
         location_type = ContentType.objects.get_for_model(Location)
         rack_type = ContentType.objects.get_for_model(Rack)
-        module_type = ContentType.objects.get_for_model(Module)
 
         # Search through assigned objects
         device_search = Q(
@@ -223,7 +217,6 @@ class AssetFilterSet(NetBoxModelFilterSet):
         # Combine all search conditions
         return queryset.filter(
             serial
-            | serial_actual
             | project
             | vendor
             | order_contract

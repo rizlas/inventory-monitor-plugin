@@ -57,7 +57,6 @@ class AssetIndex(SearchIndex):
 
     fields = (
         ("serial", 100),
-        ("serial_actual", 100),
         ("partnumber", 100),
         ("comments", 5000),
     )

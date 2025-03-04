@@ -19,7 +19,6 @@ class AssetTable(NetBoxTable):
     # Basic identification columns
     #
     serial = tables.Column(linkify=True)
-    serial_actual = tables.Column()
     partnumber = tables.Column()
     asset_number = tables.Column()
 
@@ -112,7 +111,6 @@ class AssetTable(NetBoxTable):
             "id",
             # Basic identification
             "serial",
-            "serial_actual",
             "partnumber",
             "asset_number",
             # Type and classification
@@ -148,7 +146,6 @@ class AssetTable(NetBoxTable):
         default_columns = (
             "id",
             "serial",
-            "serial_actual",
             "type",
             "assigned_object",
             "assignment_status",

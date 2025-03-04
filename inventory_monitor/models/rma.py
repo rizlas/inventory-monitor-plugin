@@ -108,5 +108,5 @@ class RMA(NetBoxModel):
         Update the associated asset's serial number when replacement is received
         """
         if self.status == RMAStatusChoices.COMPLETED and self.replacement_serial:
-            self.asset.serial_actual = self.replacement_serial
+            self.asset.serial = self.replacement_serial
             self.asset.save()
