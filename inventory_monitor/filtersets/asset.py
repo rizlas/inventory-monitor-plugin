@@ -219,13 +219,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
                 name__icontains=value
             ).values_list("pk", flat=True),
         )
-        module_search = Q(
-            assigned_object_type=module_type,
-            assigned_object_id__in=Module.objects.filter(
-                name__icontains=value
-            ).values_list("pk", flat=True),
-        )
-
+        inventory_item_search = Q(inventory_item__name__icontains=value)
         # Combine all search conditions
         return queryset.filter(
             serial
@@ -237,5 +231,5 @@ class AssetFilterSet(NetBoxModelFilterSet):
             | site_search
             | location_search
             | rack_search
-            | module_search
+            | inventory_item_search
         )
