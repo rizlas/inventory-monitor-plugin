@@ -100,10 +100,19 @@ class RMA(NetBoxModel):
         # Automatically populate original_serial from asset if not set
         if not self.original_serial and self.asset:
             self.original_serial = self.asset.serial
+
+        # Check if the status has changed to COMPLETED
+        if self.pk:
+            previous = RMA.objects.get(pk=self.pk)
+            if (
+                previous.status != self.status
+                and self.status == RMAStatusChoices.COMPLETED
+            ):
+                self.update_asset_serial()
+
         super().save(*args, **kwargs)
 
     def update_asset_serial(self):
-        # TODO: TODO: USE IT?
         """
         Update the associated asset's serial number when replacement is received
         """
