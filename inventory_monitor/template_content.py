@@ -1,3 +1,12 @@
+"""
+Template Extensions and Views for Inventory Monitor Plugin.
+
+This module provides NetBox UI customizations including:
+- Template extensions for displaying inventory data
+- Custom views for assets and probes
+- Dynamic view registration for different model types
+"""
+
 from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -5,30 +14,36 @@ from netbox.plugins import PluginTemplateExtension
 from netbox.views import generic
 from utilities.views import ViewTab, register_model_view
 
+from inventory_monitor.filtersets import AssetFilterSet, ProbeFilterSet
 from inventory_monitor.models import Asset, Contract, Contractor, Probe
 from inventory_monitor.tables import AssetTable, ProbeTable
 
+# Load plugin configuration settings
 plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
-# import_asset_url = plugin_settings.get(
-#    "import_asset_url", "/extras/scripts/asset_import.ImportAsset/"
-# )
 
 
 class DeviceProbeList(PluginTemplateExtension):
+    """Display probe data for a device on its detail page."""
+
     model = "dcim.device"
 
     def full_width_page(self):
+        """Render probes list in the full width section of the page."""
         return self.render(
-            "inventory_monitor/device_probes_include.html",
+            "inventory_monitor/inc/device_probes_include.html",
         )
 
 
 class InventoryItemDuplicates(PluginTemplateExtension):
+    """Show potential duplicate inventory items with the same serial number."""
+
     model = "dcim.inventoryitem"
 
     def right_page(self):
+        """Display duplicate items in the right sidebar."""
         obj = self.context["object"]
 
+        # Find inventory items with matching serial number (excluding current item)
         inv_duplicates = (
             InventoryItem.objects.filter(serial=obj.serial)
             .exclude(id=obj.id)
@@ -36,7 +51,7 @@ class InventoryItemDuplicates(PluginTemplateExtension):
         )
 
         return self.render(
-            "inventory_monitor/inventory_item_duplicates_include.html",
+            "inventory_monitor/inc/inventory_item_duplicates_include.html",
             extra_context={
                 "current_inv": obj,
                 "inv_duplicates": inv_duplicates,
@@ -45,28 +60,23 @@ class InventoryItemDuplicates(PluginTemplateExtension):
         )
 
 
-# class ImportAssetScriptButton(PluginTemplateExtension):
-#    model = "inventory_monitor.asset"
-#
-#    def list_buttons(self):
-#        return self.render(
-#            "inventory_monitor/import_asset_button.html",
-#            extra_context={"url": import_asset_url},
-#        )
-
-
 class TenantContractorExtension(PluginTemplateExtension):
+    """Display contractor information on tenant detail page."""
+
     model = "tenancy.tenant"
 
     def left_page(self):
+        """Show contractor details in the left sidebar."""
+        # Find contractor associated with this tenant
         contractor = Contractor.objects.filter(
             tenant_id=self.context["object"].pk
         ).first()
 
+        # Count contracts if contractor exists
         contracts_count = contractor.contracts.count() if contractor else 0
 
         return self.render(
-            "inventory_monitor/tenant_contractor_extension.html",
+            "inventory_monitor/inc/tenant_contractor_extension.html",
             extra_context={
                 "contractor": contractor,
                 "contracts_count": contracts_count,
@@ -75,9 +85,12 @@ class TenantContractorExtension(PluginTemplateExtension):
 
 
 class InventoryItemAssetExtension(PluginTemplateExtension):
+    """Show assets associated with an inventory item."""
+
     model = "dcim.inventoryitem"
 
     def full_width_page(self):
+        """Display asset table in full width section."""
         assets = self.context["object"].assets.all()
         asset_table = AssetTable(assets)
 
@@ -92,10 +105,13 @@ class InventoryItemAssetExtension(PluginTemplateExtension):
 
 @register_model_view(Asset, name="probes", path="probes")
 class AssetProbesView(generic.ObjectChildrenView):
+    """Provides a 'Probes' tab on asset detail pages showing related probe records."""
+
     queryset = Asset.objects.all()
     child_model = Probe
-    table = ProbeTable  # You'll need to create this table class
-    template_name = "inventory_monitor/inc/asset_probes.html"
+    table = ProbeTable
+    filterset = ProbeFilterSet
+    template_name = "generic/object_children.html"
     hide_if_empty = False
     tab = ViewTab(
         label="Probes",
@@ -104,17 +120,19 @@ class AssetProbesView(generic.ObjectChildrenView):
     )
 
     def get_children(self, request, parent):
+        """Retrieve all probes related to this asset."""
         return parent.get_related_probes()
 
 
 @register_model_view(Contract, name="assets", path="assets")
 class ContractAssetsView(generic.ObjectChildrenView):
-    """View to display assets ordered through this contract"""
+    """View to display assets ordered through this contract."""
 
     queryset = Contract.objects.all()
     child_model = Asset
+    filterset = AssetFilterSet
     table = AssetTable
-    template_name = "inventory_monitor/inc/contract_assets.html"
+    template_name = "generic/object_children.html"
     hide_if_empty = False
     tab = ViewTab(
         label="Assets",
@@ -123,20 +141,21 @@ class ContractAssetsView(generic.ObjectChildrenView):
     )
 
     def get_children(self, request, parent):
-        """Get assets where this contract is the order_contract"""
+        """Get assets where this contract is the order_contract."""
         return parent.assets.all()
 
 
 class AssignedAssetsView(generic.ObjectChildrenView):
-    """Generic view to display assets assigned to an object"""
+    """Base class for views that display assets assigned to any object type."""
 
     child_model = Asset
-    table = AssetTable  # You'll need to create this table class if it doesn't exist
-    template_name = "inventory_monitor/inc/assigned_assets.html"
+    table = AssetTable
+    template_name = "generic/object_children.html"
+    filterset = AssetFilterSet
     hide_if_empty = False
 
     def get_children(self, request, parent):
-        """Get assets assigned to this object"""
+        """Get assets assigned to this object using the ContentType framework."""
         content_type = ContentType.objects.get_for_model(parent)
         return Asset.objects.filter(
             assigned_object_type=content_type, assigned_object_id=parent.pk
@@ -144,14 +163,25 @@ class AssignedAssetsView(generic.ObjectChildrenView):
 
 
 def register_asset_view_for_models(*models):
-    """Factory function to register asset views for multiple models"""
+    """
+    Factory function to register asset views for multiple models.
+
+    Dynamically creates view classes for each model to avoid duplicating code.
+    Each view shows assets assigned to objects of that model type.
+
+    Args:
+        *models: List of models to register asset views for
+
+    Returns:
+        list: Created view classes
+    """
     views = []
 
     for model in models:
         # Create class name based on model name
         class_name = f"{model.__name__}AssetsView"
 
-        # Create view class
+        # Create view class dynamically
         view_class = type(
             class_name,
             (AssignedAssetsView,),
@@ -178,6 +208,7 @@ def register_asset_view_for_models(*models):
 # Register asset views for all models that can have assets assigned
 register_asset_view_for_models(Site, Location, Rack, Device, Module)
 
+# Template extensions to be registered by the plugin
 template_extensions = [
     DeviceProbeList,
     InventoryItemDuplicates,
