@@ -66,7 +66,7 @@ class ProbeDiffView(View):
 
         return render(
             request,
-            "./inventory_monitor/probe_diff.html",
+            "inventory_monitor/probe_diff.html",
             {
                 "probes_added": probes_added,
                 "probes_removed": probes_removed,

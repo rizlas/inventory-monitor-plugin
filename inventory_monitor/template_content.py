@@ -30,7 +30,7 @@ class DeviceProbeList(PluginTemplateExtension):
     def full_width_page(self):
         """Render probes list in the full width section of the page."""
         return self.render(
-            "inventory_monitor/inc/device_probes_include.html",
+            "inventory_monitor/inc/device_probes_extension.html",
         )
 
 
@@ -51,7 +51,7 @@ class InventoryItemDuplicates(PluginTemplateExtension):
         )
 
         return self.render(
-            "inventory_monitor/inc/inventory_item_duplicates_include.html",
+            "inventory_monitor/inc/inventory_item_duplicates_extension.html",
             extra_context={
                 "current_inv": obj,
                 "inv_duplicates": inv_duplicates,
