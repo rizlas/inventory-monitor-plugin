@@ -135,7 +135,10 @@
     -->
     <div class="row mb-3">
         <!-- Left column: Custom Fields -->
-        <div class="col col-md-6">{% include "inc/panels/custom_fields.html" %}</div>
+        <div class="col col-md-6">
+            {% include 'inc/panels/image_attachments.html' %}
+            {% include "inc/panels/custom_fields.html" %}
+        </div>
         <!-- Right column: Tags and Comments -->
         <div class="col col-md-6">
             {% include "inc/panels/tags.html" %}

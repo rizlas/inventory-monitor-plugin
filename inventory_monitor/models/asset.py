@@ -3,7 +3,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from netbox.models import NetBoxModel
+from netbox.models import ImageAttachmentsMixin, NetBoxModel
 from utilities.choices import ChoiceSet
 from utilities.querysets import RestrictedQuerySet
 
@@ -58,7 +58,7 @@ class LifecycleStatusChoices(ChoiceSet):
     ]
 
 
-class Asset(NetBoxModel, DateStatusMixin):
+class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
     objects = RestrictedQuerySet.as_manager()
 
     #
