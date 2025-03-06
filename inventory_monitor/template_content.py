@@ -136,6 +136,108 @@ class InventoryItemAssetExtension(PluginTemplateExtension):
         )
 
 
+class AssetDuplicates(PluginTemplateExtension):
+    """Show potential duplicate assets with the same serial number or RMA relationships."""
+
+    model = "inventory_monitor.asset"
+
+    def full_width_page(self):
+        """Display duplicate assets in the full width section of the page."""
+        current_asset = self.context["object"]
+
+        # Instead of combining querysets, let's get all potential candidates first
+        # Then filter them in Python to avoid SQL-level combination issues
+        potential_duplicates_ids = set()
+
+        # Track different duplicate types separately
+        direct_duplicates_ids = set()
+        rma_duplicates_ids = set()
+        reverse_rma_duplicates_ids = set()
+
+        # Find direct duplicates (same serial)
+        if current_asset.serial:
+            direct_dups = (
+                Asset.objects.filter(serial=current_asset.serial)
+                .exclude(id=current_asset.id)
+                .values_list("id", flat=True)
+            )
+
+            direct_duplicates_ids.update(direct_dups)
+            potential_duplicates_ids.update(direct_dups)
+
+        # Find assets that have this serial in their RMAs
+        if current_asset.serial:
+            rma_dups = (
+                Asset.objects.filter(
+                    Q(rmas__original_serial=current_asset.serial)
+                    | Q(rmas__replacement_serial=current_asset.serial)
+                )
+                .exclude(id=current_asset.id)
+                .values_list("id", flat=True)
+                .distinct()
+            )
+
+            rma_duplicates_ids.update(rma_dups)
+            potential_duplicates_ids.update(rma_dups)
+
+        # Find assets where this asset's serial appears in their RMA records
+        if (
+            current_asset.serial
+            and hasattr(current_asset, "rmas")
+            and current_asset.rmas.exists()
+        ):
+            # Get the RMA serials
+            original_serials = [
+                s
+                for s in list(
+                    current_asset.rmas.values_list("original_serial", flat=True)
+                )
+                if s
+            ]
+            replacement_serials = [
+                s
+                for s in list(
+                    current_asset.rmas.values_list("replacement_serial", flat=True)
+                )
+                if s
+            ]
+
+            if original_serials or replacement_serials:
+                # Create a list of all serials to search for
+                all_serials = original_serials + replacement_serials
+
+                # Get assets with matching serials in a single query
+                reverse_rma_dups = (
+                    Asset.objects.filter(serial__in=all_serials)
+                    .exclude(id=current_asset.id)
+                    .values_list("id", flat=True)
+                    .distinct()
+                )
+
+                reverse_rma_duplicates_ids.update(reverse_rma_dups)
+                potential_duplicates_ids.update(reverse_rma_dups)
+
+        # Now that we have all IDs, fetch the full asset objects in a single query
+        all_duplicates = Asset.objects.filter(id__in=list(potential_duplicates_ids))
+
+        # Calculate counts
+        direct_duplicates_count = len(direct_duplicates_ids)
+        rma_duplicates_count = len(rma_duplicates_ids)
+        reverse_rma_duplicates_count = len(reverse_rma_duplicates_ids)
+
+        return self.render(
+            "inventory_monitor/inc/asset_duplicates_extension.html",
+            extra_context={
+                "current_asset": current_asset,
+                "duplicates": all_duplicates,
+                "duplicates_count": len(potential_duplicates_ids),
+                "direct_duplicates_count": direct_duplicates_count,
+                "rma_duplicates_count": rma_duplicates_count,
+                "reverse_rma_duplicates_count": reverse_rma_duplicates_count,
+            },
+        )
+
+
 @register_model_view(Asset, name="probes", path="probes")
 class AssetProbesView(generic.ObjectChildrenView):
     """Provides a 'Probes' tab on asset detail pages showing related probe records."""
@@ -248,4 +350,5 @@ template_extensions = [
     InventoryItemDuplicates,
     TenantContractorExtension,
     InventoryItemAssetExtension,
+    AssetDuplicates,
 ]
