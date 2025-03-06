@@ -10,6 +10,7 @@ This module provides NetBox UI customizations including:
 from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from netbox.plugins import PluginTemplateExtension
 from netbox.views import generic
 from utilities.views import ViewTab, register_model_view
@@ -80,6 +81,38 @@ class TenantContractorExtension(PluginTemplateExtension):
             extra_context={
                 "contractor": contractor,
                 "contracts_count": contracts_count,
+            },
+        )
+
+
+class ProbeAssetExtension(PluginTemplateExtension):
+    """Display assets with matching serial number on probe detail page."""
+
+    model = "inventory_monitor.probe"
+
+    def right_page(self):
+        """Display matching assets in the full width section of the page."""
+        probe = self.context["object"]
+
+        # Find assets that match any of these criteria:
+        # 1. Current asset serial matches probe serial
+        # 2. Asset has an RMA where original_serial matches probe serial
+        # 3. Asset has an RMA where replacement_serial matches probe serial
+        matching_assets = Asset.objects.filter(
+            Q(serial=probe.serial)
+            | Q(rmas__original_serial=probe.serial)
+            | Q(rmas__replacement_serial=probe.serial)
+        ).distinct()
+
+        # Create asset table for display
+        asset_table = AssetTable(matching_assets)
+
+        return self.render(
+            "inventory_monitor/inc/probe_asset_extension.html",
+            extra_context={
+                "assets": matching_assets,
+                "asset_table": asset_table,
+                "assets_count": matching_assets.count(),
             },
         )
 
@@ -211,6 +244,7 @@ register_asset_view_for_models(Site, Location, Rack, Device, Module)
 # Template extensions to be registered by the plugin
 template_extensions = [
     DeviceProbeList,
+    ProbeAssetExtension,
     InventoryItemDuplicates,
     TenantContractorExtension,
     InventoryItemAssetExtension,
