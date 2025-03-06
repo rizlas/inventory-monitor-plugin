@@ -18,6 +18,7 @@ class AssetTable(NetBoxTable):
     #
     # Basic identification columns
     #
+    name = tables.Column(linkify=True)
     serial = tables.Column(linkify=True)
     partnumber = tables.Column()
     asset_number = tables.Column()
@@ -110,6 +111,7 @@ class AssetTable(NetBoxTable):
             "pk",
             "id",
             # Basic identification
+            "name",
             "serial",
             "partnumber",
             "asset_number",
@@ -145,6 +147,7 @@ class AssetTable(NetBoxTable):
         # Define the default columns that are shown when the table first loads
         default_columns = (
             "id",
+            "name",
             "serial",
             "type",
             "assigned_object",

@@ -64,6 +64,7 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
     #
     # Basic identification fields
     #
+    name = models.CharField(max_length=255, blank=True, null=True)
     serial = models.CharField(max_length=255, blank=False, null=False)
     partnumber = models.CharField(max_length=64, blank=True, null=True)
     asset_number = models.CharField(max_length=255, blank=True, null=True)
@@ -167,6 +168,7 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
     class Meta:
         db_table = "inventory_monitor_asset"
         ordering = (
+            "name",
             "serial",
             "partnumber",
             "asset_number",
@@ -180,6 +182,7 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
             "warranty_end",
         )
         indexes = [
+            models.Index(fields=["name"], name="invmon_asset_name_idx"),
             models.Index(fields=["serial"], name="invmon_asset_serial_idx"),
             models.Index(fields=["partnumber"], name="invmon_asset_partnumber_idx"),
             models.Index(fields=["asset_number"], name="invmon_asset_assetnum_idx"),
@@ -224,6 +227,8 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
         return Probe.objects.filter(serial__in=serials).order_by("-time")
 
     def __str__(self):
+        if self.name:
+            return f"{self.name} ({self.serial})"
         return f"{self.serial}"
 
     def get_absolute_url(self):
