@@ -3,7 +3,7 @@
 {% load inventory_monitor %}
 <div class="card">
     <h5 class="card-header">
-        Assets with Same Serial Number OR with same RMA serial number &nbsp;<i class="text-muted">Inventory Monitor</i>
+        Assets &nbsp;<i class="text-muted">Inventory Monitor</i>
         {% if perms.inventory_monitor.add_asset %}
             <div class="card-actions">
                 <a href="{% url 'plugins:inventory_monitor:asset_add' %}?serial={{ object.serial }}&name={{ object.name }}&partnumber={{ object.part }}&return_url={{ request.path }}"

@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from netbox.models import NetBoxModel
 from utilities.choices import ChoiceSet
@@ -96,12 +96,13 @@ class RMA(NetBoxModel):
     def get_status_color(self):
         return RMAStatusChoices.colors.get(self.status, "gray")
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         # Automatically populate original_serial from asset if not set
         if not self.original_serial and self.asset:
             self.original_serial = self.asset.serial
 
-        # Check if the status has changed to COMPLETED
+        # Check if this is an existing RMA with status change
         if self.pk:
             previous = RMA.objects.get(pk=self.pk)
             if (
@@ -109,6 +110,9 @@ class RMA(NetBoxModel):
                 and self.status == RMAStatusChoices.COMPLETED
             ):
                 self.update_asset_serial()
+        # Check if this is a new RMA with COMPLETED status
+        elif self.status == RMAStatusChoices.COMPLETED:
+            self.update_asset_serial()
 
         super().save(*args, **kwargs)
 
