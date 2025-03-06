@@ -5,6 +5,31 @@ menu = PluginMenu(
     icon_class="mdi mdi-monitor",
     groups=(
         (
+            "Assets",
+            (
+                PluginMenuItem(
+                    link="plugins:inventory_monitor:asset_list",
+                    link_text="Assets",
+                    permissions=["inventory_monitor.view_asset"],
+                ),
+                PluginMenuItem(
+                    link="plugins:inventory_monitor:assettype_list",
+                    link_text="Asset Types",
+                    permissions=["inventory_monitor.view_assettype"],
+                ),
+                PluginMenuItem(
+                    link="plugins:inventory_monitor:rma_list",
+                    link_text="RMA",
+                    permissions=["inventory_monitor.view_rma"],
+                ),
+                PluginMenuItem(
+                    link="plugins:inventory_monitor:componentservice_list",
+                    link_text="Services",
+                    permissions=["inventory_monitor.view_componentservice"],
+                ),
+            ),
+        ),
+        (
             "Network Probe",
             (
                 PluginMenuItem(
@@ -36,31 +61,6 @@ menu = PluginMenu(
                     link="plugins:inventory_monitor:invoice_list",
                     link_text="Invoices",
                     permissions=["inventory_monitor.view_invoice"],
-                ),
-            ),
-        ),
-        (
-            "Assets",
-            (
-                PluginMenuItem(
-                    link="plugins:inventory_monitor:asset_list",
-                    link_text="Assets",
-                    permissions=["inventory_monitor.view_asset"],
-                ),
-                PluginMenuItem(
-                    link="plugins:inventory_monitor:assettype_list",
-                    link_text="Asset Types",
-                    permissions=["inventory_monitor.view_assettype"],
-                ),
-                PluginMenuItem(
-                    link="plugins:inventory_monitor:componentservice_list",
-                    link_text="Services",
-                    permissions=["inventory_monitor.view_componentservice"],
-                ),
-                PluginMenuItem(
-                    link="plugins:inventory_monitor:rma_list",
-                    link_text="RMA",
-                    permissions=["inventory_monitor.view_rma"],
                 ),
             ),
         ),
