@@ -21,6 +21,13 @@ class AssetListView(generic.ObjectListView):
     filterset = filtersets.AssetFilterSet
     filterset_form = forms.AssetFilterForm
     table = tables.AssetTable
+    actions = {
+        "add": {},
+        "import": {},
+        "export": {},
+        "bulk_edit": {},
+        "bulk_delete": {},
+    }
 
 
 class AssetEditView(generic.ObjectEditView):
@@ -30,3 +37,16 @@ class AssetEditView(generic.ObjectEditView):
 
 class AssetDeleteView(generic.ObjectDeleteView):
     queryset = models.Asset.objects.all()
+
+
+class AssetBulkEditView(generic.BulkEditView):
+    queryset = models.Asset.objects.all()
+    filterset = filtersets.AssetFilterSet
+    table = tables.AssetTable
+    form = forms.AssetBulkEditForm
+
+
+class AssetBulkDeleteView(generic.BulkDeleteView):
+    queryset = models.Asset.objects.all()
+    filterset = filtersets.AssetFilterSet
+    table = tables.AssetTable

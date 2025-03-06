@@ -1,11 +1,18 @@
-# DCIM model imports
-from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
+# Django imports
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
+# Third-party imports
+
 # NetBox imports
-from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
+from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
+from netbox.forms import (
+    NetBoxModelBulkEditForm,
+    NetBoxModelFilterSetForm,
+    NetBoxModelForm,
+)
+from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField,
     DynamicModelChoiceField,
@@ -15,7 +22,7 @@ from utilities.forms.fields import (
 from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.widgets.datetime import DatePicker
 
-# Local model imports
+# Local application imports
 from inventory_monitor.models import Asset, AssetType, Contract
 from inventory_monitor.models.asset import (
     ASSIGNED_OBJECT_MODELS,
@@ -410,3 +417,52 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     warranty_end__lte = forms.DateField(
         required=False, label=("Warranty End: Till"), widget=DatePicker()
     )
+
+
+class AssetBulkEditForm(NetBoxModelBulkEditForm):
+    name = forms.CharField(
+        required=False,
+        label="Name",
+        widget=forms.TextInput(attrs={"placeholder": "Name"}),
+    )
+    type = DynamicModelChoiceField(queryset=AssetType.objects.all(), required=False)
+
+    assignment_status = forms.ChoiceField(
+        choices=add_blank_choice(AssignmentStatusChoices), required=False
+    )
+
+    lifecycle_status = forms.ChoiceField(
+        choices=add_blank_choice(LifecycleStatusChoices), required=False
+    )
+
+    project = forms.CharField(required=False)
+
+    vendor = forms.CharField(required=False)
+
+    order_contract = DynamicModelChoiceField(
+        queryset=Contract.objects.all(), required=False
+    )
+
+    warranty_start = forms.DateField(required=False, widget=DatePicker())
+
+    warranty_end = forms.DateField(required=False, widget=DatePicker())
+
+    comments = CommentField(required=False)
+
+    model = Asset  # Add this line to explicitly define the model at the class level
+
+    class Meta:
+        model = Asset
+        fields = [
+            "name",
+            "type",
+            "assignment_status",
+            "lifecycle_status",
+            "project",
+            "vendor",
+            "order_contract",
+            "warranty_start",
+            "warranty_end",
+            "comments",
+            "tags",
+        ]

@@ -108,6 +108,10 @@ urlpatterns = (
     ## Asset
     path("assets/", views.AssetListView.as_view(), name="asset_list"),
     path("assets/add/", views.AssetEditView.as_view(), name="asset_add"),
+    path("assets/edit/", views.AssetBulkEditView.as_view(), name="asset_bulk_edit"),
+    path(
+        "assets/delete/", views.AssetBulkDeleteView.as_view(), name="asset_bulk_delete"
+    ),
     path("assets/<int:pk>/", views.AssetView.as_view(), name="asset"),
     path(
         "assets/<int:pk>/edit/",
