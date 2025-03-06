@@ -154,7 +154,5 @@ class AssetTable(NetBoxTable):
             "assignment_status",
             "lifecycle_status",
             "asset_number",
-            "quantity",
-            "price",
             "actions",
         )
