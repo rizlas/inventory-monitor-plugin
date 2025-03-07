@@ -56,6 +56,13 @@ class Probe(
     category = models.CharField(blank=True, null=True, max_length=255)
 
     class Meta:
+        indexes = [
+            models.Index(fields=["serial"], name="invmon_probe_serial_idx"),
+            models.Index(fields=["time"], name="invmon_probe_time_idx"),
+            models.Index(
+                fields=["serial", "time"], name="invmon_probe_serial_time_idx"
+            ),
+        ]
         ordering = (
             "name",
             "serial",

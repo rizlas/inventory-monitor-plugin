@@ -2,13 +2,18 @@ from netbox.api.viewsets import NetBoxModelViewSet
 
 from inventory_monitor import filtersets, models
 from inventory_monitor.api.serializers import (
-    ComponentSerializer,
+    ABRASerializer,
+    AssetSerializer,
+    AssetTypeSerializer,
     ComponentServiceSerializer,
     ContractorSerializer,
     ContractSerializer,
     InvoiceSerializer,
     ProbeSerializer,
+    RMASerializer,
 )
+from inventory_monitor.filtersets import ABRAFilterSet
+from inventory_monitor.models import ABRA
 
 
 class ProbeViewSet(NetBoxModelViewSet):
@@ -35,13 +40,31 @@ class InvoiceViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.InvoiceFilterSet
 
 
-class ComponentViewSet(NetBoxModelViewSet):
-    queryset = models.Component.objects.prefetch_related("tags", "order_contract")
-    serializer_class = ComponentSerializer
-    filterset_class = filtersets.ComponentFilterSet
+class AssetViewSet(NetBoxModelViewSet):
+    queryset = models.Asset.objects.prefetch_related("tags", "order_contract")
+    serializer_class = AssetSerializer
+    filterset_class = filtersets.AssetFilterSet
+
+
+class AssetTypeViewSet(NetBoxModelViewSet):
+    queryset = models.AssetType.objects.prefetch_related("tags")
+    serializer_class = AssetTypeSerializer
+    filterset_class = filtersets.AssetTypeFilterSet
 
 
 class ComponentServiceViewSet(NetBoxModelViewSet):
     queryset = models.ComponentService.objects.prefetch_related("tags", "contract")
     serializer_class = ComponentServiceSerializer
     filterset_class = filtersets.ComponentServiceFilterSet
+
+
+class RMAViewSet(NetBoxModelViewSet):
+    queryset = models.RMA.objects.prefetch_related("tags", "asset")
+    serializer_class = RMASerializer
+    filterset_class = filtersets.RMAFilterSet
+
+
+class ABRAViewSet(NetBoxModelViewSet):
+    queryset = ABRA.objects.prefetch_related("assets", "tags")
+    serializer_class = ABRASerializer
+    filterset_class = ABRAFilterSet

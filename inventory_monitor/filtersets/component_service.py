@@ -3,7 +3,7 @@ from django.db.models import Q
 from extras.filters import TagFilter
 from netbox.filtersets import NetBoxModelFilterSet
 
-from inventory_monitor.models import Component, ComponentService, Contract
+from inventory_monitor.models import Asset, ComponentService, Contract
 
 
 class ComponentServiceFilterSet(NetBoxModelFilterSet):
@@ -12,7 +12,7 @@ class ComponentServiceFilterSet(NetBoxModelFilterSet):
 
     This filter set provides filtering options for various fields of the ComponentService model,
     such as service start date, service end date, service parameter, service price, service category,
-    service category vendor, component, and contract.
+    service category vendor, asset, and contract.
 
     Attributes:
         q (django_filters.CharFilter): Filter for searching by a specific value.
@@ -29,7 +29,7 @@ class ComponentServiceFilterSet(NetBoxModelFilterSet):
         service_price__lte (django_filters.NumberFilter): Filter for filtering by service price less than or equal to a specific value.
         service_category (django_filters.CharFilter): Filter for filtering by service category.
         service_category_vendor (django_filters.CharFilter): Filter for filtering by service category vendor.
-        component (django_filters.ModelMultipleChoiceFilter): Filter for filtering by component.
+        asset (django_filters.ModelMultipleChoiceFilter): Filter for filtering by asset.
         contract (django_filters.ModelMultipleChoiceFilter): Filter for filtering by contract.
 
     Methods:
@@ -84,11 +84,11 @@ class ComponentServiceFilterSet(NetBoxModelFilterSet):
     service_category_vendor = django_filters.CharFilter(
         lookup_expr="icontains", field_name="service_category_vendor"
     )
-    component = django_filters.ModelMultipleChoiceFilter(
-        field_name="component__id",
-        queryset=Component.objects.all(),
+    asset = django_filters.ModelMultipleChoiceFilter(
+        field_name="asset__id",
+        queryset=Asset.objects.all(),
         to_field_name="id",
-        label="Component (ID)",
+        label="Asset (ID)",
     )
     contract = django_filters.ModelMultipleChoiceFilter(
         field_name="contract__id",
@@ -107,7 +107,7 @@ class ComponentServiceFilterSet(NetBoxModelFilterSet):
             "service_price",
             "service_category",
             "service_category_vendor",
-            "component",
+            "asset",
             "contract",
         )
 
@@ -127,12 +127,12 @@ class ComponentServiceFilterSet(NetBoxModelFilterSet):
         service_param = Q(service_param__icontains=value)
         service_category = Q(service_category__icontains=value)
         service_category_vendor = Q(service_category_vendor__icontains=value)
-        component = Q(component__serial__icontains=value)
+        asset = Q(asset__serial__icontains=value)
         contract = Q(contract__name__icontains=value)
         return queryset.filter(
             service_param
             | service_category
             | service_category_vendor
-            | component
+            | asset
             | contract
         )

@@ -4,8 +4,10 @@ from django.urls import reverse
 from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
 
+from inventory_monitor.models.mixins import DateStatusMixin
 
-class ComponentService(NetBoxModel):
+
+class ComponentService(NetBoxModel, DateStatusMixin):
     objects = RestrictedQuerySet.as_manager()
     service_start = models.DateField(
         blank=True,
@@ -26,8 +28,8 @@ class ComponentService(NetBoxModel):
     )
     service_category = models.CharField(max_length=255, blank=True, null=True)
     service_category_vendor = models.CharField(max_length=255, blank=True, null=True)
-    component = models.ForeignKey(
-        to="inventory_monitor.component",
+    asset = models.ForeignKey(
+        to="inventory_monitor.asset",
         on_delete=models.PROTECT,
         related_name="services",
         blank=True,
@@ -50,7 +52,7 @@ class ComponentService(NetBoxModel):
             "service_price",
             "service_category",
             "service_category_vendor",
-            "component",
+            "asset",
             "contract",
         )
 
@@ -62,3 +64,7 @@ class ComponentService(NetBoxModel):
 
     def clean(self):
         super().clean()
+
+    def get_service_status(self):
+        """Returns the service status and color for progress bar"""
+        return self.get_date_status("service_start", "service_end", "Service")

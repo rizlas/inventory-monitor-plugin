@@ -6,9 +6,16 @@ from inventory_monitor.models import ComponentService
 
 
 class ComponentServiceTable(NetBoxTable):
-    component = tables.Column(linkify=True)
+    asset = tables.Column(linkify=True)
     contract = tables.Column(linkify=True)
     service_price = NumberColumn(accessor="service_price")
+    service_status = tables.TemplateColumn(
+        template_code="""
+            {% include 'inventory_monitor/inc/status_badge.html' with status_type='service' %}
+        """,
+        verbose_name="Service Status",
+        orderable=False,
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ComponentService
@@ -17,11 +24,12 @@ class ComponentServiceTable(NetBoxTable):
             "id",
             "service_start",
             "service_end",
+            "service_status",
             "service_param",
             "service_price",
             "service_category",
             "service_category_vendor",
-            "component",
+            "asset",
             "contract",
             "comments",
             "actions",

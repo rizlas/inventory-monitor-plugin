@@ -1,7 +1,8 @@
 from netbox.search import SearchIndex, register_search
 
 from inventory_monitor.models import (
-    Component,
+    Asset,
+    AssetType,
     ComponentService,
     Contract,
     Contractor,
@@ -51,12 +52,11 @@ class ProbeIndex(SearchIndex):
 
 
 @register_search
-class ComponentIndex(SearchIndex):
-    model = Component
+class AssetIndex(SearchIndex):
+    model = Asset
 
     fields = (
         ("serial", 100),
-        ("serial_actual", 100),
         ("partnumber", 100),
         ("comments", 5000),
     )
@@ -71,3 +71,14 @@ class ComponentServiceIndex(SearchIndex):
         ("service_category_vendor", 100),
         ("comments", 5000),
     )
+
+
+@register_search
+class AssetTypeIndex(SearchIndex):
+    model = AssetType
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+    display_attrs = ('description',)
