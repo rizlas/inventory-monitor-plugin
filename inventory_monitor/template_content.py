@@ -7,7 +7,7 @@ This module provides NetBox UI customizations including:
 - Dynamic view registration for different model types
 """
 
-from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
+from dcim.models import Device, Location, Module, Rack, Site
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -21,44 +21,6 @@ from inventory_monitor.tables import AssetTable, ProbeTable
 
 # Load plugin configuration settings
 plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
-
-
-class DeviceProbeList(PluginTemplateExtension):
-    """Display probe data for a device on its detail page."""
-
-    model = "dcim.device"
-
-    def full_width_page(self):
-        """Render probes list in the full width section of the page."""
-        return self.render(
-            "inventory_monitor/inc/device_probes_extension.html",
-        )
-
-
-class InventoryItemDuplicates(PluginTemplateExtension):
-    """Show potential duplicate inventory items with the same serial number."""
-
-    model = "dcim.inventoryitem"
-
-    def right_page(self):
-        """Display duplicate items in the right sidebar."""
-        obj = self.context["object"]
-
-        # Find inventory items with matching serial number (excluding current item)
-        inv_duplicates = (
-            InventoryItem.objects.filter(serial=obj.serial)
-            .exclude(id=obj.id)
-            .order_by("-custom_field_data__inventory_monitor_last_probe")
-        )
-
-        return self.render(
-            "inventory_monitor/inc/inventory_item_duplicates_extension.html",
-            extra_context={
-                "current_inv": obj,
-                "inv_duplicates": inv_duplicates,
-                "inv_duplicates_count": inv_duplicates.count(),
-            },
-        )
 
 
 class TenantContractorExtension(PluginTemplateExtension):
@@ -125,25 +87,6 @@ class ProbeAssetExtension(PluginTemplateExtension):
                 "assets": matching_assets,
                 "asset_table": asset_table,
                 "assets_count": matching_assets.count(),
-            },
-        )
-
-
-class InventoryItemAssetExtension(PluginTemplateExtension):
-    """Show assets associated with an inventory item."""
-
-    model = "dcim.inventoryitem"
-
-    def full_width_page(self):
-        """Display asset table in full width section."""
-        assets = self.context["object"].assets.all()
-        asset_table = AssetTable(assets)
-
-        return self.render(
-            "inventory_monitor/inc/inventory_item_asset_extension.html",
-            extra_context={
-                "assets": assets,
-                "asset_table": asset_table,
             },
         )
 
@@ -357,11 +300,8 @@ register_asset_view_for_models(Site, Location, Rack, Device, Module)
 
 # Template extensions to be registered by the plugin
 template_extensions = [
-    DeviceProbeList,
     ProbeAssetExtension,
-    InventoryItemDuplicates,
     TenantContractorExtension,
-    InventoryItemAssetExtension,
     AssetDuplicates,
     AbraAssetsExtension,
 ]
