@@ -169,7 +169,7 @@ class AssetSerializer(NetBoxModelSerializer):
             "partnumber",
             "serial",
             "asset_number",
-            "name",
+            "description",
             # Assignment fields
             "assigned_object_type",
             "assigned_object_id",
@@ -200,7 +200,7 @@ class AssetSerializer(NetBoxModelSerializer):
             "partnumber",
             "serial",
             "type",
-            "name",
+            "description",
             "assignment_status",
             "assigned_object",
             "order_contract",

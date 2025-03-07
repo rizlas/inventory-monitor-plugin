@@ -76,6 +76,6 @@ class ABRAFilterSet(NetBoxModelFilterSet):
             | Q(location__icontains=value)
             | Q(user_name__icontains=value)
             | Q(user_note__icontains=value)
-            | Q(assets__name__icontains=value)
+            | Q(assets__description__icontains=value)
             | Q(assets__serial__icontains=value)
         ).distinct()

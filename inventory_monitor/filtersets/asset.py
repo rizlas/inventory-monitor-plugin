@@ -31,7 +31,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
     #
     # Identification filters
     #
-    name = django_filters.CharFilter(lookup_expr="icontains", field_name="name")
+    description = django_filters.CharFilter(lookup_expr="icontains", field_name="description")
     serial = django_filters.CharFilter(lookup_expr="iexact", field_name="serial")
     partnumber = django_filters.CharFilter(
         lookup_expr="iexact", field_name="partnumber"
@@ -148,7 +148,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
             "partnumber",
             "serial",
             "asset_number",
-            "name",
+            "description",
             "assignment_status",
             "lifecycle_status",
             "project",
@@ -164,7 +164,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
         Perform global search across multiple fields and related objects
 
         Searches through:
-        - Asset fields (name, serial, project, vendor)
+        - Asset fields (description, serial, project, vendor)
         - Related order contract names
         - Assigned objects (devices, sites, locations, racks)
 
@@ -177,7 +177,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
             Filtered queryset containing matching assets
         """
         # Basic field searches
-        name_search = Q(name__icontains=value)
+        description_search = Q(description__icontains=value)
         serial = Q(serial__icontains=value)
         project = Q(project__icontains=value)
         vendor = Q(vendor__icontains=value)
@@ -216,7 +216,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
         )
         # Combine all search conditions
         return queryset.filter(
-            name_search
+            description_search
             | serial
             | project
             | vendor

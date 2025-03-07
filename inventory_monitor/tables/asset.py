@@ -28,7 +28,7 @@ class AssetTable(NetBoxTable):
     #
     # Basic identification columns
     #
-    name = tables.Column(linkify=True)
+    description = tables.Column()
     serial = tables.Column(linkify=True)
     partnumber = tables.Column()
     asset_number = tables.Column()
@@ -128,7 +128,7 @@ class AssetTable(NetBoxTable):
             # Basic identification
             "serial",
             "asset_number",
-            "name",
+            "description",
             # Type and classification
             "type",
             # Status
@@ -163,7 +163,7 @@ class AssetTable(NetBoxTable):
             "id",
             "partnumber",
             "serial",
-            "name",
+            "description",
             "type",
             "assigned_object",
             "assignment_status",

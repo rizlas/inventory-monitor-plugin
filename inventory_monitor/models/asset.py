@@ -65,7 +65,7 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
     # Basic identification fields
     #
     partnumber = models.CharField(max_length=64, blank=True, null=True)
-    name = models.CharField(max_length=255, blank=True, null=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
     serial = models.CharField(max_length=255, blank=False, null=False)
     asset_number = models.CharField(max_length=255, blank=True, null=True)
 
@@ -163,7 +163,7 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
         ordering = (
             "partnumber",
             "serial",
-            "name",
+            "description",
             "asset_number",
             "project",
             "vendor",
@@ -174,7 +174,7 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
             "warranty_end",
         )
         indexes = [
-            models.Index(fields=["name"], name="invmon_asset_name_idx"),
+            models.Index(fields=["description"], name="invmon_asset_desc_idx"),
             models.Index(fields=["serial"], name="invmon_asset_serial_idx"),
             models.Index(fields=["partnumber"], name="invmon_asset_partnumber_idx"),
             models.Index(fields=["asset_number"], name="invmon_asset_assetnum_idx"),
