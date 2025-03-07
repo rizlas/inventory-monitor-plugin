@@ -6,3 +6,4 @@ from inventory_monitor.forms.contractor import *
 from inventory_monitor.forms.invoice import *
 from inventory_monitor.forms.probe import *
 from inventory_monitor.forms.rma import *
+from inventory_monitor.forms.abra import *

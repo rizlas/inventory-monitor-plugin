@@ -6,3 +6,4 @@ from inventory_monitor.views.contractor import *
 from inventory_monitor.views.invoice import *
 from inventory_monitor.views.probe import *
 from inventory_monitor.views.rma import *
+from inventory_monitor.views.abra import *

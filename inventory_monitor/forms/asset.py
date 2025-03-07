@@ -1,12 +1,10 @@
 # Django imports
+# Third-party imports
+# NetBox imports
+from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
-
-# Third-party imports
-
-# NetBox imports
-from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
 from netbox.forms import (
     NetBoxModelBulkEditForm,
     NetBoxModelFilterSetForm,
@@ -23,7 +21,7 @@ from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.widgets.datetime import DatePicker
 
 # Local application imports
-from inventory_monitor.models import Asset, AssetType, Contract
+from inventory_monitor.models import ABRA, Asset, AssetType, Contract
 from inventory_monitor.models.asset import (
     ASSIGNED_OBJECT_MODELS,
     AssignmentStatusChoices,
@@ -111,7 +109,6 @@ class AssetForm(NetBoxModelForm):
         required=False,
         label="Order Contract",
     )
-
     # Additional information fields
     project = forms.CharField(
         required=False,
@@ -180,7 +177,6 @@ class AssetForm(NetBoxModelForm):
             "order_contract",
             name=_("Order Contract"),
         ),
-        # Date information
         FieldSet("warranty_start", "warranty_end", name=_("Dates")),
         # Metadata
         FieldSet("tags", name=_("Misc")),
@@ -309,6 +305,7 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         FieldSet(
             "order_contract",
             "inventory_item",
+            "abra_assets",
             name=_("Related Objects"),
         ),
         # Date range filters
@@ -355,9 +352,12 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
 
     # Status filters
     assignment_status = forms.ChoiceField(
-        choices=AssignmentStatusChoices, required=False
+        choices=add_blank_choice(AssignmentStatusChoices), required=False
     )
-    lifecycle_status = forms.ChoiceField(choices=LifecycleStatusChoices, required=False)
+
+    lifecycle_status = forms.ChoiceField(
+        choices=add_blank_choice(LifecycleStatusChoices), required=False
+    )
 
     # Type filter
     type_id = DynamicModelMultipleChoiceField(
@@ -370,6 +370,9 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     )
     order_contract = DynamicModelMultipleChoiceField(
         queryset=Contract.objects.all(), required=False, label=_("Order Contract")
+    )
+    abra_assets = DynamicModelMultipleChoiceField(
+        queryset=ABRA.objects.all(), required=False, label=_("ABRA")
     )
 
     # Additional information filters

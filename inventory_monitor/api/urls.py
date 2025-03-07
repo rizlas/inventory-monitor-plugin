@@ -12,5 +12,6 @@ router.register("assets", views.AssetViewSet)
 router.register("asset-types", views.AssetTypeViewSet)
 router.register("component-services", views.ComponentServiceViewSet)
 router.register("rmas", views.RMAViewSet)
+router.register("abra", views.ABRAViewSet)
 
 urlpatterns = router.urls

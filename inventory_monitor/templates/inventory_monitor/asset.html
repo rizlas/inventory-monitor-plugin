@@ -149,6 +149,23 @@
             {% include "inc/panels/comments.html" %}
         </div>
     </div>
+    <div class="row mb-3">
+        <div class="col col-md-12">
+            <div class="card">
+                <h5 class="card-header">
+                    ABRA  assets
+                    <div class="card-actions">
+                        <a href="{% url 'plugins:inventory_monitor:abra_list' %}?asset_id={{ object.pk }}"
+                           class="btn btn-primary btn-sm">
+                            <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>ABRA's List
+                        </a>
+                    </div>
+                </h5>
+                <!-- HTMX powered service table -->
+                {% htmx_table 'plugins:inventory_monitor:abra_list' asset_id=object.pk %}
+            </div>
+        </div>
+    </div>
     <!--
     Services Section
     Lists all services associated with this asset

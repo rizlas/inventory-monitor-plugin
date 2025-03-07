@@ -155,6 +155,17 @@ urlpatterns = (
         "asset-types/",
         include(get_model_urls("inventory_monitor", "assettype", detail=False)),
     ),
+    ## ABRA
+    path("abra/", views.ABRAListView.as_view(), name="abra_list"),
+    path("abra/add/", views.ABRAEditView.as_view(), name="abra_add"),
+    path("abra/<int:pk>/", views.ABRAView.as_view(), name="abra"),
+    path("abra/<int:pk>/edit/", views.ABRAEditView.as_view(), name="abra_edit"),
+    path("abra/<int:pk>/delete/", views.ABRADeleteView.as_view(), name="abra_delete"),
+    path("abra/", include(get_model_urls("inventory_monitor", "abra"))),
+    path(
+        "abra/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "abra", detail=True)),
+    ),
     ## ComponentService
     path(
         "component-services/",

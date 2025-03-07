@@ -6,3 +6,4 @@ from inventory_monitor.tables.contractor import *
 from inventory_monitor.tables.invoice import *
 from inventory_monitor.tables.probe import *
 from inventory_monitor.tables.rma import *
+from inventory_monitor.tables.abra import *

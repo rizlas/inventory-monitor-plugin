@@ -23,6 +23,11 @@ menu = PluginMenu(
                     permissions=["inventory_monitor.view_rma"],
                 ),
                 PluginMenuItem(
+                    link="plugins:inventory_monitor:abra_list",
+                    link_text="ABRA",
+                    permissions=["inventory_monitor.view_abra"],
+                ),
+                PluginMenuItem(
                     link="plugins:inventory_monitor:componentservice_list",
                     link_text="Services",
                     permissions=["inventory_monitor.view_componentservice"],

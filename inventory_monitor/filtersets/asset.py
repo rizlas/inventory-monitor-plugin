@@ -11,7 +11,7 @@ from utilities.filters import (
     MultiValueNumberFilter,
 )
 
-from inventory_monitor.models import Asset, AssetType, Contract
+from inventory_monitor.models import ABRA, Asset, AssetType, Contract
 
 
 class AssetFilterSet(NetBoxModelFilterSet):
@@ -78,6 +78,12 @@ class AssetFilterSet(NetBoxModelFilterSet):
         queryset=Contract.objects.all(),
         to_field_name="id",
         label="Order Contract (ID)",
+    )
+    abra_assets = django_filters.ModelMultipleChoiceFilter(
+        field_name="abra_assets__id",
+        queryset=ABRA.objects.all(),
+        to_field_name="id",
+        label="ABRA (ID)",
     )
 
     #

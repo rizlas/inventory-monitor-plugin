@@ -7,7 +7,7 @@ from dcim.api.serializers import (
 )
 from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
-from netbox.api.fields import ContentTypeField
+from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from rest_framework import serializers
 from tenancy.api.serializers import TenantSerializer
@@ -15,6 +15,7 @@ from utilities.api import get_serializer_for_model
 
 # Local models
 from inventory_monitor.models import (
+    ABRA,
     ASSIGNED_OBJECT_MODELS,
     RMA,
     Asset,
@@ -378,4 +379,42 @@ class RMASerializer(NetBoxModelSerializer):
             "status",
             "date_issued",
             "date_replaced",
+        ]
+
+
+class ABRASerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="plugins-api:inventory_monitor-api:abra-detail"
+    )
+    assets = SerializedPKRelatedField(
+        queryset=Asset.objects.all(),
+        serializer=AssetSerializer,
+        nested=True,
+        required=False,
+        many=True,
+    )
+
+    class Meta:
+        model = ABRA
+        fields = [
+            "id",
+            "url",
+            "display",
+            "inventory_number",
+            "name",
+            "serial_number",
+            "person_id",
+            "person_name",
+            "location_code",
+            "location",
+            "activity_code",
+            "user_name",
+            "user_note",
+            "split_asset",
+            "status",
+            "assets",
+            "tags",
+            "custom_fields",
+            "created",
+            "last_updated",
         ]
