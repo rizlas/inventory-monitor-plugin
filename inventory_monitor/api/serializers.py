@@ -1,7 +1,6 @@
 # NetBox serializers
 from dcim.api.serializers import (
     DeviceSerializer,
-    InventoryItemSerializer,
     LocationSerializer,
     SiteSerializer,
 )
@@ -151,7 +150,6 @@ class AssetSerializer(NetBoxModelSerializer):
     # Related object serializers
     order_contract = ContractSerializer(nested=True)
     type = AssetTypeSerializer(nested=True)
-    inventory_item = InventoryItemSerializer(nested=True)
 
     # Generic relationship fields
     assigned_object_type = ContentTypeField(
@@ -180,7 +178,6 @@ class AssetSerializer(NetBoxModelSerializer):
             "lifecycle_status",
             # Related objects
             "type",
-            "inventory_item",
             "order_contract",
             # Additional information
             "project",
@@ -205,7 +202,6 @@ class AssetSerializer(NetBoxModelSerializer):
             "type",
             "assignment_status",
             "assigned_object",
-            "inventory_item",
             "order_contract",
             "lifecycle_status",
         )

@@ -68,16 +68,6 @@
                         </tr>
                         <!-- Related Objects -->
                         <tr>
-                            <th>Inventory Item</th>
-                            <td>
-                                {% if object.inventory_item %}
-                                    <a href="{{ object.inventory_item.get_absolute_url }}">{{ object.inventory_item }}</a>
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
                             <th>Project</th>
                             <td>{{ object.project|placeholder }}</td>
                         </tr>

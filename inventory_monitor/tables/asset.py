@@ -84,7 +84,6 @@ class AssetTable(NetBoxTable):
     #
     # Related object columns
     #
-    inventory_item = tables.Column(linkify=True)
     order_contract = tables.Column(linkify=True)
 
     #
@@ -145,7 +144,6 @@ class AssetTable(NetBoxTable):
             "price",
             # Related objects
             "order_contract",
-            "inventory_item",
             # Warranty information
             "warranty_start",
             "warranty_end",

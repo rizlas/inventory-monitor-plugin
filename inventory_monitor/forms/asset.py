@@ -1,7 +1,7 @@
 # Django imports
 # Third-party imports
 # NetBox imports
-from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
+from dcim.models import Device, Location, Module, Rack, Site
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
@@ -98,12 +98,6 @@ class AssetForm(NetBoxModelForm):
     )
 
     # Related object fields
-    inventory_item = DynamicModelChoiceField(
-        queryset=InventoryItem.objects.all(),
-        required=False,
-        label="Inventory Item",
-        selector=True,
-    )
     order_contract = DynamicModelChoiceField(
         queryset=Contract.objects.all(),
         required=False,
@@ -172,7 +166,6 @@ class AssetForm(NetBoxModelForm):
             name=_("Component Assignment"),
         ),
         # Related objects
-        FieldSet("inventory_item", name=_("Inventory Item")),
         FieldSet(
             "order_contract",
             name=_("Order Contract"),
@@ -202,7 +195,6 @@ class AssetForm(NetBoxModelForm):
             "device",
             "module",
             # Related objects
-            "inventory_item",
             "order_contract",
             # Additional information
             "project",
@@ -304,7 +296,6 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         # Related objects for filtering
         FieldSet(
             "order_contract",
-            "inventory_item",
             "abra_assets",
             name=_("Related Objects"),
         ),
@@ -365,9 +356,6 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     )
 
     # Related object filters
-    inventory_item = DynamicModelMultipleChoiceField(
-        queryset=InventoryItem.objects.all(), required=False, label=_("Inventory Item")
-    )
     order_contract = DynamicModelMultipleChoiceField(
         queryset=Contract.objects.all(), required=False, label=_("Order Contract")
     )

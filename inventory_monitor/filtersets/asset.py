@@ -1,7 +1,7 @@
 import django_filters
 
 # NetBox model imports
-from dcim.models import Device, InventoryItem, Location, Module, Rack, Site
+from dcim.models import Device, Location, Rack, Site
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from extras.filters import TagFilter
@@ -65,13 +65,6 @@ class AssetFilterSet(NetBoxModelFilterSet):
         queryset=AssetType.objects.all(),
         to_field_name="id",
         label="Type (ID)",
-    )
-    inventory_item = django_filters.ModelMultipleChoiceFilter(
-        required=False,
-        field_name="inventory_item__id",
-        queryset=InventoryItem.objects.all(),
-        to_field_name="id",
-        label="Inventory Item (ID)",
     )
     order_contract = django_filters.ModelMultipleChoiceFilter(
         field_name="order_contract__id",
@@ -164,7 +157,6 @@ class AssetFilterSet(NetBoxModelFilterSet):
             "order_contract",
             "warranty_start",
             "warranty_end",
-            "inventory_item",
         )
 
     def search(self, queryset, name, value):
@@ -222,7 +214,6 @@ class AssetFilterSet(NetBoxModelFilterSet):
                 name__icontains=value
             ).values_list("pk", flat=True),
         )
-        inventory_item_search = Q(inventory_item__name__icontains=value)
         # Combine all search conditions
         return queryset.filter(
             name_search
@@ -234,5 +225,4 @@ class AssetFilterSet(NetBoxModelFilterSet):
             | site_search
             | location_search
             | rack_search
-            | inventory_item_search
         )

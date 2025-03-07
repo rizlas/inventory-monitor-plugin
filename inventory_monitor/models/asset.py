@@ -106,13 +106,6 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
     #
     # Related objects
     #
-    inventory_item = models.ForeignKey(
-        to="dcim.inventoryitem",
-        on_delete=models.SET_NULL,
-        related_name="assets",
-        blank=True,
-        null=True,
-    )
     type = models.ForeignKey(
         to="inventory_monitor.AssetType",
         on_delete=models.PROTECT,
@@ -173,7 +166,6 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
             "partnumber",
             "asset_number",
             "project",
-            "inventory_item",
             "vendor",
             "quantity",
             "price",
