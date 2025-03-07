@@ -16,13 +16,19 @@ class ContractIndex(SearchIndex):
     model = Contract
 
     fields = (("name", 100), ("name_internal", 100), ("comments", 5000))
+    display_attrs = ("name", "name_internal")
 
 
 @register_search
 class ContractorIndex(SearchIndex):
     model = Contractor
 
-    fields = (("name", 100), ("company", 100), ("address", 5000), ("address", 5000))
+    fields = (
+        ("name", 100),
+        ("company", 100),
+        ("address", 5000),
+    )  # Removed duplicate "address" field
+    display_attrs = ("name", "company")
 
 
 @register_search
@@ -34,6 +40,7 @@ class InvoiceIndex(SearchIndex):
         ("project", 300),
         ("comments", 5000),
     )
+    display_attrs = ("name", "project")
 
 
 @register_search
@@ -49,6 +56,7 @@ class ProbeIndex(SearchIndex):
         ("description", 5000),
         ("comments", 5000),
     )
+    display_attrs = ("name", "device_descriptor", "site_descriptor")
 
 
 @register_search
@@ -58,8 +66,11 @@ class AssetIndex(SearchIndex):
     fields = (
         ("serial", 100),
         ("partnumber", 100),
+        ("description", 5000),
+        ("asset_numbers", 5000),
         ("comments", 5000),
     )
+    display_attrs = ("serial", "partnumber")
 
 
 @register_search
@@ -71,14 +82,15 @@ class ComponentServiceIndex(SearchIndex):
         ("service_category_vendor", 100),
         ("comments", 5000),
     )
+    display_attrs = ("service_category",)
 
 
 @register_search
 class AssetTypeIndex(SearchIndex):
     model = AssetType
     fields = (
-        ('name', 100),
-        ('slug', 110),
-        ('description', 500),
+        ("name", 100),
+        ("slug", 110),
+        ("description", 500),
     )
-    display_attrs = ('description',)
+    display_attrs = ("name", "description")
