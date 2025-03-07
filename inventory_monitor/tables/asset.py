@@ -9,6 +9,16 @@ from inventory_monitor.helpers import (
 )
 from inventory_monitor.models import Asset
 
+ASSOCIATED_ABRA_ASSETS = """
+  {% if value.count > 3 %}
+    <a href="{% url 'plugins:inventory_monitor:abra_list' %}?asset_id={{ record.pk }}">{{ value.count }}</a>
+  {% else %}
+    {% for abra in value.all %}
+        <a href="{{ abra.get_absolute_url }}" class="badge text-bg-{% if abra.status == '1' %}green{% elif abra.status == '0' %}gray{% else %}blue{% endif %}" data-bs-toggle="tooltip" data-bs-placement="left" title="Status: {{ abra.status|default:'Unknown' }}">{{ abra.name }}</a>
+    {% endfor %}
+  {% endif %}
+"""
+
 
 class AssetTable(NetBoxTable):
     """
@@ -64,6 +74,11 @@ class AssetTable(NetBoxTable):
     #
     assigned_object = tables.Column(
         verbose_name="Assigned Object", orderable=False, linkify=True
+    )
+    abra_assets = tables.TemplateColumn(
+        template_code=ASSOCIATED_ABRA_ASSETS,
+        orderable=False,
+        verbose_name="ABRA Assets",
     )
 
     #
@@ -122,6 +137,7 @@ class AssetTable(NetBoxTable):
             "lifecycle_status",
             # Assignment
             "assigned_object",
+            "abra_assets",
             # Additional information
             "project",
             "vendor",
