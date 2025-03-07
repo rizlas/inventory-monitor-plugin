@@ -108,7 +108,7 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
     #
     inventory_item = models.ForeignKey(
         to="dcim.inventoryitem",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         related_name="assets",
         blank=True,
         null=True,
