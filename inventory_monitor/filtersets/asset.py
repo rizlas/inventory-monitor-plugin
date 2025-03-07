@@ -145,10 +145,10 @@ class AssetFilterSet(NetBoxModelFilterSet):
         model = Asset
         fields = (
             "id",
-            "name",
-            "serial",
             "partnumber",
+            "serial",
             "asset_number",
+            "name",
             "assignment_status",
             "lifecycle_status",
             "project",

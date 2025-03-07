@@ -124,11 +124,11 @@ class AssetTable(NetBoxTable):
             # Key identifiers
             "pk",
             "id",
-            # Basic identification
-            "name",
-            "serial",
             "partnumber",
+            # Basic identification
+            "serial",
             "asset_number",
+            "name",
             # Type and classification
             "type",
             # Status
@@ -161,8 +161,9 @@ class AssetTable(NetBoxTable):
         # Define the default columns that are shown when the table first loads
         default_columns = (
             "id",
-            "name",
+            "partnumber",
             "serial",
+            "name",
             "type",
             "assigned_object",
             "assignment_status",

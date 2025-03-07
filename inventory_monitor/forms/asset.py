@@ -140,10 +140,10 @@ class AssetForm(NetBoxModelForm):
     fieldsets = (
         # Basic asset information
         FieldSet(
-            "name",
-            "serial",
             "partnumber",
+            "serial",
             "asset_number",
+            "name",
             "type",
             "project",
             "price",
@@ -179,10 +179,10 @@ class AssetForm(NetBoxModelForm):
         model = Asset
         fields = (
             # Identification fields
-            "name",
-            "serial",
             "partnumber",
+            "serial",
             "asset_number",
+            "name",
             # Type and classification
             "type",
             # Status fields
@@ -311,10 +311,10 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         ),
         # Asset information filters
         FieldSet(
-            "name",
-            "serial",
             "partnumber",
+            "serial",
             "asset_number",
+            "name",
             "type_id",
             "project",
             "vendor",
