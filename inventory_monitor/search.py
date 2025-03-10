@@ -67,7 +67,7 @@ class AssetIndex(SearchIndex):
         ("serial", 100),
         ("partnumber", 100),
         ("description", 5000),
-        ("asset_numbers", 5000),
+        ("asset_number", 5000),
         ("comments", 5000),
     )
     display_attrs = ("serial", "partnumber")
