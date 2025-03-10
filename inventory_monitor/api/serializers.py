@@ -189,6 +189,7 @@ class AssetSerializer(NetBoxModelSerializer):
             "warranty_end",
             # Notes and metadata
             "comments",
+            "custom_fields",
             "tags",
             "created",
             "last_updated",
@@ -205,6 +206,7 @@ class AssetSerializer(NetBoxModelSerializer):
             "assigned_object",
             "order_contract",
             "lifecycle_status",
+            "custom_fields",
         )
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
