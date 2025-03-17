@@ -31,11 +31,11 @@ class AssetFilterSet(NetBoxModelFilterSet):
     #
     # Identification filters
     #
-    description = django_filters.CharFilter(lookup_expr="icontains", field_name="description")
-    serial = django_filters.CharFilter(lookup_expr="iexact", field_name="serial")
-    partnumber = django_filters.CharFilter(
-        lookup_expr="iexact", field_name="partnumber"
+    description = django_filters.CharFilter(
+        lookup_expr="icontains", field_name="description"
     )
+    serial = django_filters.CharFilter(lookup_expr="iexact", field_name="serial")
+    partnumber = django_filters.CharFilter(field_name="partnumber")
     asset_number = django_filters.CharFilter(
         lookup_expr="icontains", field_name="asset_number"
     )
@@ -179,6 +179,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
         # Basic field searches
         description_search = Q(description__icontains=value)
         serial = Q(serial__icontains=value)
+        partnumber = Q(partnumber__icontains=value)
         project = Q(project__icontains=value)
         vendor = Q(vendor__icontains=value)
         order_contract = Q(order_contract__name__icontains=value)
@@ -218,6 +219,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
         return queryset.filter(
             description_search
             | serial
+            | partnumber
             | project
             | vendor
             | order_contract
