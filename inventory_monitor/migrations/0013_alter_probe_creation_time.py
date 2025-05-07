@@ -5,15 +5,14 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory_monitor', '0012_probe_creation_time'),
+        ("inventory_monitor", "0012_probe_creation_time"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='probe',
-            name='creation_time',
+            model_name="probe",
+            name="creation_time",
             field=models.DateTimeField(blank=True, default=django.utils.timezone.now, null=True),
         ),
     ]

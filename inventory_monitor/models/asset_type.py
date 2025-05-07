@@ -16,9 +16,7 @@ class AssetType(NetBoxModel):
         verbose_name=_("name"),
     )
     slug = models.SlugField(max_length=100, unique=True)
-    description = models.CharField(
-        max_length=200, blank=True, verbose_name=_("description")
-    )
+    description = models.CharField(max_length=200, blank=True, verbose_name=_("description"))
     color = ColorField(verbose_name=_("color"), blank=True)
 
     class Meta:

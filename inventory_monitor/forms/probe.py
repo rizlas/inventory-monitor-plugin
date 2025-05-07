@@ -50,26 +50,18 @@ class ProbeFilterForm(NetBoxModelFilterSetForm):
         FieldSet("q", "filter_id", "tag", name=_("Misc")),
         FieldSet("device_id", name=_("Linked")),
         FieldSet("time__gte", "time__lte", name=_("Dates")),
-        FieldSet(
-            "serial", "category", "device_descriptor", "description", name=_("Common")
-        ),
+        FieldSet("serial", "category", "device_descriptor", "description", name=_("Common")),
         FieldSet("latest_only_per_device", "latest_only", name=_("Misc")),
     )
 
     tag = TagFilterField(model)
-    device_id = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.all(), required=False, label=_("Device")
-    )
+    device_id = DynamicModelMultipleChoiceField(queryset=Device.objects.all(), required=False, label=_("Device"))
     serial = forms.CharField(required=False)
     device_descriptor = forms.CharField(required=False)
     category = forms.CharField(required=False)
     description = forms.CharField(required=False)
-    time__gte = forms.DateTimeField(
-        required=False, label=("Time From"), widget=DateTimePicker()
-    )
-    time__lte = forms.DateTimeField(
-        required=False, label=("Time Till"), widget=DateTimePicker()
-    )
+    time__gte = forms.DateTimeField(required=False, label=("Time From"), widget=DateTimePicker())
+    time__lte = forms.DateTimeField(required=False, label=("Time Till"), widget=DateTimePicker())
     latest_only_per_device = forms.NullBooleanField(
         required=False,
         label="Latest inventory only (per device)",
@@ -95,9 +87,7 @@ class ProbeDiffForm(NetBoxModelForm):
         widget=DatePicker(),
         initial=datetime.date.today(),
     )
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all(), required=True, label=_("Device")
-    )
+    device = DynamicModelChoiceField(queryset=Device.objects.all(), required=True, label=_("Device"))
 
     # Hidden field for tags
     tags = forms.CharField(widget=forms.HiddenInput())

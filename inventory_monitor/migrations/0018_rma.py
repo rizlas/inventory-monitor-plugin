@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("extras", "0122_charfield_null_choices"),
         ("inventory_monitor", "0017_alter_componentservice_options_and_more"),
@@ -19,9 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False
-                    ),
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
                 ),
                 ("created", models.DateTimeField(auto_now_add=True, null=True)),
                 ("last_updated", models.DateTimeField(auto_now=True, null=True)),
@@ -61,9 +58,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "tags",
-                    taggit.managers.TaggableManager(
-                        through="extras.TaggedItem", to="extras.Tag"
-                    ),
+                    taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag"),
                 ),
             ],
             options={

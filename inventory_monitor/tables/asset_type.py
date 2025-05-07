@@ -22,4 +22,11 @@ class AssetTypeTable(NetBoxTable):
             "tags",
             "actions",
         )
-        default_columns = ("name", "slug", "description", "color", "asset_count", "tags")
+        default_columns = (
+            "name",
+            "slug",
+            "description",
+            "color",
+            "asset_count",
+            "tags",
+        )

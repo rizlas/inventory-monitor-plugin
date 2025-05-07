@@ -59,9 +59,7 @@ class Probe(
         indexes = [
             models.Index(fields=["serial"], name="invmon_probe_serial_idx"),
             models.Index(fields=["time"], name="invmon_probe_time_idx"),
-            models.Index(
-                fields=["serial", "time"], name="invmon_probe_serial_time_idx"
-            ),
+            models.Index(fields=["serial", "time"], name="invmon_probe_serial_time_idx"),
         ]
         ordering = (
             "name",

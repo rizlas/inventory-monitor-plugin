@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory_monitor', '0005_invoice'),
+        ("inventory_monitor", "0005_invoice"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='invoice',
-            name='project',
+            model_name="invoice",
+            name="project",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

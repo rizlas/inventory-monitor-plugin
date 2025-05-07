@@ -12,9 +12,7 @@ class ProbeView(generic.ObjectView):
 
 class ProbeListView(generic.ObjectListView):
     sub_count_serial = (
-        models.Probe.objects.filter(serial=OuterRef("serial"))
-        .values("serial")
-        .annotate(changes_count=Count("*"))
+        models.Probe.objects.filter(serial=OuterRef("serial")).values("serial").annotate(changes_count=Count("*"))
     )
     queryset = models.Probe.objects.prefetch_related("tags", "device").annotate(
         changes_count=Subquery(sub_count_serial.values("changes_count"))
@@ -52,9 +50,7 @@ class ProbeDiffView(View):
             creation_time__gte=date_from,
             creation_time__lte=date_to,
         )
-        probes_removed = models.Probe.objects.filter(
-            device_id=device_id, time__gte=date_from, time__lte=date_to
-        )
+        probes_removed = models.Probe.objects.filter(device_id=device_id, time__gte=date_from, time__lte=date_to)
 
         form = forms.ProbeDiffForm(
             initial={

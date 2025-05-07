@@ -19,18 +19,14 @@ def get_attachments_count_query(model_name):
     if not attachments_model_exists:
         return Value(0)
 
-    object_type = get_object_type_or_none(
-        app_label="inventory_monitor", model=model_name
-    )
+    object_type = get_object_type_or_none(app_label="inventory_monitor", model=model_name)
 
     if not object_type:
         return Value(0)
 
     try:
         return Subquery(
-            NetBoxAttachment.objects.filter(
-                object_id=OuterRef("id"), object_type=object_type
-            )
+            NetBoxAttachment.objects.filter(object_id=OuterRef("id"), object_type=object_type)
             .values("object_id")
             .annotate(attachments_count=Count("*"))
             .values("attachments_count")
@@ -60,9 +56,7 @@ class ContractListView(generic.ObjectListView):
 
 
 class ContractEditView(generic.ObjectEditView):
-    queryset = models.Contract.objects.all().annotate(
-        subcontracts_count=Count("subcontracts")
-    )
+    queryset = models.Contract.objects.all().annotate(subcontracts_count=Count("subcontracts"))
     form = forms.ContractForm
 
 

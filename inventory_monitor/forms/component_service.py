@@ -28,12 +28,8 @@ class ComponentServiceForm(NetBoxModelForm):
     )
 
     comments = CommentField(label="Comments")
-    service_start = forms.DateField(
-        required=False, label=("Service Start"), widget=DatePicker()
-    )
-    service_end = forms.DateField(
-        required=False, label=("Service End"), widget=DatePicker()
-    )
+    service_start = forms.DateField(required=False, label=("Service Start"), widget=DatePicker())
+    service_end = forms.DateField(required=False, label=("Service End"), widget=DatePicker())
     service_param = forms.CharField(
         required=False,
         label="Service Param",
@@ -105,24 +101,12 @@ class ComponentServiceFilterForm(NetBoxModelFilterSetForm):
     )
 
     tag = TagFilterField(model)
-    service_start = forms.DateField(
-        required=False, label=("Service Start"), widget=DatePicker()
-    )
-    service_start__gte = forms.DateField(
-        required=False, label=("Service Start: From"), widget=DatePicker()
-    )
-    service_start__lte = forms.DateField(
-        required=False, label=("Service Start: Till"), widget=DatePicker()
-    )
-    service_end = forms.DateField(
-        required=False, label=("Service End"), widget=DatePicker()
-    )
-    service_end__gte = forms.DateField(
-        required=False, label=("Service End: From"), widget=DatePicker()
-    )
-    service_end__lte = forms.DateField(
-        required=False, label=("Service End: Till"), widget=DatePicker()
-    )
+    service_start = forms.DateField(required=False, label=("Service Start"), widget=DatePicker())
+    service_start__gte = forms.DateField(required=False, label=("Service Start: From"), widget=DatePicker())
+    service_start__lte = forms.DateField(required=False, label=("Service Start: Till"), widget=DatePicker())
+    service_end = forms.DateField(required=False, label=("Service End"), widget=DatePicker())
+    service_end__gte = forms.DateField(required=False, label=("Service End: From"), widget=DatePicker())
+    service_end__lte = forms.DateField(required=False, label=("Service End: Till"), widget=DatePicker())
     service_param = forms.CharField(
         required=False,
         label="Service Param",
@@ -143,9 +127,5 @@ class ComponentServiceFilterForm(NetBoxModelFilterSetForm):
         label="Service Category Vendor",
     )
 
-    asset = DynamicModelMultipleChoiceField(
-        queryset=Asset.objects.all(), required=False, label=_("Asset")
-    )
-    contract = DynamicModelMultipleChoiceField(
-        queryset=Contract.objects.all(), required=False, label=_("Contract")
-    )
+    asset = DynamicModelMultipleChoiceField(queryset=Asset.objects.all(), required=False, label=_("Asset"))
+    contract = DynamicModelMultipleChoiceField(queryset=Contract.objects.all(), required=False, label=_("Contract"))

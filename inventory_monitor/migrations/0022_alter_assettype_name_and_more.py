@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("extras", "0122_charfield_null_choices"),
         ("inventory_monitor", "0021_assettype_asset_type"),

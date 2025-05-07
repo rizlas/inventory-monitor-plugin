@@ -12,9 +12,7 @@ urlpatterns = (
     path("probes/add/", views.ProbeEditView.as_view(), name="probe_add"),
     path("probes/<int:pk>/", views.ProbeView.as_view(), name="probe"),
     path("probes/<int:pk>/edit/", views.ProbeEditView.as_view(), name="probe_edit"),
-    path(
-        "probes/<int:pk>/delete/", views.ProbeDeleteView.as_view(), name="probe_delete"
-    ),
+    path("probes/<int:pk>/delete/", views.ProbeDeleteView.as_view(), name="probe_delete"),
     path(
         "probes/delete/",
         views.ProbeBulkDeleteView.as_view(),
@@ -88,9 +86,7 @@ urlpatterns = (
     path("invoices/", views.InvoiceListView.as_view(), name="invoice_list"),
     path("invoices/add/", views.InvoiceEditView.as_view(), name="invoice_add"),
     path("invoices/<int:pk>/", views.InvoiceView.as_view(), name="invoice"),
-    path(
-        "invoices/<int:pk>/edit/", views.InvoiceEditView.as_view(), name="invoice_edit"
-    ),
+    path("invoices/<int:pk>/edit/", views.InvoiceEditView.as_view(), name="invoice_edit"),
     path(
         "invoices/<int:pk>/delete/",
         views.InvoiceDeleteView.as_view(),
@@ -109,9 +105,7 @@ urlpatterns = (
     path("assets/", views.AssetListView.as_view(), name="asset_list"),
     path("assets/add/", views.AssetEditView.as_view(), name="asset_add"),
     path("assets/edit/", views.AssetBulkEditView.as_view(), name="asset_bulk_edit"),
-    path(
-        "assets/delete/", views.AssetBulkDeleteView.as_view(), name="asset_bulk_delete"
-    ),
+    path("assets/delete/", views.AssetBulkDeleteView.as_view(), name="asset_bulk_delete"),
     path("assets/<int:pk>/", views.AssetView.as_view(), name="asset"),
     path(
         "assets/<int:pk>/edit/",

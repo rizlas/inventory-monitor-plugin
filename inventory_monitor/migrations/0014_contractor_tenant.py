@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("inventory_monitor", "0013_alter_probe_creation_time"),
         ("tenancy", "0015_contactassignment_rename_content_type"),

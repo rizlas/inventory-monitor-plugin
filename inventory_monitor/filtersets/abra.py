@@ -14,18 +14,19 @@ class ABRAFilterSet(NetBoxModelFilterSet):
         method="search",
         label="Search",
     )
-    inventory_number = django_filters.CharFilter(lookup_expr="icontains")
-    name = django_filters.CharFilter(lookup_expr="icontains")
-    serial_number = django_filters.CharFilter(lookup_expr="icontains")
-    person_id = django_filters.CharFilter(lookup_expr="icontains")
-    person_name = django_filters.CharFilter(lookup_expr="icontains")
-    location_code = django_filters.CharFilter(lookup_expr="icontains")
-    location = django_filters.CharFilter(lookup_expr="icontains")
-    activity_code = django_filters.CharFilter(lookup_expr="icontains")
-    user_name = django_filters.CharFilter(lookup_expr="icontains")
-    user_note = django_filters.CharFilter(lookup_expr="icontains")
-    split_asset = django_filters.CharFilter(lookup_expr="iexact")
-    status = django_filters.CharFilter(lookup_expr="iexact")
+    abra_id = django_filters.CharFilter()
+    inventory_number = django_filters.CharFilter()
+    name = django_filters.CharFilter()
+    serial_number = django_filters.CharFilter()
+    person_id = django_filters.CharFilter()
+    person_name = django_filters.CharFilter()
+    location_code = django_filters.CharFilter()
+    location = django_filters.CharFilter()
+    activity_code = django_filters.CharFilter()
+    user_name = django_filters.CharFilter()
+    user_note = django_filters.CharFilter()
+    split_asset = django_filters.CharFilter()
+    status = django_filters.CharFilter()
     asset_id = django_filters.ModelMultipleChoiceFilter(
         field_name="assets",
         queryset=Asset.objects.all(),
@@ -37,6 +38,7 @@ class ABRAFilterSet(NetBoxModelFilterSet):
         model = ABRA
         fields = [
             "id",
+            "abra_id",
             "inventory_number",
             "name",
             "serial_number",
@@ -52,30 +54,19 @@ class ABRAFilterSet(NetBoxModelFilterSet):
         ]
 
     def search(self, queryset, name, value):
-        """
-        Perform global search across multiple fields
-
-        Args:
-            queryset: Base queryset to filter
-            name: Name of the filter parameter
-            value: Search term to filter by
-
-        Returns:
-            Filtered queryset containing matching ABRA records
-        """
+        """Allow searching by various fields using a single search parameter."""
         if not value.strip():
             return queryset
-
         return queryset.filter(
             Q(inventory_number__icontains=value)
             | Q(name__icontains=value)
             | Q(serial_number__icontains=value)
+            | Q(abra_id__icontains=value)
             | Q(person_id__icontains=value)
             | Q(person_name__icontains=value)
             | Q(location_code__icontains=value)
             | Q(location__icontains=value)
+            | Q(activity_code__icontains=value)
             | Q(user_name__icontains=value)
             | Q(user_note__icontains=value)
-            | Q(assets__description__icontains=value)
-            | Q(assets__serial__icontains=value)
-        ).distinct()
+        )

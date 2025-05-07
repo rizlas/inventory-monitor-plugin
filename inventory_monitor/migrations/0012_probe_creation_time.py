@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory_monitor', '0011_alter_component_options_and_more'),
+        ("inventory_monitor", "0011_alter_component_options_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='probe',
-            name='creation_time',
+            model_name="probe",
+            name="creation_time",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
     ]

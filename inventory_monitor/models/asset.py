@@ -99,9 +99,7 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
         null=True,
     )
     assigned_object_id = models.PositiveBigIntegerField(blank=True, null=True)
-    assigned_object = GenericForeignKey(
-        ct_field="assigned_object_type", fk_field="assigned_object_id"
-    )
+    assigned_object = GenericForeignKey(ct_field="assigned_object_type", fk_field="assigned_object_id")
 
     #
     # Related objects
@@ -178,12 +176,8 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
             models.Index(fields=["serial"], name="invmon_asset_serial_idx"),
             models.Index(fields=["partnumber"], name="invmon_asset_partnumber_idx"),
             models.Index(fields=["asset_number"], name="invmon_asset_assetnum_idx"),
-            models.Index(
-                fields=["assignment_status"], name="invmon_asset_assign_status_idx"
-            ),
-            models.Index(
-                fields=["lifecycle_status"], name="invmon_asset_lifecycle_idx"
-            ),
+            models.Index(fields=["assignment_status"], name="invmon_asset_assign_status_idx"),
+            models.Index(fields=["lifecycle_status"], name="invmon_asset_lifecycle_idx"),
             models.Index(fields=["vendor"], name="invmon_asset_vendor_idx"),
             models.Index(fields=["project"], name="invmon_asset_project_idx"),
             models.Index(fields=["warranty_start"], name="invmon_asset_warr_start_idx"),
@@ -206,9 +200,7 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
 
         serials = {self.serial}
         rma_original_serials = set(self.rmas.values_list("original_serial", flat=True))
-        rma_replacement_serials = set(
-            self.rmas.values_list("replacement_serial", flat=True)
-        )
+        rma_replacement_serials = set(self.rmas.values_list("replacement_serial", flat=True))
 
         # add rma_original_serials and rma_replacement_serials to serials
         serials.update(rma_original_serials)

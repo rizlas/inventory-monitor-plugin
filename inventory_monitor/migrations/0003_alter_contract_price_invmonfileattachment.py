@@ -8,34 +8,58 @@ import taggit.managers
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('extras', '0077_customlink_extend_text_and_url'),
-        ('contenttypes', '0002_remove_content_type_name'),
-        ('inventory_monitor', '0002_contractor_contract'),
+        ("extras", "0077_customlink_extend_text_and_url"),
+        ("contenttypes", "0002_remove_content_type_name"),
+        ("inventory_monitor", "0002_contractor_contract"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contract',
-            name='price',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=19, null=True, validators=[django.core.validators.MinValueValidator(0)]),
+            model_name="contract",
+            name="price",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                max_digits=19,
+                null=True,
+                validators=[django.core.validators.MinValueValidator(0)],
+            ),
         ),
         migrations.CreateModel(
-            name='InvMonFileAttachment',
+            name="InvMonFileAttachment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
-                ('created', models.DateTimeField(auto_now_add=True, null=True)),
-                ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
-                ('object_id', models.PositiveBigIntegerField()),
-                #('file', models.FileField(upload_to=inventory_monitor.utils.invmon_file_upload)),
-                ('name', models.CharField(blank=True, max_length=50)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
-                ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
+                (
+                    "id",
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True, null=True)),
+                ("last_updated", models.DateTimeField(auto_now=True, null=True)),
+                (
+                    "custom_field_data",
+                    models.JSONField(
+                        blank=True,
+                        default=dict,
+                        encoder=django.core.serializers.json.DjangoJSONEncoder,
+                    ),
+                ),
+                ("object_id", models.PositiveBigIntegerField()),
+                # ('file', models.FileField(upload_to=inventory_monitor.utils.invmon_file_upload)),
+                ("name", models.CharField(blank=True, max_length=50)),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
+                ),
+                (
+                    "tags",
+                    taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag"),
+                ),
             ],
             options={
-                'ordering': ('name', 'pk'),
+                "ordering": ("name", "pk"),
             },
         ),
     ]

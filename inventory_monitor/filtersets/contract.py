@@ -51,9 +51,7 @@ class ContractFilterSet(NetBoxModelFilterSet):
     )
     tag = TagFilter()
     name = django_filters.CharFilter(lookup_expr="exact", field_name="name")
-    name__ic = django_filters.CharFilter(
-        field_name="name", lookup_expr="icontains", label="Name Contains"
-    )
+    name__ic = django_filters.CharFilter(field_name="name", lookup_expr="icontains", label="Name Contains")
     name_internal = django_filters.CharFilter(lookup_expr="icontains")
     contractor_id = django_filters.ModelMultipleChoiceFilter(
         field_name="contractor__id",
@@ -68,9 +66,7 @@ class ContractFilterSet(NetBoxModelFilterSet):
         label="Contractor (name)",
     )
 
-    type = django_filters.MultipleChoiceFilter(
-        choices=ContractTypeChoices, required=False
-    )
+    type = django_filters.MultipleChoiceFilter(choices=ContractTypeChoices, required=False)
 
     price = django_filters.NumberFilter(required=False)
     signed__gte = django_filters.DateFilter(field_name="signed", lookup_expr="gte")
@@ -79,24 +75,12 @@ class ContractFilterSet(NetBoxModelFilterSet):
     accepted__gte = django_filters.DateFilter(field_name="accepted", lookup_expr="gte")
     accepted__lte = django_filters.DateFilter(field_name="accepted", lookup_expr="lte")
     accepted = django_filters.DateFilter(field_name="accepted", lookup_expr="contains")
-    invoicing_start__gte = django_filters.DateFilter(
-        field_name="invoicing_start", lookup_expr="gte"
-    )
-    invoicing_start__lte = django_filters.DateFilter(
-        field_name="invoicing_start", lookup_expr="lte"
-    )
-    invoicing_start = django_filters.DateFilter(
-        field_name="invoicing_start", lookup_expr="contains"
-    )
-    invoicing_end__gte = django_filters.DateFilter(
-        field_name="invoicing_end", lookup_expr="gte"
-    )
-    invoicing_end__lte = django_filters.DateFilter(
-        field_name="invoicing_end", lookup_expr="lte"
-    )
-    invoicing_end = django_filters.DateFilter(
-        field_name="invoicing_end", lookup_expr="contains"
-    )
+    invoicing_start__gte = django_filters.DateFilter(field_name="invoicing_start", lookup_expr="gte")
+    invoicing_start__lte = django_filters.DateFilter(field_name="invoicing_start", lookup_expr="lte")
+    invoicing_start = django_filters.DateFilter(field_name="invoicing_start", lookup_expr="contains")
+    invoicing_end__gte = django_filters.DateFilter(field_name="invoicing_end", lookup_expr="gte")
+    invoicing_end__lte = django_filters.DateFilter(field_name="invoicing_end", lookup_expr="lte")
+    invoicing_end = django_filters.DateFilter(field_name="invoicing_end", lookup_expr="contains")
     parent_id = django_filters.ModelMultipleChoiceFilter(
         field_name="parent__id",
         queryset=Contract.objects.all(),
@@ -120,9 +104,7 @@ class ContractFilterSet(NetBoxModelFilterSet):
         method="_contract_type",
     )
 
-    master_contracts = django_filters.BooleanFilter(
-        method="_master_contracts", label="Master contracts only"
-    )
+    master_contracts = django_filters.BooleanFilter(method="_master_contracts", label="Master contracts only")
 
     class Meta:
         model = Contract

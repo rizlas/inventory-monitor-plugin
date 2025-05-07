@@ -37,9 +37,7 @@ class InvoiceFilterSet(NetBoxModelFilterSet):
     )
     tag = TagFilter()
     name = django_filters.CharFilter(lookup_expr="exact", field_name="name")
-    name__ic = django_filters.CharFilter(
-        field_name="name", lookup_expr="icontains", label="Name Contains"
-    )
+    name__ic = django_filters.CharFilter(field_name="name", lookup_expr="icontains", label="Name Contains")
     name_internal = django_filters.CharFilter(lookup_expr="icontains")
     project = django_filters.CharFilter(lookup_expr="icontains")
 
@@ -59,24 +57,12 @@ class InvoiceFilterSet(NetBoxModelFilterSet):
     # TODO: forms.DecimalField
     price = django_filters.NumberFilter(required=False)
 
-    invoicing_start__gte = django_filters.DateFilter(
-        field_name="invoicing_start", lookup_expr="gte"
-    )
-    invoicing_start__lte = django_filters.DateFilter(
-        field_name="invoicing_start", lookup_expr="lte"
-    )
-    invoicing_start = django_filters.DateFilter(
-        field_name="invoicing_start", lookup_expr="contains"
-    )
-    invoicing_end__gte = django_filters.DateFilter(
-        field_name="invoicing_end", lookup_expr="gte"
-    )
-    invoicing_end__lte = django_filters.DateFilter(
-        field_name="invoicing_end", lookup_expr="lte"
-    )
-    invoicing_end = django_filters.DateFilter(
-        field_name="invoicing_end", lookup_expr="contains"
-    )
+    invoicing_start__gte = django_filters.DateFilter(field_name="invoicing_start", lookup_expr="gte")
+    invoicing_start__lte = django_filters.DateFilter(field_name="invoicing_start", lookup_expr="lte")
+    invoicing_start = django_filters.DateFilter(field_name="invoicing_start", lookup_expr="contains")
+    invoicing_end__gte = django_filters.DateFilter(field_name="invoicing_end", lookup_expr="gte")
+    invoicing_end__lte = django_filters.DateFilter(field_name="invoicing_end", lookup_expr="lte")
+    invoicing_end = django_filters.DateFilter(field_name="invoicing_end", lookup_expr="contains")
 
     class Meta:
         model = Invoice

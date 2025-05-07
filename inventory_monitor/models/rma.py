@@ -38,9 +38,7 @@ class RMA(NetBoxModel):
         null=True,
     )
 
-    asset = models.ForeignKey(
-        to="inventory_monitor.Asset", on_delete=models.PROTECT, related_name="rmas"
-    )
+    asset = models.ForeignKey(to="inventory_monitor.Asset", on_delete=models.PROTECT, related_name="rmas")
 
     original_serial = models.CharField(
         max_length=255,
@@ -64,21 +62,13 @@ class RMA(NetBoxModel):
         null=False,
     )
 
-    date_issued = models.DateField(
-        null=True, blank=True, help_text="Date when RMA was created"
-    )
+    date_issued = models.DateField(null=True, blank=True, help_text="Date when RMA was created")
 
-    date_replaced = models.DateField(
-        null=True, blank=True, help_text="Date when item was replaced"
-    )
+    date_replaced = models.DateField(null=True, blank=True, help_text="Date when item was replaced")
 
-    issue_description = models.TextField(
-        help_text="Description of the issue with the asset"
-    )
+    issue_description = models.TextField(help_text="Description of the issue with the asset")
 
-    vendor_response = models.TextField(
-        blank=True, help_text="Vendor response/resolution details"
-    )
+    vendor_response = models.TextField(blank=True, help_text="Vendor response/resolution details")
 
     class Meta:
         ordering = ["date_issued"]
@@ -105,10 +95,7 @@ class RMA(NetBoxModel):
         # Check if this is an existing RMA with status change
         if self.pk:
             previous = RMA.objects.get(pk=self.pk)
-            if (
-                previous.status != self.status
-                and self.status == RMAStatusChoices.COMPLETED
-            ):
+            if previous.status != self.status and self.status == RMAStatusChoices.COMPLETED:
                 self.update_asset_serial()
         # Check if this is a new RMA with COMPLETED status
         elif self.status == RMAStatusChoices.COMPLETED:

@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("inventory_monitor", "0032_alter_asset_inventory_item"),
     ]

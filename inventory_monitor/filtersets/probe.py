@@ -44,9 +44,7 @@ class ProbeFilterSet(BaseFilterSet):
         method="_latest_only_per_device", label="Latest inventory (per device)"
     )
 
-    latest_only = django_filters.BooleanFilter(
-        method="_latest_only", label="Latest inventory"
-    )
+    latest_only = django_filters.BooleanFilter(method="_latest_only", label="Latest inventory")
 
     device_id = django_filters.ModelMultipleChoiceFilter(
         field_name="device__id",
@@ -99,13 +97,7 @@ class ProbeFilterSet(BaseFilterSet):
         serial = Q(serial__icontains=value)
         description = Q(description__icontains=value)
         return queryset.filter(
-            device_descriptor
-            | part
-            | name
-            | serial
-            | description
-            | site_descriptor
-            | location_descriptor
+            device_descriptor | part | name | serial | description | site_descriptor | location_descriptor
         )
 
     def _latest_only_per_device(self, queryset, name, value):
@@ -146,12 +138,7 @@ class ProbeFilterSet(BaseFilterSet):
 
         """
         if value:
-            latest_inventory_pks = (
-                Probe.objects.all()
-                .distinct("serial")
-                .order_by("serial", "-time")
-                .values("pk")
-            )
+            latest_inventory_pks = Probe.objects.all().distinct("serial").order_by("serial", "-time").values("pk")
             return queryset.filter(pk__in=latest_inventory_pks)
         else:
             return queryset

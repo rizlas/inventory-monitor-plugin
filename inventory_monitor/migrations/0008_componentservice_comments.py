@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory_monitor', '0007_component_alter_contract_custom_field_data_and_more'),
+        (
+            "inventory_monitor",
+            "0007_component_alter_contract_custom_field_data_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='componentservice',
-            name='comments',
+            model_name="componentservice",
+            name="comments",
             field=models.TextField(blank=True),
         ),
     ]

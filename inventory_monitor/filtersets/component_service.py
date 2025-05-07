@@ -42,27 +42,13 @@ class ComponentServiceFilterSet(NetBoxModelFilterSet):
         label="Search",
     )
     tag = TagFilter()
-    service_start = django_filters.DateFilter(
-        field_name="service_start", lookup_expr="contains"
-    )
-    service_start__gte = django_filters.DateFilter(
-        field_name="service_start", lookup_expr="gte"
-    )
-    service_start__lte = django_filters.DateFilter(
-        field_name="service_start", lookup_expr="lte"
-    )
-    service_end = django_filters.DateFilter(
-        field_name="service_end", lookup_expr="contains"
-    )
-    service_end__gte = django_filters.DateFilter(
-        field_name="service_end", lookup_expr="gte"
-    )
-    service_end__lte = django_filters.DateFilter(
-        field_name="service_end", lookup_expr="lte"
-    )
-    service_param = django_filters.CharFilter(
-        lookup_expr="icontains", field_name="service_param"
-    )
+    service_start = django_filters.DateFilter(field_name="service_start", lookup_expr="contains")
+    service_start__gte = django_filters.DateFilter(field_name="service_start", lookup_expr="gte")
+    service_start__lte = django_filters.DateFilter(field_name="service_start", lookup_expr="lte")
+    service_end = django_filters.DateFilter(field_name="service_end", lookup_expr="contains")
+    service_end__gte = django_filters.DateFilter(field_name="service_end", lookup_expr="gte")
+    service_end__lte = django_filters.DateFilter(field_name="service_end", lookup_expr="lte")
+    service_param = django_filters.CharFilter(lookup_expr="icontains", field_name="service_param")
     service_price = django_filters.NumberFilter(
         required=False,
         field_name="service_price",
@@ -78,12 +64,8 @@ class ComponentServiceFilterSet(NetBoxModelFilterSet):
         field_name="service_price",
         lookup_expr="lte",
     )
-    service_category = django_filters.CharFilter(
-        lookup_expr="icontains", field_name="service_category"
-    )
-    service_category_vendor = django_filters.CharFilter(
-        lookup_expr="icontains", field_name="service_category_vendor"
-    )
+    service_category = django_filters.CharFilter(lookup_expr="icontains", field_name="service_category")
+    service_category_vendor = django_filters.CharFilter(lookup_expr="icontains", field_name="service_category_vendor")
     asset = django_filters.ModelMultipleChoiceFilter(
         field_name="asset__id",
         queryset=Asset.objects.all(),
@@ -129,10 +111,4 @@ class ComponentServiceFilterSet(NetBoxModelFilterSet):
         service_category_vendor = Q(service_category_vendor__icontains=value)
         asset = Q(asset__serial__icontains=value)
         contract = Q(contract__name__icontains=value)
-        return queryset.filter(
-            service_param
-            | service_category
-            | service_category_vendor
-            | asset
-            | contract
-        )
+        return queryset.filter(service_param | service_category | service_category_vendor | asset | contract)

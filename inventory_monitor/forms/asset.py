@@ -59,9 +59,7 @@ class AssetForm(NetBoxModelForm):
     )
 
     # Type and classification
-    type = DynamicModelChoiceField(
-        queryset=AssetType.objects.all(), required=False, label="Type"
-    )
+    type = DynamicModelChoiceField(queryset=AssetType.objects.all(), required=False, label="Type")
 
     # Status fields are defined in the model
 
@@ -122,9 +120,7 @@ class AssetForm(NetBoxModelForm):
     )
 
     # Warranty information
-    warranty_start = forms.DateField(
-        required=False, label=("Warranty Start"), widget=DatePicker()
-    )
+    warranty_start = forms.DateField(required=False, label=("Warranty Start"), widget=DatePicker())
     warranty_end = forms.DateField(
         required=False,
         label=("Warranty End"),
@@ -221,13 +217,8 @@ class AssetForm(NetBoxModelForm):
 
         if instance:
             # When editing: set the initial value for assigned_object selection
-            for assigned_object_model in ContentType.objects.filter(
-                ASSIGNED_OBJECT_MODELS
-            ):
-                if (
-                    type(instance.assigned_object)
-                    is assigned_object_model.model_class()
-                ):
+            for assigned_object_model in ContentType.objects.filter(ASSIGNED_OBJECT_MODELS):
+                if type(instance.assigned_object) is assigned_object_model.model_class():
                     initial[assigned_object_model.model] = instance.assigned_object
                     break
         elif assigned_object_type and assigned_object_id:
@@ -237,11 +228,7 @@ class AssetForm(NetBoxModelForm):
                 .filter(pk=assigned_object_type)
                 .first()
             ):
-                if (
-                    assigned_object := content_type.model_class()
-                    .objects.filter(pk=assigned_object_id)
-                    .first()
-                ):
+                if assigned_object := content_type.model_class().objects.filter(pk=assigned_object_id).first():
                     initial[content_type.model] = assigned_object
 
         kwargs["initial"] = initial
@@ -268,9 +255,7 @@ class AssetForm(NetBoxModelForm):
         ]
 
         if len(selected_objects) > 1:
-            raise forms.ValidationError(
-                _("An Asset can only be assigned to a single object.")
-            )
+            raise forms.ValidationError(_("An Asset can only be assigned to a single object."))
         elif selected_objects:
             self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
         else:
@@ -342,26 +327,18 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     )
 
     # Status filters
-    assignment_status = forms.ChoiceField(
-        choices=add_blank_choice(AssignmentStatusChoices), required=False
-    )
+    assignment_status = forms.ChoiceField(choices=add_blank_choice(AssignmentStatusChoices), required=False)
 
-    lifecycle_status = forms.ChoiceField(
-        choices=add_blank_choice(LifecycleStatusChoices), required=False
-    )
+    lifecycle_status = forms.ChoiceField(choices=add_blank_choice(LifecycleStatusChoices), required=False)
 
     # Type filter
-    type_id = DynamicModelMultipleChoiceField(
-        queryset=AssetType.objects.all(), required=False, label=_("Type")
-    )
+    type_id = DynamicModelMultipleChoiceField(queryset=AssetType.objects.all(), required=False, label=_("Type"))
 
     # Related object filters
     order_contract = DynamicModelMultipleChoiceField(
         queryset=Contract.objects.all(), required=False, label=_("Order Contract")
     )
-    abra_assets = DynamicModelMultipleChoiceField(
-        queryset=ABRA.objects.all(), required=False, label=_("ABRA")
-    )
+    abra_assets = DynamicModelMultipleChoiceField(queryset=ABRA.objects.all(), required=False, label=_("ABRA"))
 
     # Additional information filters
     project = forms.CharField(
@@ -390,24 +367,12 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     )
 
     # Warranty date filters (exact and range)
-    warranty_start = forms.DateField(
-        required=False, label=("Warranty Start"), widget=DatePicker()
-    )
-    warranty_start__gte = forms.DateField(
-        required=False, label=("Warranty Start: From"), widget=DatePicker()
-    )
-    warranty_start__lte = forms.DateField(
-        required=False, label=("Warranty Start: Till"), widget=DatePicker()
-    )
-    warranty_end = forms.DateField(
-        required=False, label=("Warranty End"), widget=DatePicker()
-    )
-    warranty_end__gte = forms.DateField(
-        required=False, label=("Warranty End: From"), widget=DatePicker()
-    )
-    warranty_end__lte = forms.DateField(
-        required=False, label=("Warranty End: Till"), widget=DatePicker()
-    )
+    warranty_start = forms.DateField(required=False, label=("Warranty Start"), widget=DatePicker())
+    warranty_start__gte = forms.DateField(required=False, label=("Warranty Start: From"), widget=DatePicker())
+    warranty_start__lte = forms.DateField(required=False, label=("Warranty Start: Till"), widget=DatePicker())
+    warranty_end = forms.DateField(required=False, label=("Warranty End"), widget=DatePicker())
+    warranty_end__gte = forms.DateField(required=False, label=("Warranty End: From"), widget=DatePicker())
+    warranty_end__lte = forms.DateField(required=False, label=("Warranty End: Till"), widget=DatePicker())
 
 
 class AssetBulkEditForm(NetBoxModelBulkEditForm):
@@ -418,21 +383,15 @@ class AssetBulkEditForm(NetBoxModelBulkEditForm):
     )
     type = DynamicModelChoiceField(queryset=AssetType.objects.all(), required=False)
 
-    assignment_status = forms.ChoiceField(
-        choices=add_blank_choice(AssignmentStatusChoices), required=False
-    )
+    assignment_status = forms.ChoiceField(choices=add_blank_choice(AssignmentStatusChoices), required=False)
 
-    lifecycle_status = forms.ChoiceField(
-        choices=add_blank_choice(LifecycleStatusChoices), required=False
-    )
+    lifecycle_status = forms.ChoiceField(choices=add_blank_choice(LifecycleStatusChoices), required=False)
 
     project = forms.CharField(required=False)
 
     vendor = forms.CharField(required=False)
 
-    order_contract = DynamicModelChoiceField(
-        queryset=Contract.objects.all(), required=False
-    )
+    order_contract = DynamicModelChoiceField(queryset=Contract.objects.all(), required=False)
 
     warranty_start = forms.DateField(required=False, widget=DatePicker())
 

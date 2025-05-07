@@ -21,24 +21,18 @@ def get_invoice_queryset():
     base_queryset = models.Invoice.objects.all()
     if attachments_model_exists:
         try:
-            invoice_object_type = get_object_type_or_none(
-                app_label="inventory_monitor", model="invoice"
-            )
+            invoice_object_type = get_object_type_or_none(app_label="inventory_monitor", model="invoice")
 
             if not invoice_object_type:
                 return base_queryset.annotate(attachments_count=Value(0))
 
             subquery_attachments_count = (
-                NetBoxAttachment.objects.filter(
-                    object_id=OuterRef("id"), object_type=invoice_object_type
-                )
+                NetBoxAttachment.objects.filter(object_id=OuterRef("id"), object_type=invoice_object_type)
                 .values("object_id")
                 .annotate(attachments_count=Count("*"))
             )
             return base_queryset.annotate(
-                attachments_count=Subquery(
-                    subquery_attachments_count.values("attachments_count")
-                )
+                attachments_count=Subquery(subquery_attachments_count.values("attachments_count"))
             )
         except (ObjectType.DoesNotExist, ValueError):
             pass
