@@ -2,10 +2,10 @@ import django_tables2 as tables
 from netbox.tables import NetBoxTable
 
 from inventory_monitor.helpers import NumberColumn
-from inventory_monitor.models import ComponentService
+from inventory_monitor.models import AssetService
 
 
-class ComponentServiceTable(NetBoxTable):
+class AssetServiceTable(NetBoxTable):
     asset = tables.Column(linkify=True)
     contract = tables.Column(linkify=True)
     service_price = NumberColumn(accessor="service_price")
@@ -18,14 +18,13 @@ class ComponentServiceTable(NetBoxTable):
     )
 
     class Meta(NetBoxTable.Meta):
-        model = ComponentService
+        model = AssetService
         fields = (
             "pk",
             "id",
             "service_start",
             "service_end",
             "service_status",
-            "service_param",
             "service_price",
             "service_category",
             "service_category_vendor",
@@ -42,6 +41,5 @@ class ComponentServiceTable(NetBoxTable):
             "service_price",
             "service_category",
             "service_category_vendor",
-            "service_param",
             "actions",
         )

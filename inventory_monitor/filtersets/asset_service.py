@@ -3,14 +3,14 @@ from django.db.models import Q
 from extras.filters import TagFilter
 from netbox.filtersets import NetBoxModelFilterSet
 
-from inventory_monitor.models import Asset, ComponentService, Contract
+from inventory_monitor.models import Asset, AssetService, Contract
 
 
-class ComponentServiceFilterSet(NetBoxModelFilterSet):
+class AssetServiceFilterSet(NetBoxModelFilterSet):
     """
-    Filter set for ComponentService model.
+    Filter set for AssetService model.
 
-    This filter set provides filtering options for various fields of the ComponentService model,
+    This filter set provides filtering options for various fields of the AssetService model,
     such as service start date, service end date, service parameter, service price, service category,
     service category vendor, asset, and contract.
 
@@ -80,7 +80,7 @@ class ComponentServiceFilterSet(NetBoxModelFilterSet):
     )
 
     class Meta:
-        model = ComponentService
+        model = AssetService
         fields = (
             "id",
             "service_start",

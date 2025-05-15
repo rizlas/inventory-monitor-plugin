@@ -10,10 +10,10 @@ from utilities.forms.fields import (
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets.datetime import DatePicker
 
-from inventory_monitor.models import Asset, ComponentService, Contract
+from inventory_monitor.models import Asset, AssetService, Contract
 
 
-class ComponentServiceForm(NetBoxModelForm):
+class AssetServiceForm(NetBoxModelForm):
     fieldsets = (
         FieldSet("contract", "asset", name=_("Linked")),
         FieldSet("service_start", "service_end", name=_("Dates")),
@@ -61,7 +61,7 @@ class ComponentServiceForm(NetBoxModelForm):
     )
 
     class Meta:
-        model = ComponentService
+        model = AssetService
         fields = (
             "service_start",
             "service_end",
@@ -76,8 +76,8 @@ class ComponentServiceForm(NetBoxModelForm):
         )
 
 
-class ComponentServiceFilterForm(NetBoxModelFilterSetForm):
-    model = ComponentService
+class AssetServiceFilterForm(NetBoxModelFilterSetForm):
+    model = AssetService
 
     fieldsets = (
         FieldSet("q", "filter_id", "tag", name=_("Misc")),

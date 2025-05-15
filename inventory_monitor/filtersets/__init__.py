@@ -1,6 +1,6 @@
 from inventory_monitor.filtersets.asset import *
 from inventory_monitor.filtersets.asset_type import *
-from inventory_monitor.filtersets.component_service import *
+from inventory_monitor.filtersets.asset_service import *
 from inventory_monitor.filtersets.contract import *
 from inventory_monitor.filtersets.contractor import *
 from inventory_monitor.filtersets.invoice import *

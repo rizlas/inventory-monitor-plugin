@@ -3,7 +3,7 @@ from netbox.search import SearchIndex, register_search
 from inventory_monitor.models import (
     Asset,
     AssetType,
-    ComponentService,
+    AssetService,
     Contract,
     Contractor,
     Invoice,
@@ -74,8 +74,8 @@ class AssetIndex(SearchIndex):
 
 
 @register_search
-class ComponentServiceIndex(SearchIndex):
-    model = ComponentService
+class AssetServiceIndex(SearchIndex):
+    model = AssetService
 
     fields = (
         ("service_category", 100),

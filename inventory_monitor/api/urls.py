@@ -10,7 +10,7 @@ router.register("contracts", views.ContractViewSet)
 router.register("invoices", views.InvoiceViewSet)
 router.register("assets", views.AssetViewSet)
 router.register("asset-types", views.AssetTypeViewSet)
-router.register("component-services", views.ComponentServiceViewSet)
+router.register("asset-services", views.AssetServiceViewSet)
 router.register("rmas", views.RMAViewSet)
 router.register("abra", views.ABRAViewSet)
 

@@ -5,7 +5,7 @@ from inventory_monitor.api.serializers import (
     ABRASerializer,
     AssetSerializer,
     AssetTypeSerializer,
-    ComponentServiceSerializer,
+    AssetServiceSerializer,
     ContractorSerializer,
     ContractSerializer,
     InvoiceSerializer,
@@ -52,10 +52,10 @@ class AssetTypeViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.AssetTypeFilterSet
 
 
-class ComponentServiceViewSet(NetBoxModelViewSet):
-    queryset = models.ComponentService.objects.prefetch_related("tags", "contract")
-    serializer_class = ComponentServiceSerializer
-    filterset_class = filtersets.ComponentServiceFilterSet
+class AssetServiceViewSet(NetBoxModelViewSet):
+    queryset = models.AssetService.objects.prefetch_related("tags", "contract")
+    serializer_class = AssetServiceSerializer
+    filterset_class = filtersets.AssetServiceFilterSet
 
 
 class RMAViewSet(NetBoxModelViewSet):

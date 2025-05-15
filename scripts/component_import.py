@@ -5,7 +5,7 @@ from datetime import datetime
 from dcim.models import InventoryItem
 from django.core.exceptions import ObjectDoesNotExist
 from extras.scripts import *
-from inventory_monitor.models import Component, ComponentService, Contract
+from inventory_monitor.models import Component, AssetService, Contract
 
 REQUIRED_FIELDS = "manufacturer,part_nmr,quantity,contract_price,sn_original,order_contract,project,service_from,service_to,service_contract,service_price"
 
@@ -298,7 +298,7 @@ class ImportComponent(Script):
 
                 # Create service if it does not exist
                 if nb_component:
-                    nb_component_services = ComponentService.objects.filter(
+                    nb_component_services = AssetService.objects.filter(
                         component_id=nb_component.id)
                     # check if service exists
                     try:
@@ -314,7 +314,7 @@ class ImportComponent(Script):
                         record_messages.append(["Warning", "Service already exists", "Skipping record",
                                                f"From: {rec.get('service_from')}, To: {rec.get('service_to')}, Price: {rec.get('service_price')}, Contract: {nb_service_contract.name}"])
                     else:
-                        nb_component_service = ComponentService.objects.create(component_id=nb_component.id,
+                        nb_component_service = AssetService.objects.create(component_id=nb_component.id,
                                                                                contract_id=nb_service_contract.id,
                                                                                service_start=rec.get(
                                                                                    'service_from'),

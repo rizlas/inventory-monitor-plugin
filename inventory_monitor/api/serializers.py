@@ -19,7 +19,7 @@ from inventory_monitor.models import (
     RMA,
     Asset,
     AssetType,
-    ComponentService,
+    AssetService,
     Contract,
     Contractor,
     Invoice,
@@ -288,15 +288,15 @@ class InvoiceSerializer(NetBoxModelSerializer):
         brief_fields = ["id", "url", "display", "name", "name_internal"]
 
 
-class ComponentServiceSerializer(NetBoxModelSerializer):
-    """Serializer for ComponentService objects"""
+class AssetServiceSerializer(NetBoxModelSerializer):
+    """Serializer for AssetService objects"""
 
-    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:componentservice-detail")
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:assetservice-detail")
     contract = ContractSerializer(nested=True)
     asset = AssetSerializer(nested=True)
 
     class Meta:
-        model = ComponentService
+        model = AssetService
         fields = [
             "id",
             "url",

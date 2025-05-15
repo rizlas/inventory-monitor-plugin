@@ -160,40 +160,40 @@ urlpatterns = (
         "abra/<int:pk>/",
         include(get_model_urls("inventory_monitor", "abra", detail=True)),
     ),
-    ## ComponentService
+    ## AssetService
     path(
-        "component-services/",
-        views.ComponentServiceListView.as_view(),
-        name="componentservice_list",
+        "asset-services/",
+        views.AssetServiceListView.as_view(),
+        name="assetservice_list",
     ),
     path(
-        "component-services/add/",
-        views.ComponentServiceEditView.as_view(),
-        name="componentservice_add",
+        "asset-services/add/",
+        views.AssetServiceEditView.as_view(),
+        name="assetservice_add",
     ),
     path(
-        "component-services/<int:pk>/",
-        views.ComponentServiceView.as_view(),
-        name="componentservice",
+        "asset-services/<int:pk>/",
+        views.AssetServiceView.as_view(),
+        name="assetservice",
     ),
     path(
-        "component-services/<int:pk>/edit/",
-        views.ComponentServiceEditView.as_view(),
-        name="componentservice_edit",
+        "asset-services/<int:pk>/edit/",
+        views.AssetServiceEditView.as_view(),
+        name="assetservice_edit",
     ),
     path(
-        "component-services/<int:pk>/delete/",
-        views.ComponentServiceDeleteView.as_view(),
-        name="componentservice_delete",
+        "asset-services/<int:pk>/delete/",
+        views.AssetServiceDeleteView.as_view(),
+        name="assetservice_delete",
     ),
     # Adds url's like changelog, journal, attachments (from plugin) and etc.
     path(
-        "component-services/<int:pk>/",
-        include(get_model_urls("inventory_monitor", "componentservice")),
+        "asset-services/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "assetservice")),
     ),
     path(
-        "component-services/",
-        include(get_model_urls("inventory_monitor", "componentservice", detail=False)),
+        "asset-services/",
+        include(get_model_urls("inventory_monitor", "assetservice", detail=False)),
     ),
     ## RMA
     path("rmas/", views.RMAListView.as_view(), name="rma_list"),
