@@ -26,7 +26,7 @@ plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
 class TenantContractorExtension(PluginTemplateExtension):
     """Display contractor information on tenant detail page."""
 
-    model = "tenancy.tenant"
+    models = ["tenancy.tenant"]
 
     def left_page(self):
         """Show contractor details in the left sidebar."""
@@ -50,7 +50,7 @@ class TenantContractorExtension(PluginTemplateExtension):
 class AbraAssetsExtension(PluginTemplateExtension):
     """Display assets information on abra detail page."""
 
-    model = "inventory_monitor.abra"
+    models = ["inventory_monitor.abra"]
 
     def full_width_page(self):
         """Show asset details in the full_width_page."""
@@ -62,7 +62,7 @@ class AbraAssetsExtension(PluginTemplateExtension):
 class ProbeAssetExtension(PluginTemplateExtension):
     """Display assets with matching serial number on probe detail page."""
 
-    model = "inventory_monitor.probe"
+    models = ["inventory_monitor.probe"]
 
     def right_page(self):
         """Display matching assets in the full width section of the page."""
@@ -94,7 +94,7 @@ class ProbeAssetExtension(PluginTemplateExtension):
 class AssetDuplicates(PluginTemplateExtension):
     """Show potential duplicate assets with the same serial number or RMA relationships."""
 
-    model = "inventory_monitor.asset"
+    models = ["inventory_monitor.asset"]
 
     def full_width_page(self):
         """Display duplicate assets in the full width section of the page."""
