@@ -23,7 +23,7 @@ from utilities.forms.widgets.datetime import DatePicker
 # Local application imports
 from inventory_monitor.models import ABRA, Asset, AssetType, Contract
 from inventory_monitor.models.asset import (
-    ASSIGNED_OBJECT_MODELS,
+    ASSIGNED_OBJECT_MODELS_QUERY,
     AssignmentStatusChoices,
     LifecycleStatusChoices,
 )
@@ -217,14 +217,14 @@ class AssetForm(NetBoxModelForm):
 
         if instance:
             # When editing: set the initial value for assigned_object selection
-            for assigned_object_model in ContentType.objects.filter(ASSIGNED_OBJECT_MODELS):
+            for assigned_object_model in ContentType.objects.filter(ASSIGNED_OBJECT_MODELS_QUERY):
                 if type(instance.assigned_object) is assigned_object_model.model_class():
                     initial[assigned_object_model.model] = instance.assigned_object
                     break
         elif assigned_object_type and assigned_object_id:
             # When adding the Asset from an assigned_object page
             if (
-                content_type := ContentType.objects.filter(ASSIGNED_OBJECT_MODELS)
+                content_type := ContentType.objects.filter(ASSIGNED_OBJECT_MODELS_QUERY)
                 .filter(pk=assigned_object_type)
                 .first()
             ):

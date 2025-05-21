@@ -221,7 +221,7 @@ class AssignedAssetsView(generic.ObjectChildrenView):
 
     child_model = Asset
     table = AssetTable
-    template_name = "generic/object_children.html"
+    template_name = "inventory_monitor/asset_children.html"
     filterset = AssetFilterSet
     hide_if_empty = False
 

@@ -15,7 +15,7 @@ from utilities.api import get_serializer_for_model
 # Local models
 from inventory_monitor.models import (
     ABRA,
-    ASSIGNED_OBJECT_MODELS,
+    ASSIGNED_OBJECT_MODELS_QUERY,
     RMA,
     Asset,
     AssetType,
@@ -145,7 +145,7 @@ class AssetSerializer(NetBoxModelSerializer):
 
     # Generic relationship fields
     assigned_object_type = ContentTypeField(
-        queryset=ContentType.objects.filter(ASSIGNED_OBJECT_MODELS),
+        queryset=ContentType.objects.filter(ASSIGNED_OBJECT_MODELS_QUERY),
         required=False,
         allow_null=True,
     )

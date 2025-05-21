@@ -10,7 +10,7 @@ from utilities.querysets import RestrictedQuerySet
 from inventory_monitor.models.mixins import DateStatusMixin
 from inventory_monitor.models.probe import Probe
 
-ASSIGNED_OBJECT_MODELS = Q(
+ASSIGNED_OBJECT_MODELS_QUERY = Q(
     app_label="dcim",
     model__in=(
         "site",
@@ -92,7 +92,7 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
     #
     assigned_object_type = models.ForeignKey(
         to="contenttypes.ContentType",
-        limit_choices_to=ASSIGNED_OBJECT_MODELS,
+        limit_choices_to=ASSIGNED_OBJECT_MODELS_QUERY,
         on_delete=models.PROTECT,
         related_name="+",
         blank=True,
