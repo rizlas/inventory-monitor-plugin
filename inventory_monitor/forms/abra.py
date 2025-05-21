@@ -25,6 +25,7 @@ class ABRAForm(NetBoxModelForm):
 
     fieldsets = (
         FieldSet(
+            "abra_id",
             "inventory_number",
             "name",
             "serial_number",
@@ -58,6 +59,7 @@ class ABRAForm(NetBoxModelForm):
     class Meta:
         model = ABRA
         fields = (
+            "abra_id",
             "inventory_number",
             "name",
             "serial_number",
@@ -86,6 +88,7 @@ class ABRAFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet("q", "filter_id", "tag", name=_("Misc")),
         FieldSet(
+            "abra_id",
             "inventory_number",
             "name",
             "serial_number",
@@ -115,6 +118,7 @@ class ABRAFilterForm(NetBoxModelFilterSetForm):
     )
 
     tag = TagFilterField(model)
+    abra_id = forms.CharField(required=False)
     inventory_number = forms.CharField(required=False)
     name = forms.CharField(required=False)
     serial_number = forms.CharField(required=False)
@@ -126,6 +130,4 @@ class ABRAFilterForm(NetBoxModelFilterSetForm):
     user_name = forms.CharField(required=False)
     split_asset = forms.CharField(required=False)
     status = forms.CharField(required=False)
-    asset_id = DynamicModelMultipleChoiceField(
-        queryset=Asset.objects.all(), required=False, label=_("Assets")
-    )
+    asset_id = DynamicModelMultipleChoiceField(queryset=Asset.objects.all(), required=False, label=_("Assets"))

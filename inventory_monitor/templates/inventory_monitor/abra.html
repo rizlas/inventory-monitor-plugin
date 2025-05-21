@@ -11,6 +11,10 @@
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
+                            <th scope="row">ABRA ID</th>
+                            <td>{{ object.abra_id|placeholder }}</td>
+                        </tr>
+                        <tr>
                             <th scope="row">Inventory Number</th>
                             <td>{{ object.inventory_number }}</td>
                         </tr>
@@ -89,7 +93,6 @@
             {% include 'inc/panels/comments.html' %}
         </div>
     </div>
-
     <!-- Plugin Extension Sections -->
     <div class="row mb-3">
         <div class="col col-md-6">{% plugin_left_page object %}</div>

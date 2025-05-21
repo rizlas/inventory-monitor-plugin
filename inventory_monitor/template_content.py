@@ -31,9 +31,7 @@ class TenantContractorExtension(PluginTemplateExtension):
     def left_page(self):
         """Show contractor details in the left sidebar."""
         # Find contractor associated with this tenant
-        contractor = Contractor.objects.filter(
-            tenant_id=self.context["object"].pk
-        ).first()
+        contractor = Contractor.objects.filter(tenant_id=self.context["object"].pk).first()
 
         # Count contracts if contractor exists
         contracts_count = contractor.contracts.count() if contractor else 0
@@ -73,9 +71,7 @@ class ProbeAssetExtension(PluginTemplateExtension):
         # 2. Asset has an RMA where original_serial matches probe serial
         # 3. Asset has an RMA where replacement_serial matches probe serial
         matching_assets = Asset.objects.filter(
-            Q(serial=probe.serial)
-            | Q(rmas__original_serial=probe.serial)
-            | Q(rmas__replacement_serial=probe.serial)
+            Q(serial=probe.serial) | Q(rmas__original_serial=probe.serial) | Q(rmas__replacement_serial=probe.serial)
         ).distinct()
 
         # Create asset table for display
@@ -124,8 +120,7 @@ class AssetDuplicates(PluginTemplateExtension):
         if current_asset.serial:
             rma_dups = (
                 Asset.objects.filter(
-                    Q(rmas__original_serial=current_asset.serial)
-                    | Q(rmas__replacement_serial=current_asset.serial)
+                    Q(rmas__original_serial=current_asset.serial) | Q(rmas__replacement_serial=current_asset.serial)
                 )
                 .exclude(id=current_asset.id)
                 .values_list("id", flat=True)
@@ -136,25 +131,11 @@ class AssetDuplicates(PluginTemplateExtension):
             potential_duplicates_ids.update(rma_dups)
 
         # Find assets where this asset's serial appears in their RMA records
-        if (
-            current_asset.serial
-            and hasattr(current_asset, "rmas")
-            and current_asset.rmas.exists()
-        ):
+        if current_asset.serial and hasattr(current_asset, "rmas") and current_asset.rmas.exists():
             # Get the RMA serials
-            original_serials = [
-                s
-                for s in list(
-                    current_asset.rmas.values_list("original_serial", flat=True)
-                )
-                if s
-            ]
+            original_serials = [s for s in list(current_asset.rmas.values_list("original_serial", flat=True)) if s]
             replacement_serials = [
-                s
-                for s in list(
-                    current_asset.rmas.values_list("replacement_serial", flat=True)
-                )
-                if s
+                s for s in list(current_asset.rmas.values_list("replacement_serial", flat=True)) if s
             ]
 
             if original_serials or replacement_serials:
@@ -240,16 +221,14 @@ class AssignedAssetsView(generic.ObjectChildrenView):
 
     child_model = Asset
     table = AssetTable
-    template_name = "generic/object_children.html"
+    template_name = "inventory_monitor/asset_children.html"
     filterset = AssetFilterSet
     hide_if_empty = False
 
     def get_children(self, request, parent):
         """Get assets assigned to this object using the ContentType framework."""
         content_type = ContentType.objects.get_for_model(parent)
-        return Asset.objects.filter(
-            assigned_object_type=content_type, assigned_object_id=parent.pk
-        )
+        return Asset.objects.filter(assigned_object_type=content_type, assigned_object_id=parent.pk)
 
 
 def register_asset_view_for_models(*models):

@@ -22,11 +22,7 @@ def to_czech_crown(number):
         str: Formatted number
     """
     if number:
-        res = (
-            number.to_integral()
-            if number == number.to_integral()
-            else number.normalize()
-        )
+        res = number.to_integral() if number == number.to_integral() else number.normalize()
         return f"{res:,}".replace(",", " ") + " Kč"
     else:
         return "---"
@@ -44,11 +40,7 @@ class NumberColumn(django_tables2.Column):
 
     def render(self, value):
         if value:
-            res = (
-                value.to_integral()
-                if value == value.to_integral()
-                else value.normalize()
-            )
+            res = value.to_integral() if value == value.to_integral() else value.normalize()
             return f"{res:,}".replace(",", " ") + " Kč"
         else:
             return "---"

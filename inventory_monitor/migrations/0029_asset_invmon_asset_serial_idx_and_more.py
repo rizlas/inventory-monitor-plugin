@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
         ("dcim", "0200_populate_mac_addresses"),
@@ -19,27 +18,19 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="asset",
-            index=models.Index(
-                fields=["partnumber"], name="invmon_asset_partnumber_idx"
-            ),
+            index=models.Index(fields=["partnumber"], name="invmon_asset_partnumber_idx"),
         ),
         migrations.AddIndex(
             model_name="asset",
-            index=models.Index(
-                fields=["asset_number"], name="invmon_asset_assetnum_idx"
-            ),
+            index=models.Index(fields=["asset_number"], name="invmon_asset_assetnum_idx"),
         ),
         migrations.AddIndex(
             model_name="asset",
-            index=models.Index(
-                fields=["assignment_status"], name="invmon_asset_assign_status_idx"
-            ),
+            index=models.Index(fields=["assignment_status"], name="invmon_asset_assign_status_idx"),
         ),
         migrations.AddIndex(
             model_name="asset",
-            index=models.Index(
-                fields=["lifecycle_status"], name="invmon_asset_lifecycle_idx"
-            ),
+            index=models.Index(fields=["lifecycle_status"], name="invmon_asset_lifecycle_idx"),
         ),
         migrations.AddIndex(
             model_name="asset",
@@ -51,15 +42,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="asset",
-            index=models.Index(
-                fields=["warranty_start"], name="invmon_asset_warr_start_idx"
-            ),
+            index=models.Index(fields=["warranty_start"], name="invmon_asset_warr_start_idx"),
         ),
         migrations.AddIndex(
             model_name="asset",
-            index=models.Index(
-                fields=["warranty_end"], name="invmon_asset_warr_end_idx"
-            ),
+            index=models.Index(fields=["warranty_end"], name="invmon_asset_warr_end_idx"),
         ),
         migrations.AddIndex(
             model_name="asset",
@@ -78,8 +65,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="probe",
-            index=models.Index(
-                fields=["serial", "time"], name="invmon_probe_serial_time_idx"
-            ),
+            index=models.Index(fields=["serial", "time"], name="invmon_probe_serial_time_idx"),
         ),
     ]

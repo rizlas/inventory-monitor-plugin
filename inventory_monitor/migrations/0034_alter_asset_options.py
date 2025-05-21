@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("inventory_monitor", "0033_alter_asset_options_remove_asset_inventory_item"),
     ]

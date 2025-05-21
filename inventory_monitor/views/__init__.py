@@ -1,6 +1,6 @@
 from inventory_monitor.views.asset import *
 from inventory_monitor.views.asset_type import *
-from inventory_monitor.views.component_service import *
+from inventory_monitor.views.asset_service import *
 from inventory_monitor.views.contract import *
 from inventory_monitor.views.contractor import *
 from inventory_monitor.views.invoice import *

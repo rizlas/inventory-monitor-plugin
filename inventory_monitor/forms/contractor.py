@@ -29,9 +29,7 @@ class ContractorFilterForm(NetBoxModelFilterSetForm):
     name = forms.CharField(required=False)
     company = forms.CharField(required=False)
     address = forms.CharField(required=False)
-    tenant_id = DynamicModelMultipleChoiceField(
-        queryset=Tenant.objects.all(), required=False, label="Tenant"
-    )
+    tenant_id = DynamicModelMultipleChoiceField(queryset=Tenant.objects.all(), required=False, label="Tenant")
 
     fieldsets = (
         FieldSet("q", "filter_id", "tag", name=_("Misc")),

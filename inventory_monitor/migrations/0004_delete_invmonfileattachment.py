@@ -4,13 +4,12 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory_monitor', '0003_alter_contract_price_invmonfileattachment'),
+        ("inventory_monitor", "0003_alter_contract_price_invmonfileattachment"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='InvMonFileAttachment',
+            name="InvMonFileAttachment",
         ),
     ]

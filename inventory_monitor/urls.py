@@ -12,9 +12,7 @@ urlpatterns = (
     path("probes/add/", views.ProbeEditView.as_view(), name="probe_add"),
     path("probes/<int:pk>/", views.ProbeView.as_view(), name="probe"),
     path("probes/<int:pk>/edit/", views.ProbeEditView.as_view(), name="probe_edit"),
-    path(
-        "probes/<int:pk>/delete/", views.ProbeDeleteView.as_view(), name="probe_delete"
-    ),
+    path("probes/<int:pk>/delete/", views.ProbeDeleteView.as_view(), name="probe_delete"),
     path(
         "probes/delete/",
         views.ProbeBulkDeleteView.as_view(),
@@ -88,9 +86,7 @@ urlpatterns = (
     path("invoices/", views.InvoiceListView.as_view(), name="invoice_list"),
     path("invoices/add/", views.InvoiceEditView.as_view(), name="invoice_add"),
     path("invoices/<int:pk>/", views.InvoiceView.as_view(), name="invoice"),
-    path(
-        "invoices/<int:pk>/edit/", views.InvoiceEditView.as_view(), name="invoice_edit"
-    ),
+    path("invoices/<int:pk>/edit/", views.InvoiceEditView.as_view(), name="invoice_edit"),
     path(
         "invoices/<int:pk>/delete/",
         views.InvoiceDeleteView.as_view(),
@@ -109,9 +105,7 @@ urlpatterns = (
     path("assets/", views.AssetListView.as_view(), name="asset_list"),
     path("assets/add/", views.AssetEditView.as_view(), name="asset_add"),
     path("assets/edit/", views.AssetBulkEditView.as_view(), name="asset_bulk_edit"),
-    path(
-        "assets/delete/", views.AssetBulkDeleteView.as_view(), name="asset_bulk_delete"
-    ),
+    path("assets/delete/", views.AssetBulkDeleteView.as_view(), name="asset_bulk_delete"),
     path("assets/<int:pk>/", views.AssetView.as_view(), name="asset"),
     path(
         "assets/<int:pk>/edit/",
@@ -166,40 +160,40 @@ urlpatterns = (
         "abra/<int:pk>/",
         include(get_model_urls("inventory_monitor", "abra", detail=True)),
     ),
-    ## ComponentService
+    ## AssetService
     path(
-        "component-services/",
-        views.ComponentServiceListView.as_view(),
-        name="componentservice_list",
+        "asset-services/",
+        views.AssetServiceListView.as_view(),
+        name="assetservice_list",
     ),
     path(
-        "component-services/add/",
-        views.ComponentServiceEditView.as_view(),
-        name="componentservice_add",
+        "asset-services/add/",
+        views.AssetServiceEditView.as_view(),
+        name="assetservice_add",
     ),
     path(
-        "component-services/<int:pk>/",
-        views.ComponentServiceView.as_view(),
-        name="componentservice",
+        "asset-services/<int:pk>/",
+        views.AssetServiceView.as_view(),
+        name="assetservice",
     ),
     path(
-        "component-services/<int:pk>/edit/",
-        views.ComponentServiceEditView.as_view(),
-        name="componentservice_edit",
+        "asset-services/<int:pk>/edit/",
+        views.AssetServiceEditView.as_view(),
+        name="assetservice_edit",
     ),
     path(
-        "component-services/<int:pk>/delete/",
-        views.ComponentServiceDeleteView.as_view(),
-        name="componentservice_delete",
+        "asset-services/<int:pk>/delete/",
+        views.AssetServiceDeleteView.as_view(),
+        name="assetservice_delete",
     ),
     # Adds url's like changelog, journal, attachments (from plugin) and etc.
     path(
-        "component-services/<int:pk>/",
-        include(get_model_urls("inventory_monitor", "componentservice")),
+        "asset-services/<int:pk>/",
+        include(get_model_urls("inventory_monitor", "assetservice")),
     ),
     path(
-        "component-services/",
-        include(get_model_urls("inventory_monitor", "componentservice", detail=False)),
+        "asset-services/",
+        include(get_model_urls("inventory_monitor", "assetservice", detail=False)),
     ),
     ## RMA
     path("rmas/", views.RMAListView.as_view(), name="rma_list"),

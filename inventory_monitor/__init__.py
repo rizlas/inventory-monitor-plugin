@@ -14,4 +14,5 @@ class NetBoxInventoryMonitorConfig(PluginConfig):
     min_version = "4.3.0"
     max_version = "4.3.99"
 
+
 config = NetBoxInventoryMonitorConfig

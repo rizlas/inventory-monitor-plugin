@@ -23,20 +23,20 @@ class ABRATable(NetBoxTable):
     Table configuration for displaying ABRA objects in list views
     """
 
+    abra_id = tables.Column(linkify=True)  # Add this field
     inventory_number = tables.Column(linkify=True)
     name = tables.Column()
     serial_number = tables.Column()
     person_name = tables.Column()
     location = tables.Column()
-    assets = tables.TemplateColumn(
-        template_code=ASSOCIATED_ASSETS, orderable=False, verbose_name="Assets"
-    )
+    assets = tables.TemplateColumn(template_code=ASSOCIATED_ASSETS, orderable=False, verbose_name="Assets")
 
     class Meta(NetBoxTable.Meta):
         model = ABRA
         fields = (
             "pk",
             "id",
+            "abra_id",
             "inventory_number",
             "name",
             "serial_number",
@@ -53,6 +53,7 @@ class ABRATable(NetBoxTable):
         )
         default_columns = (
             "id",
+            "abra_id",
             "inventory_number",
             "name",
             "serial_number",

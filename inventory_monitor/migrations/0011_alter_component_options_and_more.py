@@ -4,19 +4,36 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory_monitor', '0010_componentimport_alter_component_options_and_more'),
+        ("inventory_monitor", "0010_componentimport_alter_component_options_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='component',
-            options={'ordering': ('serial', 'serial_actual', 'partnumber', 'device', 'asset_number', 'project', 'site', 'location', 'inventory_item', 'vendor', 'quantity', 'price', 'order_contract', 'warranty_start', 'warranty_end')},
+            name="component",
+            options={
+                "ordering": (
+                    "serial",
+                    "serial_actual",
+                    "partnumber",
+                    "device",
+                    "asset_number",
+                    "project",
+                    "site",
+                    "location",
+                    "inventory_item",
+                    "vendor",
+                    "quantity",
+                    "price",
+                    "order_contract",
+                    "warranty_start",
+                    "warranty_end",
+                )
+            },
         ),
         migrations.RenameField(
-            model_name='component',
-            old_name='items',
-            new_name='quantity',
+            model_name="component",
+            old_name="items",
+            new_name="quantity",
         ),
     ]

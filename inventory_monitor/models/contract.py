@@ -100,24 +100,14 @@ class Contract(NetBoxModel):
 
         # Validate - subcontract cannot set parent which is subcontract
         if self.parent and self.parent.parent:
-            raise ValidationError(
-                {"parent": "Subcontract cannot be set as Parent Contract"}
-            )
+            raise ValidationError({"parent": "Subcontract cannot be set as Parent Contract"})
 
         # Validate - if parent contract has different contractor
         if self.parent and self.parent.contractor != self.contractor:
             raise ValidationError(
-                {
-                    "contractor": f"Contractor must be same as Parent contractor: {self.parent.contractor}"
-                }
+                {"contractor": f"Contractor must be same as Parent contractor: {self.parent.contractor}"}
             )
 
         # Validate invoicing_start and invoicing_end
-        if (
-            self.invoicing_start
-            and self.invoicing_end
-            and self.invoicing_start > self.invoicing_end
-        ):
-            raise ValidationError(
-                {"invoicing_start": "Invoicing Start cannot be set after Invoicing End"}
-            )
+        if self.invoicing_start and self.invoicing_end and self.invoicing_start > self.invoicing_end:
+            raise ValidationError({"invoicing_start": "Invoicing Start cannot be set after Invoicing End"})

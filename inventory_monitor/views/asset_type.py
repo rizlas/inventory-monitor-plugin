@@ -15,9 +15,7 @@ class AssetTypeView(GetRelatedModelsMixin, generic.ObjectView):
 
 
 class AssetTypeListView(generic.ObjectListView):
-    queryset = models.AssetType.objects.annotate(
-        asset_count=count_related(models.Asset, "type")
-    )
+    queryset = models.AssetType.objects.annotate(asset_count=count_related(models.Asset, "type"))
     table = tables.AssetTypeTable
     filterset = filtersets.AssetTypeFilterSet
     filterset_form = forms.AssetTypeFilterForm

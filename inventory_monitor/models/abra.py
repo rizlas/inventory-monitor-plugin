@@ -27,15 +27,23 @@ class ABRA(NetBoxModel):
     Contains data directly mapped from the ABRA export CSV structure.
     """
 
-    # Fields from CSV
+    abra_id = models.CharField(
+        unique=True,
+        verbose_name="ABRA ID",
+        help_text="Unique identifier for the item in ABRA system (ID)",
+        # TODO: after Migration and setting up the abra_id, make this field non nullable and blankable
+        null=True,
+        blank=True,
+        db_index=True,
+        max_length=64,
+    )
+
     inventory_number = models.CharField(
         max_length=64,
         verbose_name="Inventory Number (Asset Number)",
         help_text="External asset identifier (INVENT_CIS)",
     )
-    name = models.CharField(
-        max_length=255, verbose_name="Name", help_text="Item name/description (NAZEV)"
-    )
+    name = models.CharField(max_length=255, verbose_name="Name", help_text="Item name/description (NAZEV)")
     serial_number = models.CharField(
         max_length=255,
         blank=True,
@@ -120,6 +128,7 @@ class ABRA(NetBoxModel):
         verbose_name = "ABRA Asset"
         verbose_name_plural = "ABRA Assets"
         indexes = [
+            models.Index(fields=["abra_id"], name="abra_id_idx"),
             models.Index(fields=["inventory_number"], name="abra_invnum_idx"),
             models.Index(fields=["serial_number"], name="abra_serial_idx"),
             models.Index(fields=["person_id"], name="abra_personid_idx"),

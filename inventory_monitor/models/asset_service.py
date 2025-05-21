@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -7,7 +9,7 @@ from utilities.querysets import RestrictedQuerySet
 from inventory_monitor.models.mixins import DateStatusMixin
 
 
-class ComponentService(NetBoxModel, DateStatusMixin):
+class AssetService(NetBoxModel, DateStatusMixin):
     objects = RestrictedQuerySet.as_manager()
     service_start = models.DateField(
         blank=True,
@@ -17,14 +19,13 @@ class ComponentService(NetBoxModel, DateStatusMixin):
         blank=True,
         null=True,
     )
-    service_param = models.CharField(max_length=32, blank=True, null=True)
     service_price = models.DecimalField(
         max_digits=12,
         decimal_places=2,
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        default=0,
+        default=Decimal("0"),
     )
     service_category = models.CharField(max_length=255, blank=True, null=True)
     service_category_vendor = models.CharField(max_length=255, blank=True, null=True)
@@ -48,7 +49,6 @@ class ComponentService(NetBoxModel, DateStatusMixin):
         ordering = (
             "service_start",
             "service_end",
-            "service_param",
             "service_price",
             "service_category",
             "service_category_vendor",
@@ -60,10 +60,7 @@ class ComponentService(NetBoxModel, DateStatusMixin):
         return f"{self.pk}"
 
     def get_absolute_url(self):
-        return reverse("plugins:inventory_monitor:componentservice", args=[self.pk])
-
-    def clean(self):
-        super().clean()
+        return reverse("plugins:inventory_monitor:assetservice", args=[self.pk])
 
     def get_service_status(self):
         """Returns the service status and color for progress bar"""

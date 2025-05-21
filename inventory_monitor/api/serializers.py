@@ -15,11 +15,11 @@ from utilities.api import get_serializer_for_model
 # Local models
 from inventory_monitor.models import (
     ABRA,
-    ASSIGNED_OBJECT_MODELS,
+    ASSIGNED_OBJECT_MODELS_QUERY,
     RMA,
     Asset,
     AssetType,
-    ComponentService,
+    AssetService,
     Contract,
     Contractor,
     Invoice,
@@ -34,9 +34,7 @@ from inventory_monitor.models import (
 class AssetTypeSerializer(NetBoxModelSerializer):
     """Serializer for AssetType objects"""
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:assettype-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:assettype-detail")
 
     class Meta:
         model = AssetType
@@ -67,9 +65,7 @@ class AssetTypeSerializer(NetBoxModelSerializer):
 class ContractorSerializer(NetBoxModelSerializer):
     """Serializer for Contractor objects"""
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:contractor-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:contractor-detail")
     tenant = TenantSerializer(nested=True)
 
     class Meta:
@@ -93,9 +89,7 @@ class ContractorSerializer(NetBoxModelSerializer):
 class ContractSerializer(NetBoxModelSerializer):
     """Serializer for Contract objects"""
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:contract-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:contract-detail")
     contractor = ContractorSerializer(nested=True)
 
     class Meta:
@@ -144,16 +138,14 @@ class AssetSerializer(NetBoxModelSerializer):
     Serializer for Asset objects supporting GenericForeignKey relationships
     """
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:asset-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:asset-detail")
     # Related object serializers
     order_contract = ContractSerializer(nested=True)
     type = AssetTypeSerializer(nested=True)
 
     # Generic relationship fields
     assigned_object_type = ContentTypeField(
-        queryset=ContentType.objects.filter(ASSIGNED_OBJECT_MODELS),
+        queryset=ContentType.objects.filter(ASSIGNED_OBJECT_MODELS_QUERY),
         required=False,
         allow_null=True,
     )
@@ -228,9 +220,7 @@ class AssetSerializer(NetBoxModelSerializer):
 class ProbeSerializer(NetBoxModelSerializer):
     """Serializer for Probe objects"""
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:probe-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:probe-detail")
     device = DeviceSerializer(allow_null=True, nested=True)
     site = SiteSerializer(allow_null=True, nested=True)
     location = LocationSerializer(allow_null=True, nested=True)
@@ -274,9 +264,7 @@ class ProbeSerializer(NetBoxModelSerializer):
 class InvoiceSerializer(NetBoxModelSerializer):
     """Serializer for Invoice objects"""
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:invoice-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:invoice-detail")
     contract = ContractSerializer(nested=True)
 
     class Meta:
@@ -300,17 +288,15 @@ class InvoiceSerializer(NetBoxModelSerializer):
         brief_fields = ["id", "url", "display", "name", "name_internal"]
 
 
-class ComponentServiceSerializer(NetBoxModelSerializer):
-    """Serializer for ComponentService objects"""
+class AssetServiceSerializer(NetBoxModelSerializer):
+    """Serializer for AssetService objects"""
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:componentservice-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:assetservice-detail")
     contract = ContractSerializer(nested=True)
     asset = AssetSerializer(nested=True)
 
     class Meta:
-        model = ComponentService
+        model = AssetService
         fields = [
             "id",
             "url",
@@ -343,9 +329,7 @@ class ComponentServiceSerializer(NetBoxModelSerializer):
 class RMASerializer(NetBoxModelSerializer):
     """Serializer for RMA (Return Merchandise Authorization) objects"""
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:rma-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:rma-detail")
     asset = AssetSerializer(nested=True)
 
     class Meta:
@@ -382,9 +366,7 @@ class RMASerializer(NetBoxModelSerializer):
 
 
 class ABRASerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:inventory_monitor-api:abra-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:abra-detail")
     assets = SerializedPKRelatedField(
         queryset=Asset.objects.all(),
         serializer=AssetSerializer,
@@ -399,6 +381,7 @@ class ABRASerializer(NetBoxModelSerializer):
             "id",
             "url",
             "display",
+            "abra_id",
             "inventory_number",
             "name",
             "serial_number",

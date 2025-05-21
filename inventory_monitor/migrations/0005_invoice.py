@@ -8,31 +8,65 @@ import taggit.managers
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('extras', '0077_customlink_extend_text_and_url'),
-        ('inventory_monitor', '0004_delete_invmonfileattachment'),
+        ("extras", "0077_customlink_extend_text_and_url"),
+        ("inventory_monitor", "0004_delete_invmonfileattachment"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Invoice',
+            name="Invoice",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
-                ('created', models.DateTimeField(auto_now_add=True, null=True)),
-                ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder)),
-                ('name', models.CharField(max_length=255)),
-                ('name_internal', models.CharField(max_length=255)),
-                ('price', models.DecimalField(decimal_places=2, default=0, max_digits=19, validators=[django.core.validators.MinValueValidator(0)])),
-                ('invoicing_start', models.DateField(blank=True, null=True)),
-                ('invoicing_end', models.DateField(blank=True, null=True)),
-                ('comments', models.TextField(blank=True)),
-                ('contract', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='invoices', to='inventory_monitor.contract')),
-                ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
+                (
+                    "id",
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True, null=True)),
+                ("last_updated", models.DateTimeField(auto_now=True, null=True)),
+                (
+                    "custom_field_data",
+                    models.JSONField(
+                        blank=True,
+                        default=dict,
+                        encoder=django.core.serializers.json.DjangoJSONEncoder,
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("name_internal", models.CharField(max_length=255)),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=19,
+                        validators=[django.core.validators.MinValueValidator(0)],
+                    ),
+                ),
+                ("invoicing_start", models.DateField(blank=True, null=True)),
+                ("invoicing_end", models.DateField(blank=True, null=True)),
+                ("comments", models.TextField(blank=True)),
+                (
+                    "contract",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="invoices",
+                        to="inventory_monitor.contract",
+                    ),
+                ),
+                (
+                    "tags",
+                    taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag"),
+                ),
             ],
             options={
-                'ordering': ('name', 'name_internal', 'contract', 'price', 'invoicing_start', 'invoicing_end'),
+                "ordering": (
+                    "name",
+                    "name_internal",
+                    "contract",
+                    "price",
+                    "invoicing_start",
+                    "invoicing_end",
+                ),
             },
         ),
     ]

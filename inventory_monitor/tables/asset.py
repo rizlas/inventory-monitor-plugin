@@ -72,9 +72,7 @@ class AssetTable(NetBoxTable):
     #
     # Assignment columns
     #
-    assigned_object = tables.Column(
-        verbose_name="Assigned Object", orderable=False, linkify=True
-    )
+    assigned_object = tables.Column(verbose_name="Assigned Object", orderable=False, linkify=True)
     abra_assets = tables.TemplateColumn(
         template_code=ASSOCIATED_ABRA_ASSETS,
         orderable=False,
@@ -97,9 +95,7 @@ class AssetTable(NetBoxTable):
     #
     # Service information columns
     #
-    services_to = columns.TemplateColumn(
-        template_code=TEMPLATE_SERVICES_END, verbose_name="Service End"
-    )
+    services_to = columns.TemplateColumn(template_code=TEMPLATE_SERVICES_END, verbose_name="Service End")
     services_contracts = tables.TemplateColumn(
         template_code=TEMPLATE_SERVICES_CONTRACTS, verbose_name="Service Contracts"
     )

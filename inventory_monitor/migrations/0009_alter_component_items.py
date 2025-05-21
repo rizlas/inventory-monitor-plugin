@@ -5,15 +5,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory_monitor', '0008_componentservice_comments'),
+        ("inventory_monitor", "0008_componentservice_comments"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='component',
-            name='items',
+            model_name="component",
+            name="items",
             field=models.PositiveIntegerField(default=1, validators=[django.core.validators.MinValueValidator(0)]),
         ),
     ]

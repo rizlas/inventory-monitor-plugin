@@ -9,30 +9,30 @@ def create_rmas_for_serial_differences(apps, schema_editor):
     1. Create an RMA record documenting the serial change
     2. Update the asset's serial field to match serial_actual
     """
-    Asset = apps.get_model('inventory_monitor', 'Asset')
-    RMA = apps.get_model('inventory_monitor', 'RMA')
-    
+    Asset = apps.get_model("inventory_monitor", "Asset")
+    RMA = apps.get_model("inventory_monitor", "RMA")
+
     # Find all assets where serial and serial_actual differ
-    assets_with_diff = Asset.objects.exclude(serial=models.F('serial_actual'))
-    
+    assets_with_diff = Asset.objects.exclude(serial=models.F("serial_actual"))
+
     # Create RMA records and update assets
     for asset in assets_with_diff:
         # Skip if either field is empty
         if not asset.serial or not asset.serial_actual:
             continue
-            
+
         # Create RMA record
         RMA.objects.create(
             asset=asset,
             original_serial=asset.serial,
             replacement_serial=asset.serial_actual,
-            status='completed',
+            status="completed",
             issue_description=f"Automatic RMA created for serial difference: {asset.serial} → {asset.serial_actual}",
         )
-        
+
         # Update the asset's serial field
         asset.serial = asset.serial_actual
-        asset.save(update_fields=['serial'])
+        asset.save(update_fields=["serial"])
 
 
 def reverse_serial_update(apps, schema_editor):
@@ -43,7 +43,6 @@ def reverse_serial_update(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("inventory_monitor", "0026_rename_date_shipped_rma_date_replaced_and_more"),
     ]

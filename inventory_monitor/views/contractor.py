@@ -17,21 +17,13 @@ except (ModuleNotFoundError, RuntimeError):
 
 def annotate_contracts_with_attachments(contracts, instance):
     try:
-        contract_object_type = get_object_type_or_none(
-            app_label="inventory_monitor", model="contract"
-        )
+        contract_object_type = get_object_type_or_none(app_label="inventory_monitor", model="contract")
         subquery_attachments_count = (
-            NetBoxAttachment.objects.filter(
-                object_id=OuterRef("id"), object_type=contract_object_type
-            )
+            NetBoxAttachment.objects.filter(object_id=OuterRef("id"), object_type=contract_object_type)
             .values("object_id")
             .annotate(attachments_count=Count("*"))
         )
-        return contracts.annotate(
-            attachments_count=Subquery(
-                subquery_attachments_count.values("attachments_count")
-            )
-        )
+        return contracts.annotate(attachments_count=Subquery(subquery_attachments_count.values("attachments_count")))
     except (ObjectType.DoesNotExist, ValueError):
         # Return contracts without attachment count if there's an error
         return contracts
@@ -42,9 +34,7 @@ class ContractorView(generic.ObjectView):
 
 
 class ContractorListView(generic.ObjectListView):
-    queryset = models.Contractor.objects.prefetch_related("tags").annotate(
-        contracts_count=Count("contracts")
-    )
+    queryset = models.Contractor.objects.prefetch_related("tags").annotate(contracts_count=Count("contracts"))
     filterset = filtersets.ContractorFilterSet
     filterset_form = forms.ContractorFilterForm
     table = tables.ContractorTable

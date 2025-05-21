@@ -33,14 +33,10 @@ class Contractor(NetBoxModel):
 
         # Check if the tenant is already assigned to another Contractor
         if self.tenant_id:
-            existing_contractor = Contractor.objects.filter(
-                tenant_id=self.tenant_id
-            ).exclude(pk=self.pk)
+            existing_contractor = Contractor.objects.filter(tenant_id=self.tenant_id).exclude(pk=self.pk)
             if existing_contractor.exists():
                 raise ValidationError(
-                    (
-                        "The tenant %(tenant_id)s is already assigned to another contractor."
-                    ),
+                    ("The tenant %(tenant_id)s is already assigned to another contractor."),
                     code="unique_tenant",
                     params={"tenant_id": self.tenant_id},
                 )

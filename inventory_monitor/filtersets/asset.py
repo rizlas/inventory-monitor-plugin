@@ -31,14 +31,10 @@ class AssetFilterSet(NetBoxModelFilterSet):
     #
     # Identification filters
     #
-    description = django_filters.CharFilter(
-        lookup_expr="icontains", field_name="description"
-    )
+    description = django_filters.CharFilter(lookup_expr="icontains", field_name="description")
     serial = django_filters.CharFilter(lookup_expr="iexact", field_name="serial")
     partnumber = django_filters.CharFilter(field_name="partnumber")
-    asset_number = django_filters.CharFilter(
-        lookup_expr="icontains", field_name="asset_number"
-    )
+    asset_number = django_filters.CharFilter(lookup_expr="icontains", field_name="asset_number")
 
     #
     # Status filters
@@ -122,24 +118,12 @@ class AssetFilterSet(NetBoxModelFilterSet):
     #
     # Warranty filters
     #
-    warranty_start = django_filters.DateFilter(
-        field_name="warranty_start", lookup_expr="contains"
-    )
-    warranty_start__gte = django_filters.DateFilter(
-        field_name="warranty_start", lookup_expr="gte"
-    )
-    warranty_start__lte = django_filters.DateFilter(
-        field_name="warranty_start", lookup_expr="lte"
-    )
-    warranty_end = django_filters.DateFilter(
-        field_name="warranty_end", lookup_expr="contains"
-    )
-    warranty_end__gte = django_filters.DateFilter(
-        field_name="warranty_end", lookup_expr="gte"
-    )
-    warranty_end__lte = django_filters.DateFilter(
-        field_name="warranty_end", lookup_expr="lte"
-    )
+    warranty_start = django_filters.DateFilter(field_name="warranty_start", lookup_expr="contains")
+    warranty_start__gte = django_filters.DateFilter(field_name="warranty_start", lookup_expr="gte")
+    warranty_start__lte = django_filters.DateFilter(field_name="warranty_start", lookup_expr="lte")
+    warranty_end = django_filters.DateFilter(field_name="warranty_end", lookup_expr="contains")
+    warranty_end__gte = django_filters.DateFilter(field_name="warranty_end", lookup_expr="gte")
+    warranty_end__lte = django_filters.DateFilter(field_name="warranty_end", lookup_expr="lte")
 
     class Meta:
         model = Asset
@@ -193,27 +177,19 @@ class AssetFilterSet(NetBoxModelFilterSet):
         # Search through assigned objects
         device_search = Q(
             assigned_object_type=device_type,
-            assigned_object_id__in=Device.objects.filter(
-                name__icontains=value
-            ).values_list("pk", flat=True),
+            assigned_object_id__in=Device.objects.filter(name__icontains=value).values_list("pk", flat=True),
         )
         site_search = Q(
             assigned_object_type=site_type,
-            assigned_object_id__in=Site.objects.filter(
-                name__icontains=value
-            ).values_list("pk", flat=True),
+            assigned_object_id__in=Site.objects.filter(name__icontains=value).values_list("pk", flat=True),
         )
         location_search = Q(
             assigned_object_type=location_type,
-            assigned_object_id__in=Location.objects.filter(
-                name__icontains=value
-            ).values_list("pk", flat=True),
+            assigned_object_id__in=Location.objects.filter(name__icontains=value).values_list("pk", flat=True),
         )
         rack_search = Q(
             assigned_object_type=rack_type,
-            assigned_object_id__in=Rack.objects.filter(
-                name__icontains=value
-            ).values_list("pk", flat=True),
+            assigned_object_id__in=Rack.objects.filter(name__icontains=value).values_list("pk", flat=True),
         )
         # Combine all search conditions
         return queryset.filter(

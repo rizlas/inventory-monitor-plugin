@@ -12,7 +12,7 @@ class RMAListView(generic.ObjectListView):
     table = tables.RMATable
     filterset = filtersets.RMAFilterSet
     filterset_form = forms.RMAFilterForm
-    #actions = ['add', 'import', 'export', 'bulk_edit', 'bulk_delete']
+    # actions = ['add', 'import', 'export', 'bulk_edit', 'bulk_delete']
 
 
 class RMAEditView(generic.ObjectEditView):

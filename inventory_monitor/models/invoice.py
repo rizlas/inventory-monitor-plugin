@@ -56,11 +56,5 @@ class Invoice(NetBoxModel):
         super().clean()
 
         # Validate invoicing_start and invoicing_end
-        if (
-            self.invoicing_start
-            and self.invoicing_end
-            and self.invoicing_start > self.invoicing_end
-        ):
-            raise ValidationError(
-                {"invoicing_start": "Invoicing Start cannot be set after Invoicing End"}
-            )
+        if self.invoicing_start and self.invoicing_end and self.invoicing_start > self.invoicing_end:
+            raise ValidationError({"invoicing_start": "Invoicing Start cannot be set after Invoicing End"})

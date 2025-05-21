@@ -16,12 +16,8 @@ from inventory_monitor.models import Contract, Invoice
 class InvoiceForm(NetBoxModelForm):
     comments = CommentField(label="Comments")
     contract = DynamicModelChoiceField(queryset=Contract.objects.all(), required=True)
-    invoicing_start = forms.DateField(
-        required=False, label=("Invoicing Start"), widget=DatePicker()
-    )
-    invoicing_end = forms.DateField(
-        required=False, label=("Invoicing End"), widget=DatePicker()
-    )
+    invoicing_start = forms.DateField(required=False, label=("Invoicing Start"), widget=DatePicker())
+    invoicing_end = forms.DateField(required=False, label=("Invoicing End"), widget=DatePicker())
 
     class Meta:
         model = Invoice
@@ -60,26 +56,12 @@ class InvoiceFilterForm(NetBoxModelFilterSetForm):
     name = forms.CharField(required=False)
     name_internal = forms.CharField(required=False)
     project = forms.CharField(required=False)
-    contract_id = DynamicModelMultipleChoiceField(
-        queryset=Contract.objects.all(), required=False, label=_("Contract")
-    )
+    contract_id = DynamicModelMultipleChoiceField(queryset=Contract.objects.all(), required=False, label=_("Contract"))
     price = forms.DecimalField(required=False)
-    invoicing_start__gte = forms.DateField(
-        required=False, label=("Invoicing Start: From"), widget=DatePicker()
-    )
-    invoicing_start__lte = forms.DateField(
-        required=False, label=("Invoicing Start: Till"), widget=DatePicker()
-    )
-    invoicing_start = forms.DateField(
-        required=False, label=("Invoicing Start"), widget=DatePicker()
-    )
+    invoicing_start__gte = forms.DateField(required=False, label=("Invoicing Start: From"), widget=DatePicker())
+    invoicing_start__lte = forms.DateField(required=False, label=("Invoicing Start: Till"), widget=DatePicker())
+    invoicing_start = forms.DateField(required=False, label=("Invoicing Start"), widget=DatePicker())
 
-    invoicing_end__gte = forms.DateField(
-        required=False, label=("Invoicing End: From"), widget=DatePicker()
-    )
-    invoicing_end__lte = forms.DateField(
-        required=False, label=("Invoicing End: Till"), widget=DatePicker()
-    )
-    invoicing_end = forms.DateField(
-        required=False, label=("Invoicing End"), widget=DatePicker()
-    )
+    invoicing_end__gte = forms.DateField(required=False, label=("Invoicing End: From"), widget=DatePicker())
+    invoicing_end__lte = forms.DateField(required=False, label=("Invoicing End: Till"), widget=DatePicker())
+    invoicing_end = forms.DateField(required=False, label=("Invoicing End"), widget=DatePicker())
