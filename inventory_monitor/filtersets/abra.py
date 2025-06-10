@@ -22,7 +22,8 @@ class ABRAFilterSet(NetBoxModelFilterSet):
     person_name = django_filters.CharFilter()
     location_code = django_filters.CharFilter()
     location = django_filters.CharFilter()
-    activity_code = django_filters.CharFilter()
+    department_code = django_filters.CharFilter()
+    project_code = django_filters.CharFilter()
     user_name = django_filters.CharFilter()
     user_note = django_filters.CharFilter()
     split_asset = django_filters.CharFilter()
@@ -46,7 +47,8 @@ class ABRAFilterSet(NetBoxModelFilterSet):
             "person_name",
             "location_code",
             "location",
-            "activity_code",
+            "department_code",
+            "project_code",
             "user_name",
             "split_asset",
             "status",
@@ -66,7 +68,8 @@ class ABRAFilterSet(NetBoxModelFilterSet):
             | Q(person_name__icontains=value)
             | Q(location_code__icontains=value)
             | Q(location__icontains=value)
-            | Q(activity_code__icontains=value)
+            | Q(department_code__icontains=value)
+            | Q(project_code__icontains=value)
             | Q(user_name__icontains=value)
             | Q(user_note__icontains=value)
         )
