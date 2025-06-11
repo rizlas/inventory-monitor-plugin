@@ -35,6 +35,12 @@ class ABRAFilterSet(NetBoxModelFilterSet):
         label="Asset (ID)",
     )
 
+    # Nový filtr pro objekty s/bez přiřazených assetů
+    has_assets = django_filters.BooleanFilter(
+        method="filter_has_assets",
+        label="Has Assets",
+    )
+
     class Meta:
         model = ABRA
         fields = [
@@ -53,7 +59,30 @@ class ABRAFilterSet(NetBoxModelFilterSet):
             "split_asset",
             "status",
             "asset_id",
+            "has_assets",
         ]
+
+    def filter_has_assets(self, queryset, name, value):
+        """
+        Filter ABRA objects based on whether they have assigned assets.
+
+        Args:
+            queryset: The base queryset
+            name: The filter field name
+            value: Boolean - True for objects with assets, False for objects without assets
+
+        Returns:
+            Filtered queryset
+        """
+        if value is True:
+            # Vrátí pouze ABRA objekty, které mají alespoň jeden přiřazený asset
+            return queryset.filter(assets__isnull=False).distinct()
+        elif value is False:
+            # Vrátí pouze ABRA objekty, které nemají žádný přiřazený asset
+            return queryset.filter(assets__isnull=True)
+        else:
+            # Pokud value není boolean, vrátí původní queryset
+            return queryset
 
     def search(self, queryset, name, value):
         """Allow searching by various fields using a single search parameter."""

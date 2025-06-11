@@ -116,6 +116,7 @@ class ABRAFilterForm(NetBoxModelFilterSetForm):
             "split_asset",
             "status",
             "asset_id",
+            "has_assets",
             name=_("Status"),
         ),
     )
@@ -135,3 +136,13 @@ class ABRAFilterForm(NetBoxModelFilterSetForm):
     split_asset = forms.CharField(required=False)
     status = forms.CharField(required=False)
     asset_id = DynamicModelMultipleChoiceField(queryset=Asset.objects.all(), required=False, label=_("Assets"))
+    has_assets = forms.ChoiceField(
+        choices=[
+            ("", "All"),
+            ("true", "With Assets"),
+            ("false", "Without Assets"),
+        ],
+        required=False,
+        label=_("Has Assets"),
+        help_text=_("Filter by whether ABRA object has assigned assets"),
+    )
