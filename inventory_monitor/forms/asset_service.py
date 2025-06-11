@@ -21,7 +21,6 @@ class AssetServiceForm(NetBoxModelForm):
             "service_price",
             "service_category",
             "service_category_vendor",
-            "service_param",
             name=_("Service Params"),
         ),
         FieldSet("tags", name=_("Tag")),
@@ -30,10 +29,6 @@ class AssetServiceForm(NetBoxModelForm):
     comments = CommentField(label="Comments")
     service_start = forms.DateField(required=False, label=("Service Start"), widget=DatePicker())
     service_end = forms.DateField(required=False, label=("Service End"), widget=DatePicker())
-    service_param = forms.CharField(
-        required=False,
-        label="Service Param",
-    )
     service_price = forms.DecimalField(
         required=False,
         label="Service Price",
@@ -65,7 +60,6 @@ class AssetServiceForm(NetBoxModelForm):
         fields = (
             "service_start",
             "service_end",
-            "service_param",
             "service_price",
             "service_category",
             "service_category_vendor",
@@ -92,7 +86,6 @@ class AssetServiceFilterForm(NetBoxModelFilterSetForm):
             name=_("Dates"),
         ),
         FieldSet(
-            "service_param",
             "service_price",
             "service_category",
             "service_category_vendor",
@@ -107,10 +100,6 @@ class AssetServiceFilterForm(NetBoxModelFilterSetForm):
     service_end = forms.DateField(required=False, label=("Service End"), widget=DatePicker())
     service_end__gte = forms.DateField(required=False, label=("Service End: From"), widget=DatePicker())
     service_end__lte = forms.DateField(required=False, label=("Service End: Till"), widget=DatePicker())
-    service_param = forms.CharField(
-        required=False,
-        label="Service Param",
-    )
     service_price = forms.DecimalField(
         required=False,
         label="Service Price",

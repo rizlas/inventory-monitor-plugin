@@ -303,7 +303,6 @@ class AssetServiceSerializer(NetBoxModelSerializer):
             "display",
             "service_start",
             "service_end",
-            "service_param",
             "service_price",
             "service_category",
             "service_category_vendor",

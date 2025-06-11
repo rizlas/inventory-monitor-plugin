@@ -32,10 +32,6 @@
                             <td>{% include 'inventory_monitor/inc/status_badge.html' with record=object status_type='service' %}</td>
                         </tr>
                         <tr>
-                            <td>Service Param</td>
-                            <td>{{ object.service_param }}</td>
-                        </tr>
-                        <tr>
                             <td>Service Price</td>
                             <td>{{ object.service_price|to_czech_crown }}</td>
                         </tr>
