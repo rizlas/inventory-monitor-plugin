@@ -308,6 +308,7 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         # Numeric range filters
         FieldSet("quantity", "quantity__gte", "quantity__lte", name=_("Quantity")),
         FieldSet("price", "price__gte", "price__lte", name=_("Price")),
+        FieldSet("has_abra_assets", name=_("ABRA Assets")),
     )
 
     #
@@ -373,6 +374,17 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     warranty_end = forms.DateField(required=False, label=("Warranty End"), widget=DatePicker())
     warranty_end__gte = forms.DateField(required=False, label=("Warranty End: From"), widget=DatePicker())
     warranty_end__lte = forms.DateField(required=False, label=("Warranty End: Till"), widget=DatePicker())
+
+    has_abra_assets = forms.ChoiceField(
+        choices=[
+            ("", "All"),
+            ("true", "With ABRA assets"),
+            ("false", "Without ABRA assets"),
+        ],
+        required=False,
+        label=_("Has ABRA assets"),
+        help_text=_("Filter by whether Asset object has assigned ABRA assets"),
+    )
 
 
 class AssetBulkEditForm(NetBoxModelBulkEditForm):

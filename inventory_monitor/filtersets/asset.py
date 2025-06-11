@@ -75,6 +75,11 @@ class AssetFilterSet(NetBoxModelFilterSet):
         label="ABRA (ID)",
     )
 
+    has_abra_assets = django_filters.BooleanFilter(
+        method="filter_has_abra_assets",
+        label="Has ABRA assets",
+    )
+
     #
     # Additional information filters
     #
@@ -141,7 +146,16 @@ class AssetFilterSet(NetBoxModelFilterSet):
             "order_contract",
             "warranty_start",
             "warranty_end",
+            "has_abra_assets",
         )
+
+    def filter_has_abra_assets(self, queryset, name, value):
+        if value is True:
+            return queryset.filter(abra_assets__isnull=False).distinct()
+        elif value is False:
+            return queryset.filter(abra_assets__isnull=True)
+        else:
+            return queryset
 
     def search(self, queryset, name, value):
         """
