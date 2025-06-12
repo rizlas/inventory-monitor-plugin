@@ -27,7 +27,14 @@
                             <td>{{ object.serial_number|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Status</th>
+                            <th scope="row">
+                                Status
+                                <i class="mdi mdi-help-circle text-muted ms-1"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-html="true"
+                                   title="<span class=&quot;badge text-bg-success&quot;>1</span> Aktivní majetek<br/> <span class=&quot;badge text-bg-warning&quot;>0</span> V procesu zařazování<br/> <span class=&quot;badge text-bg-danger&quot;>2</span> Vyřazený majetek">
+                                </i>
+                            </th>
                             <td>{{ object.status|placeholder }}</td>
                         </tr>
                         <tr>
