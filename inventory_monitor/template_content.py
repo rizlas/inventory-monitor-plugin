@@ -61,6 +61,18 @@ class AbraAssetsExtension(PluginTemplateExtension):
         )
 
 
+class AbraRMAsExtension(PluginTemplateExtension):
+    """Display assets information on abra detail page."""
+
+    models = ["inventory_monitor.abra"]
+
+    def full_width_page(self) -> str:
+        """Show asset details in the full_width_page."""
+        return self.render(
+            "inventory_monitor/inc/abra_rma_extension.html",
+        )
+
+
 class ProbeAssetExtension(PluginTemplateExtension):
     """Display assets with matching serial number on probe detail page."""
 
@@ -467,4 +479,5 @@ template_extensions = [
     TenantContractorExtension,
     AssetDuplicates,
     AbraAssetsExtension,
+    AbraRMAsExtension,
 ]

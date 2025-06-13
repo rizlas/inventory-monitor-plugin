@@ -4,8 +4,8 @@ from inventory_monitor import filtersets, models
 from inventory_monitor.api.serializers import (
     ABRASerializer,
     AssetSerializer,
-    AssetTypeSerializer,
     AssetServiceSerializer,
+    AssetTypeSerializer,
     ContractorSerializer,
     ContractSerializer,
     InvoiceSerializer,

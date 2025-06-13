@@ -58,23 +58,35 @@ class RMAForm(NetBoxModelForm):
 class RMAFilterForm(NetBoxModelFilterSetForm):
     model = RMA
     fieldsets = (
-        FieldSet(
-            "q",
-            "filter_id",
-            "tag",
-        ),
+        FieldSet("q", "filter_id", "tag", name="General"),
         FieldSet(
             "rma_number",
             "asset_id",
             "status",
+            name="RMA Details",
+        ),
+        FieldSet(
             "date_issued",
             "date_replaced",
-            name="RMA",
+            name="Dates",
+        ),
+        FieldSet(
+            "original_serial__ic",
+            "replacement_serial__ic",
+            "serial",
+            name="Serial Numbers",
         ),
     )
 
     rma_number = forms.CharField(required=False)
     asset_id = DynamicModelChoiceField(queryset=Asset.objects.all(), required=False)
+    original_serial__ic = forms.CharField(required=False, label="Original Serial (icontains)")
+    replacement_serial__ic = forms.CharField(required=False, label="Replacement Serial (icontains)")
+    serial = forms.CharField(
+        required=False,
+        label="Serial (Original or Replacement)",
+        help_text="Search in both original and replacement serial numbers",
+    )
     tag = TagFilterField(model)
     date_issued = forms.DateField(required=False, widget=DatePicker())
     date_replaced = forms.DateField(required=False, widget=DatePicker())
