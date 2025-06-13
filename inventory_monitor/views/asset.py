@@ -15,6 +15,7 @@ class AssetListView(generic.ObjectListView):
         models.Asset.objects.all()
         .prefetch_related("services")
         .prefetch_related("tags")
+        .prefetch_related("abra_assets")
         .annotate(services_count=Count("services"))
         .annotate(services_to=ArrayAgg("services__service_end"))
         .annotate(services_contracts=ArrayAgg("services__contract__name"))

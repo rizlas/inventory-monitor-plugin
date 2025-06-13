@@ -14,7 +14,7 @@ ASSOCIATED_ABRA_ASSETS = """
     <a href="{% url 'plugins:inventory_monitor:abra_list' %}?asset_id={{ record.pk }}">{{ value.count }}</a>
   {% else %}
     {% for abra in value.all %}
-        <a href="{{ abra.get_absolute_url }}" class="badge text-bg-{% if abra.status == '1' %}green{% elif abra.status == '0' %}gray{% else %}blue{% endif %}" data-bs-toggle="tooltip" data-bs-placement="left" title="Status: {{ abra.status|default:'Unknown' }}">{{ abra.name }}</a>
+        <a href="{{ abra.get_absolute_url }}" class="badge text-bg-{% if abra.status == '1' %}green{% elif abra.status == '0' %}gray{% else %}blue{% endif %}" data-bs-toggle="tooltip" data-bs-placement="left" title="Status: {{ abra.status|default:'Unknown' }}">{{abra.inventory_number}}: {{abra.name}}</a>
     {% endfor %}
   {% endif %}
 """
@@ -31,7 +31,17 @@ class AssetTable(NetBoxTable):
     description = tables.Column()
     serial = tables.Column(linkify=True)
     partnumber = tables.Column()
-    asset_number = tables.Column()
+    abra_asset_numbers = tables.TemplateColumn(
+        template_code="""
+        {% if record.get_abra_asset_numbers_display %}
+            {{ record.get_abra_asset_numbers_display }}
+        {% else %}
+            {{ ''|placeholder }}
+        {% endif %}
+        """,
+        verbose_name="Asset Number(s)",
+        orderable=False,
+    )
 
     #
     # Type and classification columns
@@ -123,7 +133,7 @@ class AssetTable(NetBoxTable):
             "partnumber",
             # Basic identification
             "serial",
-            "asset_number",
+            "abra_asset_numbers",
             "description",
             # Type and classification
             "type",
@@ -164,6 +174,6 @@ class AssetTable(NetBoxTable):
             "assigned_object",
             "assignment_status",
             "lifecycle_status",
-            "asset_number",
+            "abra_asset_numbers",
             "actions",
         )

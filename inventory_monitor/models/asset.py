@@ -67,8 +67,6 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
     partnumber = models.CharField(max_length=64, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
     serial = models.CharField(max_length=255, blank=False, null=False)
-    asset_number = models.CharField(max_length=255, blank=True, null=True)
-
     #
     # Status fields
     #
@@ -162,7 +160,6 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
             "partnumber",
             "serial",
             "description",
-            "asset_number",
             "project",
             "vendor",
             "quantity",
@@ -175,7 +172,6 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
             models.Index(fields=["description"], name="invmon_asset_desc_idx"),
             models.Index(fields=["serial"], name="invmon_asset_serial_idx"),
             models.Index(fields=["partnumber"], name="invmon_asset_partnumber_idx"),
-            models.Index(fields=["asset_number"], name="invmon_asset_assetnum_idx"),
             models.Index(fields=["assignment_status"], name="invmon_asset_assign_status_idx"),
             models.Index(fields=["lifecycle_status"], name="invmon_asset_lifecycle_idx"),
             models.Index(fields=["vendor"], name="invmon_asset_vendor_idx"),
@@ -187,6 +183,11 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
                 name="invmon_asset_assigned_obj_idx",
             ),
         ]
+
+    def get_abra_asset_numbers_for_search(self):
+        """Get ABRA inventory numbers as a single searchable string"""
+        numbers = list(self.abra_assets.values_list("inventory_number", flat=True))
+        return " ".join(numbers) if numbers else ""
 
     def get_related_probes(self):
         """
@@ -209,6 +210,20 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
         serials = [s for s in serials if s]
 
         return Probe.objects.filter(serial__in=serials).order_by("-time")
+
+    def get_abra_asset_numbers(self):
+        """Get all ABRA inventory numbers associated with this asset"""
+        return self.abra_assets.values_list("inventory_number", flat=True)
+
+    def get_abra_asset_numbers_display(self):
+        """Get formatted display of ABRA asset numbers"""
+        numbers = list(self.get_abra_asset_numbers())
+        if not numbers:
+            return None
+        elif len(numbers) == 1:
+            return numbers[0]
+        else:
+            return ", ".join(numbers)
 
     def __str__(self):
         if self.partnumber:

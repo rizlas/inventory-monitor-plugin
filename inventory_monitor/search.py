@@ -73,8 +73,8 @@ class AssetIndex(SearchIndex):
         ("vendor", 100),
         ("project", 100),
         ("description", 5000),
-        ("asset_number", 5000),
         ("comments", 5000),
+        ("get_abra_asset_numbers_for_search", 80),
     )
     display_attrs = ("serial", "partnumber", "vendor")
 

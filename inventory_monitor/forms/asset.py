@@ -53,10 +53,6 @@ class AssetForm(NetBoxModelForm):
         required=False,
         label="Part Number",
     )
-    asset_number = forms.CharField(
-        required=False,
-        label="Inventory / Asset Number",
-    )
 
     # Type and classification
     type = DynamicModelChoiceField(queryset=AssetType.objects.all(), required=False, label="Type")
@@ -138,7 +134,6 @@ class AssetForm(NetBoxModelForm):
         FieldSet(
             "partnumber",
             "serial",
-            "asset_number",
             "name",
             "type",
             "project",
@@ -177,7 +172,6 @@ class AssetForm(NetBoxModelForm):
             # Identification fields
             "partnumber",
             "serial",
-            "asset_number",
             "name",
             # Type and classification
             "type",
@@ -282,6 +276,7 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         FieldSet(
             "order_contract",
             "abra_assets",
+            "abra_inventory_number__ic",
             name=_("Related Objects"),
         ),
         # Date range filters
@@ -298,7 +293,6 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         FieldSet(
             "partnumber",
             "serial",
-            "asset_number",
             "name",
             "type_id",
             "project",
@@ -322,9 +316,8 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     name = forms.CharField(required=False)
     serial = forms.CharField(required=False)
     partnumber = forms.CharField(required=False)
-    asset_number = forms.CharField(
-        required=False,
-        label="Asset Number",
+    abra_inventory_number__ic = forms.CharField(
+        required=False, label="ABRA Asset Number", help_text="Filter by ABRA inventory number"
     )
 
     # Status filters

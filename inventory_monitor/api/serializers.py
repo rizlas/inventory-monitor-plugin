@@ -160,7 +160,6 @@ class AssetSerializer(NetBoxModelSerializer):
             "display",
             "partnumber",
             "serial",
-            "asset_number",
             "description",
             # Assignment fields
             "assigned_object_type",
