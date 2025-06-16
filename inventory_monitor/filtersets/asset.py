@@ -34,7 +34,12 @@ class AssetFilterSet(NetBoxModelFilterSet):
     description = django_filters.CharFilter(lookup_expr="icontains", field_name="description")
     serial = django_filters.CharFilter(lookup_expr="iexact", field_name="serial")
     partnumber = django_filters.CharFilter(field_name="partnumber")
-    asset_number = django_filters.CharFilter(lookup_expr="icontains", field_name="asset_number")
+
+    abra_inventory_number = django_filters.CharFilter(
+        field_name="abra_assets__inventory_number",
+        label="ABRA Asset Number",
+        help_text="Filter by ABRA inventory number",
+    )
 
     #
     # Status filters
@@ -73,6 +78,11 @@ class AssetFilterSet(NetBoxModelFilterSet):
         queryset=ABRA.objects.all(),
         to_field_name="id",
         label="ABRA (ID)",
+    )
+
+    has_abra_assets = django_filters.BooleanFilter(
+        method="filter_has_abra_assets",
+        label="Has ABRA assets",
     )
 
     #
@@ -131,7 +141,6 @@ class AssetFilterSet(NetBoxModelFilterSet):
             "id",
             "partnumber",
             "serial",
-            "asset_number",
             "description",
             "assignment_status",
             "lifecycle_status",
@@ -141,7 +150,17 @@ class AssetFilterSet(NetBoxModelFilterSet):
             "order_contract",
             "warranty_start",
             "warranty_end",
+            "has_abra_assets",
+            "abra_inventory_number",
         )
+
+    def filter_has_abra_assets(self, queryset, name, value):
+        if value is True:
+            return queryset.filter(abra_assets__isnull=False).distinct()
+        elif value is False:
+            return queryset.filter(abra_assets__isnull=True)
+        else:
+            return queryset
 
     def search(self, queryset, name, value):
         """
@@ -151,6 +170,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
         - Asset fields (description, serial, project, vendor)
         - Related order contract names
         - Assigned objects (devices, sites, locations, racks)
+        - ABRA inventory numbers
 
         Args:
             queryset: Base queryset to filter
@@ -167,6 +187,9 @@ class AssetFilterSet(NetBoxModelFilterSet):
         project = Q(project__icontains=value)
         vendor = Q(vendor__icontains=value)
         order_contract = Q(order_contract__name__icontains=value)
+
+        # Add ABRA inventory number search
+        abra_inventory_number = Q(abra_assets__inventory_number__icontains=value)
 
         # Get content types for assigned object types
         device_type = ContentType.objects.get_for_model(Device)
@@ -191,7 +214,8 @@ class AssetFilterSet(NetBoxModelFilterSet):
             assigned_object_type=rack_type,
             assigned_object_id__in=Rack.objects.filter(name__icontains=value).values_list("pk", flat=True),
         )
-        # Combine all search conditions
+
+        # Combine all search conditions including ABRA inventory numbers
         return queryset.filter(
             description_search
             | serial
@@ -199,8 +223,9 @@ class AssetFilterSet(NetBoxModelFilterSet):
             | project
             | vendor
             | order_contract
+            | abra_inventory_number
             | device_search
             | site_search
             | location_search
             | rack_search
-        )
+        ).distinct()

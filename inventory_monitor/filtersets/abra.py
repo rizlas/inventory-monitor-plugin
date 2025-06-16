@@ -22,7 +22,8 @@ class ABRAFilterSet(NetBoxModelFilterSet):
     person_name = django_filters.CharFilter()
     location_code = django_filters.CharFilter()
     location = django_filters.CharFilter()
-    activity_code = django_filters.CharFilter()
+    department_code = django_filters.CharFilter()
+    project_code = django_filters.CharFilter()
     user_name = django_filters.CharFilter()
     user_note = django_filters.CharFilter()
     split_asset = django_filters.CharFilter()
@@ -32,6 +33,12 @@ class ABRAFilterSet(NetBoxModelFilterSet):
         queryset=Asset.objects.all(),
         to_field_name="id",
         label="Asset (ID)",
+    )
+
+    # Nový filtr pro objekty s/bez přiřazených assetů
+    has_assets = django_filters.BooleanFilter(
+        method="filter_has_assets",
+        label="Has Assets",
     )
 
     class Meta:
@@ -46,12 +53,36 @@ class ABRAFilterSet(NetBoxModelFilterSet):
             "person_name",
             "location_code",
             "location",
-            "activity_code",
+            "department_code",
+            "project_code",
             "user_name",
             "split_asset",
             "status",
             "asset_id",
+            "has_assets",
         ]
+
+    def filter_has_assets(self, queryset, name, value):
+        """
+        Filter ABRA objects based on whether they have assigned assets.
+
+        Args:
+            queryset: The base queryset
+            name: The filter field name
+            value: Boolean - True for objects with assets, False for objects without assets
+
+        Returns:
+            Filtered queryset
+        """
+        if value is True:
+            # Vrátí pouze ABRA objekty, které mají alespoň jeden přiřazený asset
+            return queryset.filter(assets__isnull=False).distinct()
+        elif value is False:
+            # Vrátí pouze ABRA objekty, které nemají žádný přiřazený asset
+            return queryset.filter(assets__isnull=True)
+        else:
+            # Pokud value není boolean, vrátí původní queryset
+            return queryset
 
     def search(self, queryset, name, value):
         """Allow searching by various fields using a single search parameter."""
@@ -66,7 +97,8 @@ class ABRAFilterSet(NetBoxModelFilterSet):
             | Q(person_name__icontains=value)
             | Q(location_code__icontains=value)
             | Q(location__icontains=value)
-            | Q(activity_code__icontains=value)
+            | Q(department_code__icontains=value)
+            | Q(project_code__icontains=value)
             | Q(user_name__icontains=value)
             | Q(user_note__icontains=value)
         )

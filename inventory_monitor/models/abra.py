@@ -12,7 +12,8 @@ ABRA_CSV_MAPPING = {
     "OSOBA": "person_name",
     "KOD_UMISTENI": "location_code",
     "UMISTENI": "location",
-    "AKTIVITA": "activity_code",
+    "AKTIVITA": "department_code",
+    "PROJEKT": "project_code",
     "NAZEV_UZIV": "user_name",
     "POZN_UZIV": "user_note",
     "DELENY_MAJETEK": "split_asset",
@@ -79,12 +80,19 @@ class ABRA(NetBoxModel):
         verbose_name="Location",
         help_text="Description of item location (UMISTENI)",
     )
-    activity_code = models.CharField(
+    department_code = models.CharField(
         max_length=64,
         blank=True,
         null=True,
-        verbose_name="Activity Code",
-        help_text="Activity code (AKTIVITA)",
+        verbose_name="Department Code",
+        help_text="Department code (AKTIVITA)",
+    )
+    project_code = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        verbose_name="Project Code",
+        help_text="Project code (PROJEKT)",
     )
     user_name = models.CharField(
         max_length=255,
@@ -133,6 +141,8 @@ class ABRA(NetBoxModel):
             models.Index(fields=["serial_number"], name="abra_serial_idx"),
             models.Index(fields=["person_id"], name="abra_personid_idx"),
             models.Index(fields=["location_code"], name="abra_loccode_idx"),
+            models.Index(fields=["department_code"], name="abra_deptcode_idx"),
+            models.Index(fields=["project_code"], name="abra_projcode_idx"),
             models.Index(fields=["status"], name="abra_status_idx"),
         ]
         # unique_together = [["inventory_number"]]

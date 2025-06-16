@@ -42,7 +42,8 @@ class ABRAForm(NetBoxModelForm):
             name=_("Location Information"),
         ),
         FieldSet(
-            "activity_code",
+            "department_code",
+            "project_code",
             "user_name",
             "user_note",
             name=_("Usage Information"),
@@ -67,7 +68,8 @@ class ABRAForm(NetBoxModelForm):
             "person_name",
             "location_code",
             "location",
-            "activity_code",
+            "department_code",
+            "project_code",
             "user_name",
             "user_note",
             "split_asset",
@@ -105,7 +107,8 @@ class ABRAFilterForm(NetBoxModelFilterSetForm):
             name=_("Location Information"),
         ),
         FieldSet(
-            "activity_code",
+            "department_code",
+            "project_code",
             "user_name",
             name=_("Usage Information"),
         ),
@@ -113,6 +116,7 @@ class ABRAFilterForm(NetBoxModelFilterSetForm):
             "split_asset",
             "status",
             "asset_id",
+            "has_assets",
             name=_("Status"),
         ),
     )
@@ -126,8 +130,19 @@ class ABRAFilterForm(NetBoxModelFilterSetForm):
     person_name = forms.CharField(required=False)
     location_code = forms.CharField(required=False)
     location = forms.CharField(required=False)
-    activity_code = forms.CharField(required=False)
+    department_code = forms.CharField(required=False)
+    project_code = forms.CharField(required=False)
     user_name = forms.CharField(required=False)
     split_asset = forms.CharField(required=False)
     status = forms.CharField(required=False)
     asset_id = DynamicModelMultipleChoiceField(queryset=Asset.objects.all(), required=False, label=_("Assets"))
+    has_assets = forms.ChoiceField(
+        choices=[
+            ("", "All"),
+            ("true", "With Assets"),
+            ("false", "Without Assets"),
+        ],
+        required=False,
+        label=_("Has Assets"),
+        help_text=_("Filter by whether ABRA object has assigned assets"),
+    )

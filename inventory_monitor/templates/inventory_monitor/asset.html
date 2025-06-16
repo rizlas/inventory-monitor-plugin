@@ -104,10 +104,15 @@
                             <td>{{ object.price|to_czech_crown }}</td>
                         </tr>
                         <tr>
-                            <th>Asset Number</th>
-                            <td>{{ object.asset_number|placeholder }}</td>
+                            <th>Asset Number(s)</th>
+                            <td>
+                                {% if object.get_abra_asset_numbers_display %}
+                                    {{ object.get_abra_asset_numbers_display }}
+                                {% else %}
+                                    {{ ''|placeholder }}
+                                {% endif %}
+                            </td>
                         </tr>
-                        <!-- Contract Information -->
                         <tr>
                             <th>Order Contract</th>
                             <td>

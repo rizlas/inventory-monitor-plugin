@@ -23,7 +23,6 @@ class AssetServiceFilterSet(NetBoxModelFilterSet):
         service_end (django_filters.DateFilter): Filter for filtering by service end date.
         service_end__gte (django_filters.DateFilter): Filter for filtering by service end date greater than or equal to a specific value.
         service_end__lte (django_filters.DateFilter): Filter for filtering by service end date less than or equal to a specific value.
-        service_param (django_filters.CharFilter): Filter for filtering by service parameter.
         service_price (django_filters.NumberFilter): Filter for filtering by service price.
         service_price__gte (django_filters.NumberFilter): Filter for filtering by service price greater than or equal to a specific value.
         service_price__lte (django_filters.NumberFilter): Filter for filtering by service price less than or equal to a specific value.
@@ -48,7 +47,6 @@ class AssetServiceFilterSet(NetBoxModelFilterSet):
     service_end = django_filters.DateFilter(field_name="service_end", lookup_expr="contains")
     service_end__gte = django_filters.DateFilter(field_name="service_end", lookup_expr="gte")
     service_end__lte = django_filters.DateFilter(field_name="service_end", lookup_expr="lte")
-    service_param = django_filters.CharFilter(lookup_expr="icontains", field_name="service_param")
     service_price = django_filters.NumberFilter(
         required=False,
         field_name="service_price",
@@ -85,7 +83,6 @@ class AssetServiceFilterSet(NetBoxModelFilterSet):
             "id",
             "service_start",
             "service_end",
-            "service_param",
             "service_price",
             "service_category",
             "service_category_vendor",
@@ -106,9 +103,8 @@ class AssetServiceFilterSet(NetBoxModelFilterSet):
             QuerySet: The filtered queryset based on the search value.
 
         """
-        service_param = Q(service_param__icontains=value)
         service_category = Q(service_category__icontains=value)
         service_category_vendor = Q(service_category_vendor__icontains=value)
         asset = Q(asset__serial__icontains=value)
         contract = Q(contract__name__icontains=value)
-        return queryset.filter(service_param | service_category | service_category_vendor | asset | contract)
+        return queryset.filter(service_category | service_category_vendor | asset | contract)

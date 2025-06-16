@@ -7,7 +7,10 @@ from inventory_monitor.models import RMA
 
 class RMAFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(method="search")
-    rma_number = django_filters.CharFilter(lookup_expr="icontains")
+    rma_number = django_filters.CharFilter()
+    original_serial = django_filters.CharFilter()
+    replacement_serial = django_filters.CharFilter()
+    serial = django_filters.CharFilter(method="filter_serial", label="Serial (Original or Replacement)")
     status = django_filters.MultipleChoiceFilter(
         choices=RMA.status.field.choices,
     )
@@ -20,6 +23,7 @@ class RMAFilterSet(NetBoxModelFilterSet):
             "asset_id",
             "original_serial",
             "replacement_serial",
+            "serial",
             "status",
             "date_issued",
             "date_replaced",
@@ -35,3 +39,19 @@ class RMAFilterSet(NetBoxModelFilterSet):
             | Q(issue_description__icontains=value)
             | Q(vendor_response__icontains=value)
         )
+
+    def filter_serial(self, queryset, name, value):
+        """
+        Filter by serial number in either original_serial or replacement_serial fields.
+
+        Args:
+            queryset: The queryset to filter
+            name: The filter field name
+            value: The serial number to search for
+
+        Returns:
+            Filtered queryset matching either original or replacement serial
+        """
+        if not value.strip():
+            return queryset
+        return queryset.filter(Q(original_serial__icontains=value) | Q(replacement_serial__icontains=value))
