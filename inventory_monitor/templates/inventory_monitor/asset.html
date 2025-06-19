@@ -148,8 +148,15 @@
         <div class="col col-md-12">
             <div class="card">
                 <h5 class="card-header">
-                    ABRA  assets
+                    ABRA assets
                     <div class="card-actions">
+                        <!-- Add this new button -->
+                        {% if perms.inventory_monitor.change_abra %}
+                            <a href="{% url 'plugins:inventory_monitor:asset_abra_assignment' pk=object.pk %}"
+                               class="btn btn-warning btn-sm me-2">
+                                <i class="mdi mdi-link-variant" aria-hidden="true"></i>Edit ABRA Assets
+                            </a>
+                        {% endif %}
                         <a href="{% url 'plugins:inventory_monitor:abra_list' %}?asset_id={{ object.pk }}"
                            class="btn btn-primary btn-sm">
                             <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>ABRA's List
