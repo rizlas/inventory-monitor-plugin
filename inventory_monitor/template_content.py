@@ -27,6 +27,19 @@ from inventory_monitor.tables import AssetTable, ProbeTable
 plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
 
 
+class DeviceAddCreateAssetButton(PluginTemplateExtension):
+    models = ["dcim.device"]
+
+    def buttons(self):
+        device = self.context["object"]
+
+        # Only render button if device has serial and no corresponding asset exists
+        if device.serial and not Asset.objects.filter(serial=device.serial).exists():
+            return self.render("inventory_monitor/inc/device_create_asset_button.html")
+
+        return ""
+
+
 class TenantContractorExtension(PluginTemplateExtension):
     """Display contractor information on tenant detail page."""
 
@@ -480,4 +493,5 @@ template_extensions = [
     AssetDuplicates,
     AbraAssetsExtension,
     AbraRMAsExtension,
+    DeviceAddCreateAssetButton,
 ]
