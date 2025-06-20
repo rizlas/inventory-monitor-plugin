@@ -78,6 +78,7 @@ class AssetABRAAssignmentView(generic.ObjectEditView):
 
     queryset = Asset.objects.all()
     form = AssetABRAAssignmentForm
+    template_name = "inventory_monitor/asset_abra_assignment.html"
 
     def get_object(self, **kwargs):
         """Get the Asset object to assign ABRA objects to"""
@@ -107,7 +108,17 @@ class AssetABRAAssignmentView(generic.ObjectEditView):
 
     def get_extra_context(self, request, instance):
         """Add extra context for the template"""
+        device_asset_tag = (
+            instance.assigned_object.asset_tag
+            if (
+                instance.assigned_object_type.model == "device"
+                and getattr(instance.assigned_object, "asset_tag", None)
+                and getattr(instance.assigned_object, "serial", None) == instance.serial
+            )
+            else None
+        )
         return {
             "asset": instance,
             "title": f"Assign ABRA Objects to {instance}",
+            "device_asset_tags": device_asset_tag,
         }
