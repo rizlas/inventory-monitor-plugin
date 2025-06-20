@@ -151,6 +151,8 @@ class AssetSerializer(NetBoxModelSerializer):
     )
     assigned_object = serializers.SerializerMethodField(read_only=True, allow_null=True)
 
+    asset_numbers = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Asset
         fields = (
@@ -160,6 +162,7 @@ class AssetSerializer(NetBoxModelSerializer):
             "display",
             "partnumber",
             "serial",
+            "asset_numbers",
             "description",
             # Assignment fields
             "assigned_object_type",
@@ -191,6 +194,7 @@ class AssetSerializer(NetBoxModelSerializer):
             "display",
             "partnumber",
             "serial",
+            "asset_numbers",
             "type",
             "description",
             "assignment_status",
@@ -214,6 +218,11 @@ class AssetSerializer(NetBoxModelSerializer):
         serializer = get_serializer_for_model(obj.assigned_object)
         context = {"request": self.context["request"]}
         return serializer(obj.assigned_object, nested=True, context=context).data
+
+    @extend_schema_field(serializers.CharField(read_only=True))
+    def get_asset_numbers(self, obj):
+        """Get ABRA asset numbers as comma-separated string"""
+        return obj.get_abra_asset_numbers_display()
 
 
 class ProbeSerializer(NetBoxModelSerializer):

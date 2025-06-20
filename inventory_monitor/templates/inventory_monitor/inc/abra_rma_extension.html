@@ -6,13 +6,19 @@
             <h5 class="card-header">
                 RMA's found for ABRA serial number: {{ object.serial_number|placeholder }}
                 <div class="card-actions">
-                    <a href="{% url 'plugins:inventory_monitor:rma_list' %}?serial={{ object.serial_number }}"
+                    <a href="{% url 'plugins:inventory_monitor:rma_list' %}?serial={{ object.serial_number| default:None }}"
                        class="btn btn-primary btn-sm">
                         <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>RMA's List
                     </a>
                 </div>
             </h5>
-            {% htmx_table 'plugins:inventory_monitor:rma_list' serial=object.serial_number %}
+            {% if object.serial_number %}
+                {% htmx_table 'plugins:inventory_monitor:rma_list' serial=object.serial_number %}
+            {% else %}
+                <div class="card-body">
+                    <p class="text-muted text-center">No RMA's found for this ABRA serial number.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -1,6 +1,3 @@
-# Django imports
-# Third-party imports
-# NetBox imports
 from dcim.models import Device, Location, Module, Rack, Site
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -421,3 +418,63 @@ class AssetBulkEditForm(NetBoxModelBulkEditForm):
             "comments",
             "tags",
         ]
+
+
+class AssetABRAAssignmentForm(NetBoxModelForm):
+    """
+    Form for assigning ABRA objects to an Asset
+    """
+
+    abra_assets = DynamicModelMultipleChoiceField(
+        queryset=ABRA.objects.all(),
+        required=False,
+        label="ABRA Assets",
+        help_text="Add or Remove ABRA assets to this Asset",
+    )
+
+    fieldsets = (
+        FieldSet(
+            "abra_assets",
+            name=_("ABRA Assignment"),
+        ),
+    )
+
+    class Meta:
+        model = Asset
+        fields = ("abra_assets",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Pre-select currently assigned ABRA objects
+        if self.instance and self.instance.pk:
+            self.fields["abra_assets"].initial = self.instance.abra_assets.all()
+
+        # Remove Custom Fields from form
+        for cf_name in self.custom_fields.keys():
+            self.fields.pop(cf_name, None)
+        self.custom_fields = {}
+        self.custom_fields_groups = {}
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        if commit:
+            instance.save()
+
+            # Get current and new relationships
+            old_abra_objects = set(instance.abra_assets.all())
+            new_abra_objects = set(self.cleaned_data["abra_assets"])
+
+            added_objects = new_abra_objects - old_abra_objects
+            removed_objects = old_abra_objects - new_abra_objects
+
+            for rem_obj in removed_objects:
+                rem_obj.snapshot()
+                rem_obj.assets.remove(instance)
+
+            for add_obj in added_objects:
+                add_obj.snapshot()
+                add_obj.assets.add(instance)
+
+        return instance
