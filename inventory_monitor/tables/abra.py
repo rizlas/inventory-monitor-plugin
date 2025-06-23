@@ -9,7 +9,20 @@ ASSOCIATED_ASSETS = """
   {% else %}
     {% for asset in value.all %}
       {% if asset.get_lifecycle_status_display != 'Active' %}
-        <a href="{{ asset.get_absolute_url }}" class="badge text-bg-{{ asset.get_lifecycle_status_color }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ asset.get_lifecycle_status_display }}">{{ asset }}</a>
+        <a 
+            href="{{ asset.get_absolute_url }}" 
+            class="badge text-bg-{{ asset.get_lifecycle_status_color }}" 
+            data-bs-toggle="tooltip" 
+            data-bs-placement="left" 
+            style="
+                white-space: normal;        /* povolí zalamování řádků */
+                word-break: keep-all;       /* nezalomí slovo, jen mezi slovy */
+                overflow-wrap: normal;      /* defaultní chování, zalamuje jen na mezerách */
+                max-width: 200px;           /* nastavte podle potřeby */
+                display: inline-block;      /* aby šířka fungovala */            
+            "
+            title="{{ asset.get_lifecycle_status_display }}"
+        >{{ asset }}</a>
       {% else %}
         <a href="{{ asset.get_absolute_url }}">{{ asset }}</a>
       {% endif %}

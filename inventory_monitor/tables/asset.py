@@ -14,7 +14,22 @@ ASSOCIATED_ABRA_ASSETS = """
     <a href="{% url 'plugins:inventory_monitor:abra_list' %}?asset_id={{ record.pk }}">{{ value.count }}</a>
   {% else %}
     {% for abra in value.all %}
-        <a href="{{ abra.get_absolute_url }}" class="badge text-bg-{% if abra.status == '1' %}green{% elif abra.status == '0' %}gray{% else %}blue{% endif %}" data-bs-toggle="tooltip" data-bs-placement="left" title="Status: {{ abra.status|default:'Unknown' }}">{{abra.inventory_number}}: {{abra.name}}</a>
+        <a 
+            href="{{ abra.get_absolute_url }}" 
+            class="badge text-bg-{% if abra.status == '1' %}green{% elif abra.status == '0' %}gray{% else %}blue{% endif %}" 
+            data-bs-toggle="tooltip" 
+            data-bs-placement="left"
+            style="
+                white-space: normal;        /* povolí zalamování řádků */
+                word-break: keep-all;       /* nezalomí slovo, jen mezi slovy */
+                overflow-wrap: normal;      /* defaultní chování, zalamuje jen na mezerách */
+                max-width: 200px;           /* nastavte podle potřeby */
+                display: inline-block;      /* aby šířka fungovala */
+            "
+            title="Status: {{ abra.status|default:'Unknown' }}"
+        >
+            {{ abra.inventory_number }}: {{ abra.name }}
+        </a>
     {% endfor %}
   {% endif %}
 """
