@@ -76,7 +76,15 @@ class AssetIndex(SearchIndex):
         ("comments", 5000),
         ("get_abra_asset_numbers_for_search", 80),
     )
-    display_attrs = ("serial", "partnumber", "vendor")
+    display_attrs = ("serial", "partnumber", "vendor", "description")
+
+    # get_abra_asset_numbers_for_search is a method from Asset which is callable
+    @staticmethod
+    def get_field_value(instance, field_name):
+        value = getattr(instance, field_name)
+        if callable(value):
+            value = value()
+        return str(value) if value is not None else None
 
 
 @register_search

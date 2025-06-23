@@ -36,10 +36,10 @@ class AssetForm(NetBoxModelForm):
     #
 
     # Identification fields
-    name = forms.CharField(
+    description = forms.CharField(
         required=False,
-        label="Name",
-        widget=forms.TextInput(attrs={"placeholder": "Name"}),
+        label="Description",
+        widget=forms.TextInput(attrs={"placeholder": "Description"}),
     )
     serial = forms.CharField(
         required=True,
@@ -131,7 +131,7 @@ class AssetForm(NetBoxModelForm):
         FieldSet(
             "partnumber",
             "serial",
-            "name",
+            "description",
             "type",
             "project",
             "price",
@@ -169,7 +169,7 @@ class AssetForm(NetBoxModelForm):
             # Identification fields
             "partnumber",
             "serial",
-            "name",
+            "description",
             # Type and classification
             "type",
             # Status fields
@@ -290,7 +290,7 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         FieldSet(
             "partnumber",
             "serial",
-            "name",
+            "description",
             "type_id",
             "project",
             "vendor",
@@ -310,7 +310,7 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
     # Identification filters
-    name = forms.CharField(required=False)
+    description = forms.CharField(required=False)
     serial = forms.CharField(required=False)
     partnumber = forms.CharField(required=False)
     abra_inventory_number__ic = forms.CharField(
@@ -378,10 +378,10 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
 
 
 class AssetBulkEditForm(NetBoxModelBulkEditForm):
-    name = forms.CharField(
+    description = forms.CharField(
         required=False,
-        label="Name",
-        widget=forms.TextInput(attrs={"placeholder": "Name"}),
+        label="Description",
+        widget=forms.TextInput(attrs={"placeholder": "Description"}),
     )
     type = DynamicModelChoiceField(queryset=AssetType.objects.all(), required=False)
 
@@ -406,7 +406,7 @@ class AssetBulkEditForm(NetBoxModelBulkEditForm):
     class Meta:
         model = Asset
         fields = [
-            "name",
+            "description",
             "type",
             "assignment_status",
             "lifecycle_status",

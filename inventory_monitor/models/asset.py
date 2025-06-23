@@ -184,11 +184,6 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
             ),
         ]
 
-    def get_abra_asset_numbers_for_search(self):
-        """Get ABRA inventory numbers as a single searchable string"""
-        numbers = list(self.abra_assets.values_list("inventory_number", flat=True))
-        return " ".join(numbers) if numbers else ""
-
     def get_related_probes(self):
         """
         Get all probe records related to this asset through various serial number matches:
@@ -224,6 +219,9 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
             return numbers[0]
         else:
             return ", ".join(numbers)
+
+    def get_abra_asset_numbers_for_search(self):
+        return " ".join(self.abra_assets.values_list("inventory_number", flat=True))
 
     def __str__(self):
         if self.partnumber:
