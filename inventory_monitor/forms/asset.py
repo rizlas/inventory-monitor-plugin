@@ -6,10 +6,12 @@ from netbox.forms import (
     NetBoxModelBulkEditForm,
     NetBoxModelFilterSetForm,
     NetBoxModelForm,
+    NetBoxModelImportForm,
 )
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField,
+    CSVModelChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     TagFilterField,
@@ -413,6 +415,52 @@ class AssetBulkEditForm(NetBoxModelBulkEditForm):
             "project",
             "vendor",
             "order_contract",
+            "warranty_start",
+            "warranty_end",
+            "comments",
+            "tags",
+        ]
+
+
+class AssetBulkImportForm(NetBoxModelImportForm):
+    """
+    Form for bulk importing Assets
+    """
+
+    # Add required fields for CSV import
+    partnumber = forms.CharField(required=False)
+    serial = forms.CharField(required=True)
+    description = forms.CharField(required=False)
+    type = CSVModelChoiceField(queryset=AssetType.objects.all(), required=False)
+    assignment_status = forms.ChoiceField(choices=AssignmentStatusChoices, required=False)
+    lifecycle_status = forms.ChoiceField(choices=LifecycleStatusChoices, required=False)
+    project = forms.CharField(required=False)
+    vendor = forms.CharField(required=False)
+    order_contract = CSVModelChoiceField(
+        queryset=Contract.objects.all(),
+        required=False,
+        to_field_name="name",  # Assuming you want to match by contract name
+    )
+    quantity = forms.IntegerField(required=False, initial=1)
+    price = forms.DecimalField(required=False, initial=0, decimal_places=2)
+    warranty_start = forms.DateField(required=False)
+    warranty_end = forms.DateField(required=False)
+    comments = forms.CharField(required=False)
+
+    class Meta:
+        model = Asset
+        fields = [
+            "partnumber",
+            "serial",
+            "description",
+            "type",
+            "assignment_status",
+            "lifecycle_status",
+            "project",
+            "vendor",
+            "order_contract",
+            "quantity",
+            "price",
             "warranty_start",
             "warranty_end",
             "comments",
