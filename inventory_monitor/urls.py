@@ -1,6 +1,7 @@
 from django.urls import include, path
 from netbox.views.generic import ObjectChangeLogView
 from utilities.urls import get_model_urls
+
 from inventory_monitor import models, views
 
 app_name = "inventory_monitor"  # Add this line to define the app namespace
@@ -103,6 +104,7 @@ urlpatterns = (
     ## Asset
     path("assets/", views.AssetListView.as_view(), name="asset_list"),
     path("assets/add/", views.AssetEditView.as_view(), name="asset_add"),
+    path("assets/import/", views.AssetBulkImportView.as_view(), name="asset_bulk_import"),
     path("assets/edit/", views.AssetBulkEditView.as_view(), name="asset_bulk_edit"),
     path("assets/delete/", views.AssetBulkDeleteView.as_view(), name="asset_bulk_delete"),
     path("assets/<int:pk>/", views.AssetView.as_view(), name="asset"),
@@ -125,13 +127,11 @@ urlpatterns = (
         "assets/",
         include(get_model_urls("inventory_monitor", "asset", detail=False)),
     ),
-    
     path(
         "assets/<int:pk>/assign-abra/",
         views.AssetABRAAssignmentView.as_view(),
         name="asset_abra_assignment",
     ),
-    
     ## AssetType
     path("asset-types/", views.AssetTypeListView.as_view(), name="assettype_list"),
     path("asset-types/add/", views.AssetTypeEditView.as_view(), name="assettype_add"),

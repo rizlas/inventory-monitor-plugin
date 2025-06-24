@@ -71,6 +71,11 @@ class AssetBulkDeleteView(generic.BulkDeleteView):
     table = tables.AssetTable
 
 
+class AssetBulkImportView(generic.BulkImportView):
+    queryset = models.Asset.objects.all()
+    model_form = forms.AssetBulkImportForm
+
+
 class AssetABRAAssignmentView(generic.ObjectEditView):
     """
     View for assigning ABRA objects to an Asset
