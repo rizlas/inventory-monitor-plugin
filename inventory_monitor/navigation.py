@@ -1,4 +1,3 @@
-from netbox.navigation import get_model_item
 from netbox.plugins import PluginMenu, PluginMenuItem
 
 menu = PluginMenu(
@@ -8,7 +7,11 @@ menu = PluginMenu(
         (
             "Assets",
             (
-                get_model_item("plugins:inventory_monitor", "asset", "Assets"),
+                PluginMenuItem(
+                    link="plugins:inventory_monitor:asset_list",
+                    link_text="Assets",
+                    permissions=["inventory_monitor.view_asset"],
+                ),
                 PluginMenuItem(
                     link="plugins:inventory_monitor:assettype_list",
                     link_text="Asset Types",
