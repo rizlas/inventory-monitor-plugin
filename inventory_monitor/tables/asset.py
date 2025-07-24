@@ -190,5 +190,70 @@ class AssetTable(NetBoxTable):
             "assignment_status",
             "lifecycle_status",
             "abra_asset_numbers",
+        )
+
+
+class EnhancedAssetTable(AssetTable):
+    """
+    Enhanced Asset table that includes probe status information for all assets.
+    This can be used in asset list views to show probe status.
+    """
+
+    # Add probe status columns
+    last_probe_time = tables.TemplateColumn(
+        template_code="""
+        {% load tz %}
+        {% with probe_time=record.get_last_probe_time %}
+            {% if probe_time %}
+                <span title="Last probed: {{ probe_time|date:'Y-m-d H:i:s' }}">
+                    {{ probe_time|date:"Y-m-d H:i" }}
+                </span>
+            {% else %}
+                <span class="text-muted" title="Never probed">Never</span>
+            {% endif %}
+        {% endwith %}
+        """,
+        verbose_name="Last Probe",
+        orderable=False,
+    )
+
+    probe_status = tables.TemplateColumn(
+        template_code="""
+        {% if record.is_recently_probed %}
+            <span class="badge text-bg-success" title="Probed within last 7 days">
+                <i class="mdi mdi-check-circle"></i> Recent
+            </span>
+        {% else %}
+            <span class="badge text-bg-secondary" title="Not probed recently or never">
+                <i class="mdi mdi-clock-outline"></i> Stale
+            </span>
+        {% endif %}
+        """,
+        verbose_name="Probe Status",
+        orderable=False,
+    )
+
+    class Meta(AssetTable.Meta):
+        # Add row attributes for styling based on probe status - using data attributes for CSS targeting
+        row_attrs = {
+            "data-probe-status": lambda record: ("recent" if record.is_recently_probed() else "stale"),
+            "data-serial": lambda record: record.serial,
+        }
+
+        # Include probe columns in the fields
+        fields = AssetTable.Meta.fields + ("last_probe_time", "probe_status")
+
+        # Enhanced default columns with probe information
+        default_columns = (
+            "id",
+            "partnumber",
+            "serial",
+            "description",
+            "type",
+            "assigned_object",
+            "assignment_status",
+            "lifecycle_status",
+            "probe_status",
+            "last_probe_time",
             "actions",
         )

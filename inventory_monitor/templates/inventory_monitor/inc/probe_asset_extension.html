@@ -14,7 +14,7 @@
         {% endif %}
     </h5>
     {% if perms.inventory_monitor.view_asset %}
-        {% if assets %}
+        {% if asset_table.rows %}
             <div class="table-responsive">{% render_table asset_table %}</div>
         {% else %}
             <div class="text-muted ps-3">No assets found with serial number {{ object.serial }}</div>

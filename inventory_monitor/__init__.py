@@ -1,4 +1,5 @@
 from netbox.plugins import PluginConfig
+
 from .version import __version__
 
 
@@ -9,7 +10,10 @@ class NetBoxInventoryMonitorConfig(PluginConfig):
     version = __version__
     base_url = "inventory-monitor"
 
-    default_settings = {}
+    default_settings = {
+        # Probe Status Settings
+        "probe_recent_days": 7,
+    }
     required_settings = []
     min_version = "4.3.0"
     max_version = "4.3.99"

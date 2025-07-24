@@ -5,11 +5,10 @@
 {% load tabs %}
 {% load inventory_monitor %}
 {% load i18n %}
+{% load static %}
 {% block content %}
-    <!--
-    Asset Information Section
-    Contains basic asset details and assignment information
-    -->
+    <link rel="stylesheet"
+          href="{% static 'inventory_monitor/css/asset_probe_styling.css' %}">
     <div class="row mb-3">
         <!-- Left column: Basic Asset Information -->
         <div class="col col-md-6">
@@ -123,6 +122,73 @@
                                 {% endif %}
                             </td>
                         </tr>
+                    </table>
+                </div>
+            </div>
+            <!-- Probe Information Card -->
+            <div class="card mt-3"
+                 {% if object.is_recently_probed %}data-probe-status="recent"{% else %}data-probe-status="stale"{% endif %}>
+                <h5 class="card-header">
+                    Probe Information
+                    {% if object.is_recently_probed %}
+                        <span class="badge text-bg-success ms-2"
+                              title="Probed within last {{ object.get_probe_recent_days_setting }} days">
+                            <i class="mdi mdi-check-circle"></i> Recent
+                        </span>
+                    {% else %}
+                        <span class="badge text-bg-secondary ms-2"
+                              title="Not probed recently or never">
+                            <i class="mdi mdi-clock-outline"></i> Stale
+                        </span>
+                    {% endif %}
+                </h5>
+                <div class="card-body">
+                    <table class="table table-hover attr-table">
+                        <tr>
+                            <th>Last Probe Time</th>
+                            <td>
+                                {% with probe_time=object.get_last_probe_time %}
+                                    {% if probe_time %}
+                                        {{ probe_time|date:"Y-m-d H:i:s" }}
+                                        <br>
+                                        <small class="text-muted">{{ probe_time|timesince }} ago</small>
+                                    {% else %}
+                                        <span class="text-muted">Never probed</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Related Probes</th>
+                            <td>
+                                {% with probe_count=object.get_related_probes.count %}
+                                    {% if probe_count > 0 %}
+                                        <a href="{% url 'plugins:inventory_monitor:probe_list' %}?serial={{ object.serial }}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View {{ probe_count }} probe{{ probe_count|pluralize }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">No probes found</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                        </tr>
+                        {% with latest_probe=object.get_related_probes.first %}
+                            {% if latest_probe %}
+                                <tr>
+                                    <th>Latest Probe Details</th>
+                                    <td>
+                                        <a href="{{ latest_probe.get_absolute_url }}"
+                                           class="btn btn-sm btn-outline-info">View Latest Probe</a>
+                                        <br>
+                                        <small class="text-muted">
+                                            {% if latest_probe.device %}Device: {{ latest_probe.device }}{% endif %}
+                                            {% if latest_probe.site %}| Site: {{ latest_probe.site }}{% endif %}
+                                        </small>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endwith %}
                     </table>
                 </div>
             </div>

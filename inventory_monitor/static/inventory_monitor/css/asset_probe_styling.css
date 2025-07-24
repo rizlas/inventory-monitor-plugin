@@ -1,0 +1,66 @@
+/* NetBox-style asset table row styling based on probe status */
+
+:root {
+    --probe-recent-color: #2fb344;
+    --probe-recent-light: #2fb34426;
+    --probe-recent-hover: #2fb34440;
+    --probe-recent-background: #2fb34410;
+    --probe-recent-border: #2fb34420;
+    --probe-stale-color: #6c757d;
+    --probe-warning-color: #fd7e14;
+}
+
+/* Light theme (default) */
+tr[data-probe-status="recent"] {
+    background-color: var(--probe-recent-light) !important;
+    transition: background-color 0.2s ease;
+}
+
+tr[data-probe-status="recent"]:hover {
+    background-color: var(--probe-recent-hover) !important;
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --probe-recent-light: #2fb34415;
+        --probe-recent-hover: #2fb34430;
+        --probe-recent-background: #2fb34408;
+        --probe-recent-border: #2fb34415;
+    }
+}
+
+/* Card styling for recent probes */
+.card[data-probe-status="recent"] {
+    border-color: var(--probe-recent-color) !important;
+    background-color: var(--probe-recent-background) !important;
+    transition: all 0.2s ease;
+}
+
+.card[data-probe-status="recent"] .card-header {
+    background-color: var(--probe-recent-border) !important;
+    border-bottom-color: var(--probe-recent-color) !important;
+}
+
+/* Badge styling for consistency */
+.badge.probe-recent {
+    background-color: var(--probe-recent-color) !important;
+    color: white;
+}
+
+.badge.probe-stale {
+    background-color: var(--probe-stale-color) !important;
+    color: white;
+}
+
+.badge.probe-warning {
+    background-color: var(--probe-warning-color) !important;
+    color: white;
+}
+
+/* Focus and accessibility improvements */
+tr[data-probe-status="recent"]:focus,
+.card[data-probe-status="recent"]:focus {
+    outline: 2px solid var(--probe-recent-color);
+    outline-offset: 2px;
+}

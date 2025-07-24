@@ -272,27 +272,35 @@ To install the Inventory Monitor plugin, follow these steps:
     cd inventory-monitor-plugin
     ```
 
-2. Run the setup script:
+1. Run the setup script:
     ```sh
     python setup.py install
     ```
-## OR 
 
-3. **The plugin is available as a Python package on PyPI and can be installed with pip**:
+    **OR** install directly from PyPI:
     ```sh
     pip install inventory-monitor 
     ```
----
 
-
-4. To enable the plugin, add it to the `PLUGINS` list in your `configuration.py`:
+1. To enable the plugin, add it to the `PLUGINS` list in your NetBox [`configuration.py`](https://docs.netbox.dev/en/stable/configuration/) file:
     ```python
     PLUGINS = [
         "inventory_monitor",
     ]
     ```
 
-5. Run the database migrations:
+1. (Optional) Configure plugin settings in your NetBox [`configuration.py`](https://docs.netbox.dev/en/stable/configuration/) file:
+    ```python
+    PLUGINS_CONFIG = {
+        "inventory_monitor": {
+            "probe_recent_days": 7,          # Days to consider probe "recent"
+        }
+    }
+    ```
+    
+    See CONFIGURATION.md for detailed configuration options.
+
+1. Run the database migrations:
     ```sh
     python manage.py migrate
     ```

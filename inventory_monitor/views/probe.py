@@ -21,6 +21,7 @@ class ProbeListView(generic.ObjectListView):
     table = tables.ProbeTable
     filterset = filtersets.ProbeFilterSet
     filterset_form = forms.ProbeFilterForm
+    template_name = "inventory_monitor/probe_list.html"  # Custom template with CSS
 
 
 class ProbeEditView(generic.ObjectEditView):

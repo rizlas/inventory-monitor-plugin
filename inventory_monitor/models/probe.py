@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -11,6 +12,8 @@ from netbox.models.features import (
     TagsMixin,
 )
 from utilities.querysets import RestrictedQuerySet
+
+from inventory_monitor.settings import get_probe_recent_days
 
 
 class Probe(
@@ -82,3 +85,35 @@ class Probe(
 
     def get_absolute_url(self):
         return reverse("plugins:inventory_monitor:probe", args=[self.pk])
+
+    def clean(self):
+        """
+        Custom validation for Probe model.
+
+        Validates:
+        - Creation time is not after probe time
+        """
+        super().clean()
+
+        # Validate relationship between creation_time and time
+        if self.time and self.creation_time:
+            # Ensure creation_time is not after time
+            if self.creation_time > self.time:
+                raise ValidationError({"creation_time": "Creation time cannot be after probe time."})
+
+    def is_recently_probed(self, days=None):
+        """
+        Check if this probe was seen within the specified number of days.
+
+        Args:
+            days (int): Number of days to check (default: from plugin settings)
+
+        Returns:
+            bool: True if probed within the specified period, False otherwise
+        """
+        if days is None:
+            days = get_probe_recent_days()
+
+        if not self.time:
+            return False
+        return (timezone.now() - self.time).days <= days

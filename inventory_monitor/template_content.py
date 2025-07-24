@@ -21,7 +21,7 @@ from utilities.views import ViewTab, register_model_view
 
 from inventory_monitor.filtersets import AssetFilterSet, ProbeFilterSet
 from inventory_monitor.models import Asset, Contract, Contractor, Probe
-from inventory_monitor.tables import AssetTable, ProbeTable
+from inventory_monitor.tables import AssetTable, EnhancedAssetTable, ProbeTable
 
 # Load plugin configuration settings
 plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
@@ -91,7 +91,7 @@ class ProbeAssetExtension(PluginTemplateExtension):
 
     models = ["inventory_monitor.probe"]
 
-    def right_page(self) -> str:
+    def full_width_page(self) -> str:
         """Display matching assets in the full width section of the page."""
         probe = self.context["object"]
 
@@ -103,8 +103,40 @@ class ProbeAssetExtension(PluginTemplateExtension):
             Q(serial=probe.serial) | Q(rmas__original_serial=probe.serial) | Q(rmas__replacement_serial=probe.serial)
         ).distinct()
 
-        # Create asset table for display
-        asset_table = AssetTable(matching_assets)
+        # Create asset table for display with limited columns for cleaner view
+        asset_table = EnhancedAssetTable(matching_assets)
+
+        # Hide unwanted columns to reduce clutter
+        asset_table.columns.hide("project")
+        asset_table.columns.hide("vendor")
+        asset_table.columns.hide("quantity")
+        asset_table.columns.hide("price")
+        asset_table.columns.hide("order_contract")
+        asset_table.columns.hide("warranty_start")
+        asset_table.columns.hide("warranty_end")
+        asset_table.columns.hide("warranty_status")
+        asset_table.columns.hide("services_count")
+        asset_table.columns.hide("services_contracts")
+        asset_table.columns.hide("services_to")
+        asset_table.columns.hide("comments")
+        asset_table.columns.hide("tags")
+        asset_table.columns.hide("abra_asset_numbers")  # Hide ABRA asset numbers
+
+        # Reorder remaining columns to put important ones first and actions/abra at the end
+        asset_table.sequence = [
+            "id",
+            "partnumber",
+            "serial",
+            "description",  # Show description first since partnumber is hidden
+            "type",
+            "assigned_object",
+            "assignment_status",
+            "lifecycle_status",
+            "probe_status",
+            "last_probe_time",
+            "abra_assets",  # "Discovered by Abra" column moved to end
+            "actions",  # Actions dropdown moved to very end
+        ]
 
         return self.render(
             "inventory_monitor/inc/probe_asset_extension.html",
