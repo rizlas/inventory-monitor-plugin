@@ -91,21 +91,9 @@ class Probe(
         Custom validation for Probe model.
 
         Validates:
-        - Time is not in the future
-        - Creation time is not in the future
         - Creation time is not after probe time
         """
         super().clean()
-
-        now = timezone.now()
-
-        # Validate time field
-        if self.time and self.time > now:
-            raise ValidationError({"time": "Probe time cannot be in the future."})
-
-        # Validate creation_time field
-        if self.creation_time and self.creation_time > now:
-            raise ValidationError({"creation_time": "Creation time cannot be in the future."})
 
         # Validate relationship between creation_time and time
         if self.time and self.creation_time:
