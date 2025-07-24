@@ -3,12 +3,14 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
+from django.utils import timezone
 from netbox.models import ImageAttachmentsMixin, NetBoxModel
 from utilities.choices import ChoiceSet
 from utilities.querysets import RestrictedQuerySet
 
 from inventory_monitor.models.mixins import DateStatusMixin
 from inventory_monitor.models.probe import Probe
+from inventory_monitor.settings import get_probe_recent_days
 
 ASSIGNED_OBJECT_MODELS_QUERY = Q(
     app_label="dcim",
@@ -205,6 +207,38 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
         serials = [s for s in serials if s]
 
         return Probe.objects.filter(serial__in=serials).order_by("-time")
+
+    def get_last_probe_time(self):
+        """
+        Get the timestamp of the most recent probe for this asset.
+
+        Returns:
+        - datetime: The time of the most recent probe, or None if no probes exist
+        """
+        latest_probe = self.get_related_probes().first()
+        return latest_probe.time if latest_probe else None
+
+    def is_recently_probed(self, days=None):
+        """
+        Check if this asset has been probed within the specified number of days.
+
+        Args:
+            days (int): Number of days to check (default: from plugin settings)
+
+        Returns:
+            bool: True if probed within the specified period, False otherwise
+        """
+        if days is None:
+            days = get_probe_recent_days()
+
+        last_probe = self.get_last_probe_time()
+        if not last_probe:
+            return False
+        return (timezone.now() - last_probe).days <= days
+
+    def get_probe_recent_days_setting(self):
+        """Get the probe recent days setting for template use."""
+        return get_probe_recent_days()
 
     def get_abra_asset_numbers(self):
         """Get all ABRA inventory numbers associated with this asset"""

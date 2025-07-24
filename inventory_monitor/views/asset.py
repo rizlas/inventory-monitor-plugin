@@ -22,13 +22,17 @@ class AssetListView(generic.ObjectListView):
         .prefetch_related("services")
         .prefetch_related("tags")
         .prefetch_related("abra_assets")
+        .prefetch_related("rmas")  # Prefetch RMAs to avoid N+1 queries in get_related_probes
+        .prefetch_related("type")  # Prefetch asset types for table display
+        .select_related("assigned_object_type")  # Optimize generic foreign key queries
         .annotate(services_count=Count("services"))
         .annotate(services_to=ArrayAgg("services__service_end"))
         .annotate(services_contracts=ArrayAgg("services__contract__name"))
     )
     filterset = filtersets.AssetFilterSet
     filterset_form = forms.AssetFilterForm
-    table = tables.AssetTable
+    table = tables.EnhancedAssetTable  # Changed to show probe status with green rows
+    template_name = "inventory_monitor/asset_list.html"  # Custom template with CSS
     actions = {
         "add": {},
         "import": {},
