@@ -257,3 +257,29 @@ class EnhancedAssetTable(AssetTable):
             "last_probe_time",
             "actions",
         )
+
+
+class DeviceAssetTable(AssetTable):
+    """
+    Specialized asset table for device views that highlights assets with matching device serial.
+    """
+
+    def __init__(self, *args, device=None, **kwargs):
+        self.device = device
+        super().__init__(*args, **kwargs)
+
+    class Meta(AssetTable.Meta):
+        # Add row attributes for highlighting matching device serials
+        row_attrs = {
+            "serial-match-device": lambda record, table: (
+                "true"
+                if (
+                    hasattr(table, "device")
+                    and table.device
+                    and table.device.serial
+                    and record.serial
+                    and str(record.serial).strip() == str(table.device.serial).strip()
+                )
+                else "false"
+            ),
+        }
