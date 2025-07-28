@@ -21,7 +21,7 @@ from utilities.views import ViewTab, register_model_view
 
 from inventory_monitor.filtersets import AssetFilterSet, ProbeFilterSet
 from inventory_monitor.models import Asset, Contract, Contractor, Probe
-from inventory_monitor.tables import AssetTable, EnhancedAssetTable, ProbeTable
+from inventory_monitor.tables import AssetProbeTable, AssetTable, DeviceAssetTable, EnhancedAssetTable
 
 # Load plugin configuration settings
 plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
@@ -237,13 +237,13 @@ class AssetDuplicates(PluginTemplateExtension):
 
 @register_model_view(Asset, name="probes", path="probes")
 class AssetProbesView(generic.ObjectChildrenView):
-    """Provides a 'Probes' tab on asset detail pages showing related probe records."""
+    """Custom asset view for devices that highlights assets with matching serial numbers."""
 
     queryset = Asset.objects.all()
     child_model = Probe
-    table = ProbeTable
+    table = AssetProbeTable
     filterset = ProbeFilterSet
-    template_name = "generic/object_children.html"
+    template_name = "inventory_monitor/asset_probes.html"
     hide_if_empty = False
     tab = ViewTab(
         label="Probes",
@@ -251,9 +251,41 @@ class AssetProbesView(generic.ObjectChildrenView):
         permission="inventory_monitor.view_probe",
     )
 
-    def get_children(self, request: HttpRequest, parent: Asset) -> QuerySet[Probe]:
-        """Retrieve all probes related to this asset."""
+    def get_table(self, data, request, bulk_actions=True):
+        """Override to pass asset instance to table for serial matching."""
+        table = super().get_table(data, request, bulk_actions)
+        # Get the asset from kwargs instead of calling get_object()
+        asset_pk = self.kwargs.get("pk")
+        if asset_pk:
+            try:
+                asset = Asset.objects.get(pk=asset_pk)
+                table.asset = asset
+            except Asset.DoesNotExist:
+                table.asset = None
+        else:
+            table.asset = None
+        return table
+
+    def get_children(self, request, parent):
+        """Get probes related to this asset."""
         return parent.get_related_probes()
+
+    def get_extra_context(self, request, instance):
+        """Add extra context for the template."""
+        # Get assigned device info if the asset is assigned to a device
+        assigned_device_info = None
+        if instance.assigned_object and hasattr(instance.assigned_object, "serial") and instance.assigned_object.serial:
+            assigned_device_info = {
+                "name": str(instance.assigned_object),
+                "serial": instance.assigned_object.serial,
+                "url": instance.assigned_object.get_absolute_url()
+                if hasattr(instance.assigned_object, "get_absolute_url")
+                else None,
+            }
+
+        return {
+            "assigned_device_info": assigned_device_info,
+        }
 
 
 @register_model_view(Contract, name="assets", path="assets")
@@ -512,11 +544,42 @@ def asset_view_for_model(model: Type) -> Type:
     return register_model_view(model, name="assets", path="assets")(view_class)
 
 
-# Supported models for asset views
-SUPPORTED_MODELS: List[Type] = [Site, Location, Rack, Device, Module]
+# Supported models for asset views (except Device which gets custom treatment)
+SUPPORTED_MODELS: List[Type] = [Site, Location, Rack, Module]
 
-# Create and register asset views for all supported models
+# Create and register asset views for all supported models except Device
 asset_views = [asset_view_for_model(model) for model in SUPPORTED_MODELS]
+
+
+# Custom Device Assets View with serial matching highlighting
+@register_model_view(Device, name="assets", path="assets")
+class DeviceAssetsView(AssignedAssetsView):
+    """Custom asset view for devices that highlights assets with matching serial numbers."""
+
+    queryset = Device.objects.all()
+    table = DeviceAssetTable
+    template_name = "inventory_monitor/device_assets.html"
+    tab = ViewTab(
+        label="Assets",
+        badge=lambda obj: AssignedAssetsView.count_hierarchical_assets(obj),
+        permission="inventory_monitor.view_asset",
+    )
+
+    def get_table(self, data, request, bulk_actions=True):
+        """Override to pass device instance to table for serial matching."""
+        table = super().get_table(data, request, bulk_actions)
+        # Get the device from kwargs instead of calling get_object()
+        device_pk = self.kwargs.get("pk")
+        if device_pk:
+            try:
+                device = Device.objects.get(pk=device_pk)
+                table.device = device
+            except Device.DoesNotExist:
+                table.device = None
+        else:
+            table.device = None
+        return table
+
 
 # Template extensions to be registered by the plugin
 template_extensions = [

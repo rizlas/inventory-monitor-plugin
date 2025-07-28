@@ -54,4 +54,43 @@ class ProbeTable(NetBoxTable):
         row_attrs = {
             "data-probe-status": lambda record: ("recent" if record.is_recently_probed() else "stale"),
             "data-serial": lambda record: record.serial,
+            "serial-match-device": lambda record, table: (
+                "true"
+                if (
+                    record.serial
+                    and record.device
+                    and hasattr(record.device, "serial")
+                    and record.device.serial
+                    and str(record.serial).strip() == str(record.device.serial).strip()
+                )
+                else "false"
+            ),
+        }
+
+
+class AssetProbeTable(ProbeTable):
+    """
+    Specialized probe table for asset views that highlights probes with matching device serial.
+    """
+
+    def __init__(self, *args, asset=None, **kwargs):
+        self.asset = asset
+        super().__init__(*args, **kwargs)
+
+    class Meta(ProbeTable.Meta):
+        # Add row attributes for highlighting matching device serials
+        row_attrs = {
+            "serial-match-device": lambda record, table: (
+                "true"
+                if (
+                    hasattr(table, "asset")
+                    and table.asset
+                    and table.asset.assigned_object
+                    and hasattr(table.asset.assigned_object, "serial")
+                    and table.asset.assigned_object.serial
+                    and record.serial
+                    and str(record.serial).strip() == str(table.asset.assigned_object.serial).strip()
+                )
+                else "false"
+            ),
         }
