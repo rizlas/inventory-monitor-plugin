@@ -259,7 +259,7 @@ class EnhancedAssetTable(AssetTable):
         )
 
 
-class DeviceAssetTable(AssetTable):
+class DeviceAssetTable(EnhancedAssetTable):
     """
     Specialized asset table for device views that highlights assets with matching device serial.
     """
@@ -269,8 +269,9 @@ class DeviceAssetTable(AssetTable):
         super().__init__(*args, **kwargs)
 
     class Meta(AssetTable.Meta):
-        # Add row attributes for highlighting matching device serials
+        # Inherit row_attrs from parent and add device serial matching
         row_attrs = {
+            **EnhancedAssetTable.Meta.row_attrs,  # Inherit parent row_attrs
             "serial-match-device": lambda record, table: (
                 "true"
                 if (

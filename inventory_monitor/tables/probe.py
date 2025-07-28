@@ -68,7 +68,72 @@ class ProbeTable(NetBoxTable):
         }
 
 
-class AssetProbeTable(ProbeTable):
+class EnhancedProbeTable(ProbeTable):
+    """
+    Enhanced Probe table that includes probe status information and timing details.
+    This can be used in probe list views to show probe status.
+    """
+
+    # Add probe status column
+    probe_status = tables.TemplateColumn(
+        template_code="""
+        {% if record.is_recently_probed %}
+            <span class="badge text-bg-success" title="Probed within last 7 days">
+                <i class="mdi mdi-check-circle"></i> Recent
+            </span>
+        {% else %}
+            <span class="badge text-bg-secondary" title="Not probed recently or never">
+                <i class="mdi mdi-clock-outline"></i> Stale
+            </span>
+        {% endif %}
+        """,
+        verbose_name="Probe Status",
+        orderable=False,
+    )
+
+    # Enhanced time display
+    time_display = tables.TemplateColumn(
+        template_code="""
+        {% load tz %}
+        {% if record.time %}
+            <span title="Last probed: {{ record.time|date:'Y-m-d H:i:s' }}">
+                {{ record.time|date:"Y-m-d H:i" }}
+            </span>
+            <br>
+            <small class="text-muted">{{ record.time|timesince }} ago</small>
+        {% else %}
+            <span class="text-muted" title="Never probed">Never</span>
+        {% endif %}
+        """,
+        verbose_name="Last Probe Time",
+        orderable=True,
+        order_by="time",
+    )
+
+    class Meta(ProbeTable.Meta):
+        # Include enhanced columns in the fields
+        fields = ProbeTable.Meta.fields + ("probe_status", "time_display")
+
+        # Enhanced default columns with probe status information
+        default_columns = (
+            "id",
+            "time_display",
+            "creation_time",
+            "name",
+            "serial",
+            "part",
+            "device_descriptor",
+            "device",
+            "site_descriptor",
+            "site",
+            "location_descriptor",
+            "location",
+            "probe_status",
+            "changes_count",
+        )
+
+
+class AssetProbeTable(EnhancedProbeTable):
     """
     Specialized probe table for asset views that highlights probes with matching device serial.
     """
@@ -78,8 +143,8 @@ class AssetProbeTable(ProbeTable):
         super().__init__(*args, **kwargs)
 
     class Meta(ProbeTable.Meta):
-        # Add row attributes for highlighting matching device serials
         row_attrs = {
+            **EnhancedProbeTable.Meta.row_attrs,  # Inherit parent row_attrs
             "serial-match-device": lambda record, table: (
                 "true"
                 if (

@@ -18,7 +18,7 @@ class ProbeListView(generic.ObjectListView):
         changes_count=Subquery(sub_count_serial.values("changes_count"))
     )
 
-    table = tables.ProbeTable
+    table = tables.EnhancedProbeTable
     filterset = filtersets.ProbeFilterSet
     filterset_form = forms.ProbeFilterForm
     template_name = "inventory_monitor/probe_list.html"  # Custom template with CSS
