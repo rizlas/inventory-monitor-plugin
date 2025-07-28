@@ -268,7 +268,7 @@ class DeviceAssetTable(EnhancedAssetTable):
         self.device = device
         super().__init__(*args, **kwargs)
 
-    class Meta(AssetTable.Meta):
+    class Meta(EnhancedAssetTable.Meta):
         # Inherit row_attrs from parent and add device serial matching
         row_attrs = {
             **EnhancedAssetTable.Meta.row_attrs,  # Inherit parent row_attrs

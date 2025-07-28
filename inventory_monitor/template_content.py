@@ -235,8 +235,43 @@ class AssetDuplicates(PluginTemplateExtension):
         )
 
 
+class ObjectInstanceTableMixin:
+    """
+    Mixin to provide get_table method that passes the object instance to the table.
+
+    This centralizes the logic for fetching an object by pk and setting it as an
+    attribute on the table using the model name in lowercase.
+    """
+
+    def get_table(self, data, request, bulk_actions=True):
+        """Override to pass object instance to table for context-aware functionality."""
+        table = super().get_table(data, request, bulk_actions)
+
+        # Get the object pk from kwargs
+        object_pk = self.kwargs.get("pk")
+        if object_pk:
+            try:
+                # Get the model from the queryset and fetch the instance
+                model = self.queryset.model
+                instance = model.objects.get(pk=object_pk)
+
+                # Set the instance as an attribute using the model name in lowercase
+                model_name = model.__name__.lower()
+                setattr(table, model_name, instance)
+            except model.DoesNotExist:
+                # Set to None if object doesn't exist
+                model_name = self.queryset.model.__name__.lower()
+                setattr(table, model_name, None)
+        else:
+            # Set to None if no pk provided
+            model_name = self.queryset.model.__name__.lower()
+            setattr(table, model_name, None)
+
+        return table
+
+
 @register_model_view(Asset, name="probes", path="probes")
-class AssetProbesView(generic.ObjectChildrenView):
+class AssetProbesView(ObjectInstanceTableMixin, generic.ObjectChildrenView):
     """Custom asset view for devices that highlights assets with matching serial numbers."""
 
     queryset = Asset.objects.all()
@@ -250,21 +285,6 @@ class AssetProbesView(generic.ObjectChildrenView):
         badge=lambda obj: obj.get_related_probes().count(),
         permission="inventory_monitor.view_probe",
     )
-
-    def get_table(self, data, request, bulk_actions=True):
-        """Override to pass asset instance to table for serial matching."""
-        table = super().get_table(data, request, bulk_actions)
-        # Get the asset from kwargs instead of calling get_object()
-        asset_pk = self.kwargs.get("pk")
-        if asset_pk:
-            try:
-                asset = Asset.objects.get(pk=asset_pk)
-                table.asset = asset
-            except Asset.DoesNotExist:
-                table.asset = None
-        else:
-            table.asset = None
-        return table
 
     def get_children(self, request, parent):
         """Get probes related to this asset."""
@@ -553,7 +573,7 @@ asset_views = [asset_view_for_model(model) for model in SUPPORTED_MODELS]
 
 # Custom Device Assets View with serial matching highlighting
 @register_model_view(Device, name="assets", path="assets")
-class DeviceAssetsView(AssignedAssetsView):
+class DeviceAssetsView(ObjectInstanceTableMixin, AssignedAssetsView):
     """Custom asset view for devices that highlights assets with matching serial numbers."""
 
     queryset = Device.objects.all()
@@ -564,21 +584,6 @@ class DeviceAssetsView(AssignedAssetsView):
         badge=lambda obj: AssignedAssetsView.count_hierarchical_assets(obj),
         permission="inventory_monitor.view_asset",
     )
-
-    def get_table(self, data, request, bulk_actions=True):
-        """Override to pass device instance to table for serial matching."""
-        table = super().get_table(data, request, bulk_actions)
-        # Get the device from kwargs instead of calling get_object()
-        device_pk = self.kwargs.get("pk")
-        if device_pk:
-            try:
-                device = Device.objects.get(pk=device_pk)
-                table.device = device
-            except Device.DoesNotExist:
-                table.device = None
-        else:
-            table.device = None
-        return table
 
 
 # Template extensions to be registered by the plugin

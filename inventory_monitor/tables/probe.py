@@ -4,6 +4,22 @@ from netbox.tables import NetBoxTable
 from inventory_monitor.models import Probe
 
 
+def _compare_serials(serial1, serial2):
+    """
+    Helper function to compare two serial numbers with normalized whitespace.
+
+    Args:
+        serial1: First serial number to compare
+        serial2: Second serial number to compare
+
+    Returns:
+        bool: True if serials match after normalization, False otherwise
+    """
+    if not serial1 or not serial2:
+        return False
+    return str(serial1).strip() == str(serial2).strip()
+
+
 class ProbeTable(NetBoxTable):
     name = tables.Column(linkify=True)
     device = tables.Column(linkify=True)
@@ -61,7 +77,7 @@ class ProbeTable(NetBoxTable):
                     and record.device
                     and hasattr(record.device, "serial")
                     and record.device.serial
-                    and str(record.serial).strip() == str(record.device.serial).strip()
+                    and _compare_serials(record.serial, record.device.serial)
                 )
                 else "false"
             ),
@@ -142,7 +158,7 @@ class AssetProbeTable(EnhancedProbeTable):
         self.asset = asset
         super().__init__(*args, **kwargs)
 
-    class Meta(ProbeTable.Meta):
+    class Meta(EnhancedProbeTable.Meta):
         row_attrs = {
             **EnhancedProbeTable.Meta.row_attrs,  # Inherit parent row_attrs
             "serial-match-device": lambda record, table: (
@@ -154,7 +170,7 @@ class AssetProbeTable(EnhancedProbeTable):
                     and hasattr(table.asset.assigned_object, "serial")
                     and table.asset.assigned_object.serial
                     and record.serial
-                    and str(record.serial).strip() == str(table.asset.assigned_object.serial).strip()
+                    and _compare_serials(record.serial, table.asset.assigned_object.serial)
                 )
                 else "false"
             ),
