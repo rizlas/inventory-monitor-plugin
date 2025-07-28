@@ -21,7 +21,7 @@ from utilities.views import ViewTab, register_model_view
 
 from inventory_monitor.filtersets import AssetFilterSet, ProbeFilterSet
 from inventory_monitor.models import Asset, Contract, Contractor, Probe
-from inventory_monitor.tables import AssetProbeTable, AssetTable, DeviceAssetTable, EnhancedAssetTable
+from inventory_monitor.tables import EnhancedAssetTable, EnhancedProbeTable
 
 # Load plugin configuration settings
 plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
@@ -276,7 +276,7 @@ class AssetProbesView(ObjectInstanceTableMixin, generic.ObjectChildrenView):
 
     queryset = Asset.objects.all()
     child_model = Probe
-    table = AssetProbeTable
+    table = EnhancedProbeTable
     filterset = ProbeFilterSet
     template_name = "inventory_monitor/asset_probes.html"
     hide_if_empty = False
@@ -315,7 +315,7 @@ class ContractAssetsView(generic.ObjectChildrenView):
     queryset = Contract.objects.all()
     child_model = Asset
     filterset = AssetFilterSet
-    table = AssetTable
+    table = EnhancedAssetTable
     template_name = "generic/object_children.html"
     hide_if_empty = False
     tab = ViewTab(
@@ -338,7 +338,7 @@ class AssignedAssetsView(generic.ObjectChildrenView):
     """
 
     child_model = Asset
-    table = AssetTable
+    table = EnhancedAssetTable
     template_name = "inventory_monitor/asset_children.html"
     filterset = AssetFilterSet
     hide_if_empty = False
@@ -577,7 +577,7 @@ class DeviceAssetsView(ObjectInstanceTableMixin, AssignedAssetsView):
     """Custom asset view for devices that highlights assets with matching serial numbers."""
 
     queryset = Device.objects.all()
-    table = DeviceAssetTable
+    table = EnhancedAssetTable
     template_name = "inventory_monitor/device_assets.html"
     tab = ViewTab(
         label="Assets",

@@ -2,16 +2,14 @@
 {% load static %}
 {% block content %}
     <link rel="stylesheet"
-          href="{% static 'inventory_monitor/css/device_serial_matching.css' %}">
+          href="{% static 'inventory_monitor/css/table_row_highlighting.css' %}">
     {% if object.serial %}
-        {% with matching_count=table.data|length %}
-            {% if matching_count > 0 %}
-                <div class="alert alert-primary mb-3">
-                    <strong>Device Serial:</strong> <span class="badge text-bg-primary">{{ object.serial }}</span>
-                    <br>
-                </div>
-            {% endif %}
-        {% endwith %}
+        {% if table.data %}
+            <div class="alert alert-primary mb-3">
+                <strong>Device Serial:</strong> <span class="badge text-bg-primary">{{ object.serial }}</span>
+                <br>
+            </div>
+        {% endif %}
     {% endif %}
     {{ block.super }}
 {% endblock content %}

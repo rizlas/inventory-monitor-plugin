@@ -9,6 +9,18 @@ from inventory_monitor.helpers import (
 )
 from inventory_monitor.models import Asset
 
+
+def _should_highlight_device_serial_match(record, table):
+    """Helper to determine if asset serial should be highlighted."""
+    return (
+        hasattr(table, "device")
+        and table.device
+        and table.device.serial
+        and record.serial
+        and str(record.serial).strip() == str(table.device.serial).strip()
+    )
+
+
 ASSOCIATED_ABRA_ASSETS = """
   {% if value.count > 3 %}
     <a href="{% url 'plugins:inventory_monitor:abra_list' %}?asset_id={{ record.pk }}">{{ value.count }}</a>
@@ -195,9 +207,12 @@ class AssetTable(NetBoxTable):
 
 class EnhancedAssetTable(AssetTable):
     """
-    Enhanced Asset table that includes probe status information for all assets.
-    This can be used in asset list views to show probe status.
+    Enhanced Asset table with probe status and optional device serial matching.
     """
+
+    def __init__(self, *args, device=None, **kwargs):
+        self.device = device
+        super().__init__(*args, **kwargs)
 
     # Add probe status columns
     last_probe_time = tables.TemplateColumn(
@@ -238,6 +253,9 @@ class EnhancedAssetTable(AssetTable):
         row_attrs = {
             "data-probe-status": lambda record: ("recent" if record.is_recently_probed() else "stale"),
             "data-serial": lambda record: record.serial,
+            "serial-match-device": lambda record, table: (
+                "true" if _should_highlight_device_serial_match(record, table) else "false"
+            ),
         }
 
         # Include probe columns in the fields
@@ -257,30 +275,3 @@ class EnhancedAssetTable(AssetTable):
             "last_probe_time",
             "actions",
         )
-
-
-class DeviceAssetTable(EnhancedAssetTable):
-    """
-    Specialized asset table for device views that highlights assets with matching device serial.
-    """
-
-    def __init__(self, *args, device=None, **kwargs):
-        self.device = device
-        super().__init__(*args, **kwargs)
-
-    class Meta(EnhancedAssetTable.Meta):
-        # Inherit row_attrs from parent and add device serial matching
-        row_attrs = {
-            **EnhancedAssetTable.Meta.row_attrs,  # Inherit parent row_attrs
-            "serial-match-device": lambda record, table: (
-                "true"
-                if (
-                    hasattr(table, "device")
-                    and table.device
-                    and table.device.serial
-                    and record.serial
-                    and str(record.serial).strip() == str(table.device.serial).strip()
-                )
-                else "false"
-            ),
-        }

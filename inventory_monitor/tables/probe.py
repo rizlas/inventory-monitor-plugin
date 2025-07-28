@@ -20,6 +20,30 @@ def _compare_serials(serial1, serial2):
     return str(serial1).strip() == str(serial2).strip()
 
 
+def _should_highlight_serial_match(record, table):
+    """Helper to determine if probe serial should be highlighted."""
+    # For asset probe views
+    if (
+        hasattr(table, "asset")
+        and table.asset
+        and table.asset.assigned_object
+        and hasattr(table.asset.assigned_object, "serial")
+        and table.asset.assigned_object.serial
+        and record.serial
+    ):
+        return _compare_serials(record.serial, table.asset.assigned_object.serial)
+
+    # For device probe views (if needed)
+    if hasattr(table, "device") and table.device and table.device.serial and record.serial:
+        return _compare_serials(record.serial, table.device.serial)
+
+    # For regular probe views (probe serial vs its own device)
+    if record.serial and record.device and hasattr(record.device, "serial") and record.device.serial:
+        return _compare_serials(record.serial, record.device.serial)
+
+    return False
+
+
 class ProbeTable(NetBoxTable):
     name = tables.Column(linkify=True)
     device = tables.Column(linkify=True)
@@ -57,11 +81,8 @@ class ProbeTable(NetBoxTable):
             "name",
             "serial",
             "part",
-            "device_descriptor",
             "device",
-            "site_descriptor",
             "site",
-            "location_descriptor",
             "location",
             "changes_count",
         )
@@ -70,25 +91,18 @@ class ProbeTable(NetBoxTable):
         row_attrs = {
             "data-probe-status": lambda record: ("recent" if record.is_recently_probed() else "stale"),
             "data-serial": lambda record: record.serial,
-            "serial-match-device": lambda record, table: (
-                "true"
-                if (
-                    record.serial
-                    and record.device
-                    and hasattr(record.device, "serial")
-                    and record.device.serial
-                    and _compare_serials(record.serial, record.device.serial)
-                )
-                else "false"
-            ),
         }
 
 
 class EnhancedProbeTable(ProbeTable):
     """
-    Enhanced Probe table that includes probe status information and timing details.
-    This can be used in probe list views to show probe status.
+    Enhanced Probe table with probe status, timing, and optional serial matching.
     """
+
+    def __init__(self, *args, asset=None, device=None, **kwargs):
+        self.asset = asset
+        self.device = device
+        super().__init__(*args, **kwargs)
 
     # Add probe status column
     probe_status = tables.TemplateColumn(
@@ -138,40 +152,16 @@ class EnhancedProbeTable(ProbeTable):
             "name",
             "serial",
             "part",
-            "device_descriptor",
             "device",
-            "site_descriptor",
             "site",
-            "location_descriptor",
             "location",
             "probe_status",
             "changes_count",
         )
 
-
-class AssetProbeTable(EnhancedProbeTable):
-    """
-    Specialized probe table for asset views that highlights probes with matching device serial.
-    """
-
-    def __init__(self, *args, asset=None, **kwargs):
-        self.asset = asset
-        super().__init__(*args, **kwargs)
-
-    class Meta(EnhancedProbeTable.Meta):
         row_attrs = {
-            **EnhancedProbeTable.Meta.row_attrs,  # Inherit parent row_attrs
+            **ProbeTable.Meta.row_attrs,
             "serial-match-device": lambda record, table: (
-                "true"
-                if (
-                    hasattr(table, "asset")
-                    and table.asset
-                    and table.asset.assigned_object
-                    and hasattr(table.asset.assigned_object, "serial")
-                    and table.asset.assigned_object.serial
-                    and record.serial
-                    and _compare_serials(record.serial, table.asset.assigned_object.serial)
-                )
-                else "false"
+                "true" if _should_highlight_serial_match(record, table) else "false"
             ),
         }

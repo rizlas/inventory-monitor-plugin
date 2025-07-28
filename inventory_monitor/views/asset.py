@@ -65,14 +65,14 @@ class AssetDeleteView(generic.ObjectDeleteView):
 class AssetBulkEditView(generic.BulkEditView):
     queryset = models.Asset.objects.all()
     filterset = filtersets.AssetFilterSet
-    table = tables.AssetTable
+    table = tables.EnhancedAssetTable
     form = forms.AssetBulkEditForm
 
 
 class AssetBulkDeleteView(generic.BulkDeleteView):
     queryset = models.Asset.objects.all()
     filterset = filtersets.AssetFilterSet
-    table = tables.AssetTable
+    table = tables.EnhancedAssetTable
 
 
 class AssetBulkImportView(generic.BulkImportView):
