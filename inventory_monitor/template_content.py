@@ -557,6 +557,7 @@ def asset_view_for_model(model: Type) -> Type:
                 badge=lambda obj: AssignedAssetsView.count_hierarchical_assets(obj),
                 permission="inventory_monitor.view_asset",
             ),
+            "template_name": "inventory_monitor/inc/enhanced_asset_table.html",
         },
     )
 
