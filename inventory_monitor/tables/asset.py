@@ -12,13 +12,29 @@ from inventory_monitor.models import Asset
 
 def _should_highlight_device_serial_match(record, table):
     """Helper to determine if asset serial should be highlighted."""
-    return (
-        hasattr(table, "device")
-        and table.device
-        and table.device.serial
-        and record.serial
-        and str(record.serial).strip().lower() == str(table.device.serial).strip().lower()
-    )
+    # Early return if asset has no serial
+    if not record.serial:
+        return False
+
+    # Get the device serial from the asset's assignment
+    asset_device_serial = None
+
+    if record.assigned_object:
+        # Check if assigned to a Device directly
+        if hasattr(record.assigned_object, "_meta") and record.assigned_object._meta.model_name == "device":
+            asset_device_serial = record.assigned_object.serial
+
+        # Check if assigned to a Module (which belongs to a Device)
+        elif hasattr(record.assigned_object, "_meta") and record.assigned_object._meta.model_name == "module":
+            # Module should have a device attribute
+            if hasattr(record.assigned_object, "device") and record.assigned_object.device:
+                asset_device_serial = record.assigned_object.device.serial
+
+    # Compare the asset serial with its assigned device serial
+    if asset_device_serial:
+        return str(record.serial).strip().lower() == str(asset_device_serial).strip().lower()
+
+    return False
 
 
 ASSOCIATED_ABRA_ASSETS = """
