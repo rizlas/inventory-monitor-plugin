@@ -17,7 +17,7 @@ def _should_highlight_device_serial_match(record, table):
         and table.device
         and table.device.serial
         and record.serial
-        and str(record.serial).strip() == str(table.device.serial).strip()
+        and str(record.serial).strip().lower() == str(table.device.serial).strip().lower()
     )
 
 

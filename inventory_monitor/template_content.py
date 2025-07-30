@@ -244,27 +244,33 @@ class ObjectInstanceTableMixin:
     """
 
     def get_table(self, data, request, bulk_actions=True):
-        """Override to pass object instance to table for context-aware functionality."""
+        """Override to pass object instance to table for context-aware functionality, with defensive checks."""
         table = super().get_table(data, request, bulk_actions)
 
-        # Get the object pk from kwargs
-        object_pk = self.kwargs.get("pk")
-        if object_pk:
-            try:
-                # Get the model from the queryset and fetch the instance
-                model = self.queryset.model
-                instance = model.objects.get(pk=object_pk)
+        # Defensive: Ensure self.kwargs exists and is a dict
+        kwargs = getattr(self, "kwargs", None)
+        if not isinstance(kwargs, dict):
+            return table
 
-                # Set the instance as an attribute using the model name in lowercase
-                model_name = model.__name__.lower()
+        # Defensive: Ensure self.queryset exists and has a model attribute
+        queryset = getattr(self, "queryset", None)
+        model = getattr(queryset, "model", None)
+        if model is None or not hasattr(model, "objects") or not hasattr(model.objects, "get"):
+            return table
+
+        # Get the object pk from kwargs
+        object_pk = kwargs.get("pk")
+        model_name = model.__name__.lower() if hasattr(model, "__name__") else None
+
+        if object_pk and model_name:
+            try:
+                instance = model.objects.get(pk=object_pk)
                 setattr(table, model_name, instance)
-            except model.DoesNotExist:
-                # Set to None if object doesn't exist
-                model_name = self.queryset.model.__name__.lower()
+            except Exception:
+                # Set to None if object doesn't exist or any error occurs
                 setattr(table, model_name, None)
-        else:
+        elif model_name:
             # Set to None if no pk provided
-            model_name = self.queryset.model.__name__.lower()
             setattr(table, model_name, None)
 
         return table
