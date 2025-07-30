@@ -9,6 +9,34 @@ from inventory_monitor.helpers import (
 )
 from inventory_monitor.models import Asset
 
+
+def _should_highlight_device_serial_match(record, table):
+    """Helper to determine if asset serial should be highlighted."""
+    # Early return if asset has no serial
+    if not record.serial:
+        return False
+
+    # Get the device serial from the asset's assignment
+    asset_device_serial = None
+
+    if record.assigned_object:
+        # Check if assigned to a Device directly
+        if hasattr(record.assigned_object, "_meta") and record.assigned_object._meta.model_name == "device":
+            asset_device_serial = record.assigned_object.serial
+
+        # Check if assigned to a Module (which belongs to a Device)
+        elif hasattr(record.assigned_object, "_meta") and record.assigned_object._meta.model_name == "module":
+            # Module should have a device attribute
+            if hasattr(record.assigned_object, "device") and record.assigned_object.device:
+                asset_device_serial = record.assigned_object.device.serial
+
+    # Compare the asset serial with its assigned device serial
+    if asset_device_serial:
+        return str(record.serial).strip().lower() == str(asset_device_serial).strip().lower()
+
+    return False
+
+
 ASSOCIATED_ABRA_ASSETS = """
   {% if value.count > 3 %}
     <a href="{% url 'plugins:inventory_monitor:abra_list' %}?asset_id={{ record.pk }}">{{ value.count }}</a>
@@ -195,9 +223,12 @@ class AssetTable(NetBoxTable):
 
 class EnhancedAssetTable(AssetTable):
     """
-    Enhanced Asset table that includes probe status information for all assets.
-    This can be used in asset list views to show probe status.
+    Enhanced Asset table with probe status and optional device serial matching.
     """
+
+    def __init__(self, *args, device=None, **kwargs):
+        self.device = device
+        super().__init__(*args, **kwargs)
 
     # Add probe status columns
     last_probe_time = tables.TemplateColumn(
@@ -238,6 +269,9 @@ class EnhancedAssetTable(AssetTable):
         row_attrs = {
             "data-probe-status": lambda record: ("recent" if record.is_recently_probed() else "stale"),
             "data-serial": lambda record: record.serial,
+            "serial-match-device": lambda record, table: (
+                "true" if _should_highlight_device_serial_match(record, table) else "false"
+            ),
         }
 
         # Include probe columns in the fields

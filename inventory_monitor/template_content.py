@@ -21,7 +21,7 @@ from utilities.views import ViewTab, register_model_view
 
 from inventory_monitor.filtersets import AssetFilterSet, ProbeFilterSet
 from inventory_monitor.models import Asset, Contract, Contractor, Probe
-from inventory_monitor.tables import AssetTable, EnhancedAssetTable, ProbeTable
+from inventory_monitor.tables import EnhancedAssetTable, EnhancedProbeTable
 
 # Load plugin configuration settings
 plugin_settings = settings.PLUGINS_CONFIG.get("inventory_monitor", {})
@@ -235,15 +235,56 @@ class AssetDuplicates(PluginTemplateExtension):
         )
 
 
+class ObjectInstanceTableMixin:
+    """
+    Mixin to provide get_table method that passes the object instance to the table.
+
+    This centralizes the logic for fetching an object by pk and setting it as an
+    attribute on the table using the model name in lowercase.
+    """
+
+    def get_table(self, data, request, bulk_actions=True):
+        """Override to pass object instance to table for context-aware functionality, with defensive checks."""
+        table = super().get_table(data, request, bulk_actions)
+
+        # Defensive: Ensure self.kwargs exists and is a dict
+        kwargs = getattr(self, "kwargs", None)
+        if not isinstance(kwargs, dict):
+            return table
+
+        # Defensive: Ensure self.queryset exists and has a model attribute
+        queryset = getattr(self, "queryset", None)
+        model = getattr(queryset, "model", None)
+        if model is None or not hasattr(model, "objects") or not hasattr(model.objects, "get"):
+            return table
+
+        # Get the object pk from kwargs
+        object_pk = kwargs.get("pk")
+        model_name = model.__name__.lower() if hasattr(model, "__name__") else None
+
+        if object_pk and model_name:
+            try:
+                instance = model.objects.get(pk=object_pk)
+                setattr(table, model_name, instance)
+            except Exception:
+                # Set to None if object doesn't exist or any error occurs
+                setattr(table, model_name, None)
+        elif model_name:
+            # Set to None if no pk provided
+            setattr(table, model_name, None)
+
+        return table
+
+
 @register_model_view(Asset, name="probes", path="probes")
-class AssetProbesView(generic.ObjectChildrenView):
-    """Provides a 'Probes' tab on asset detail pages showing related probe records."""
+class AssetProbesView(ObjectInstanceTableMixin, generic.ObjectChildrenView):
+    """Custom asset view for devices that highlights assets with matching serial numbers."""
 
     queryset = Asset.objects.all()
     child_model = Probe
-    table = ProbeTable
+    table = EnhancedProbeTable
     filterset = ProbeFilterSet
-    template_name = "generic/object_children.html"
+    template_name = "inventory_monitor/asset_probes.html"
     hide_if_empty = False
     tab = ViewTab(
         label="Probes",
@@ -251,9 +292,26 @@ class AssetProbesView(generic.ObjectChildrenView):
         permission="inventory_monitor.view_probe",
     )
 
-    def get_children(self, request: HttpRequest, parent: Asset) -> QuerySet[Probe]:
-        """Retrieve all probes related to this asset."""
+    def get_children(self, request, parent):
+        """Get probes related to this asset."""
         return parent.get_related_probes()
+
+    def get_extra_context(self, request, instance):
+        """Add extra context for the template."""
+        # Get assigned device info if the asset is assigned to a device
+        assigned_device_info = None
+        if instance.assigned_object and hasattr(instance.assigned_object, "serial") and instance.assigned_object.serial:
+            assigned_device_info = {
+                "name": str(instance.assigned_object),
+                "serial": instance.assigned_object.serial,
+                "url": instance.assigned_object.get_absolute_url()
+                if hasattr(instance.assigned_object, "get_absolute_url")
+                else None,
+            }
+
+        return {
+            "assigned_device_info": assigned_device_info,
+        }
 
 
 @register_model_view(Contract, name="assets", path="assets")
@@ -263,7 +321,7 @@ class ContractAssetsView(generic.ObjectChildrenView):
     queryset = Contract.objects.all()
     child_model = Asset
     filterset = AssetFilterSet
-    table = AssetTable
+    table = EnhancedAssetTable
     template_name = "generic/object_children.html"
     hide_if_empty = False
     tab = ViewTab(
@@ -286,7 +344,7 @@ class AssignedAssetsView(generic.ObjectChildrenView):
     """
 
     child_model = Asset
-    table = AssetTable
+    table = EnhancedAssetTable
     template_name = "inventory_monitor/asset_children.html"
     filterset = AssetFilterSet
     hide_if_empty = False
@@ -505,6 +563,7 @@ def asset_view_for_model(model: Type) -> Type:
                 badge=lambda obj: AssignedAssetsView.count_hierarchical_assets(obj),
                 permission="inventory_monitor.view_asset",
             ),
+            "template_name": "inventory_monitor/inc/enhanced_asset_table.html",
         },
     )
 
@@ -512,11 +571,27 @@ def asset_view_for_model(model: Type) -> Type:
     return register_model_view(model, name="assets", path="assets")(view_class)
 
 
-# Supported models for asset views
-SUPPORTED_MODELS: List[Type] = [Site, Location, Rack, Device, Module]
+# Supported models for asset views (except Device which gets custom treatment)
+SUPPORTED_MODELS: List[Type] = [Site, Location, Rack, Module]
 
-# Create and register asset views for all supported models
+# Create and register asset views for all supported models except Device
 asset_views = [asset_view_for_model(model) for model in SUPPORTED_MODELS]
+
+
+# Custom Device Assets View with serial matching highlighting
+@register_model_view(Device, name="assets", path="assets")
+class DeviceAssetsView(ObjectInstanceTableMixin, AssignedAssetsView):
+    """Custom asset view for devices that highlights assets with matching serial numbers."""
+
+    queryset = Device.objects.all()
+    table = EnhancedAssetTable
+    template_name = "inventory_monitor/device_assets.html"
+    tab = ViewTab(
+        label="Assets",
+        badge=lambda obj: AssignedAssetsView.count_hierarchical_assets(obj),
+        permission="inventory_monitor.view_asset",
+    )
+
 
 # Template extensions to be registered by the plugin
 template_extensions = [
