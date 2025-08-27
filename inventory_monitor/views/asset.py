@@ -34,11 +34,10 @@ class AssetListView(generic.ObjectListView):
     table = tables.EnhancedAssetTable  # Changed to show probe status with green rows
     template_name = "inventory_monitor/asset_list.html"  # Custom template with CSS
     actions = {
-        "add": {},
-        "import": {},
-        "export": {},
-        "bulk_edit": {},
-        "bulk_delete": {},
+        "add": {"add"},
+        "export": {"view"},
+        "bulk_edit": {"change"},
+        "bulk_delete": {"delete"},
     }
 
 
