@@ -28,5 +28,29 @@ def get_probe_recent_days():
     return get_plugin_settings().get("probe_recent_days", 7)
 
 
+def get_external_inventory_status_config():
+    """
+    Get the external inventory status configuration.
+    Returns empty dict if not configured.
+
+    Returns:
+        dict: Status configuration with codes, labels, and colors
+    """
+    return get_plugin_settings().get("external_inventory_status_config", {})
+
+
+def get_external_inventory_tooltip_template():
+    """
+    Get the configurable tooltip template for external inventory status.
+
+    Returns:
+        str: Template string for the tooltip content
+    """
+    default_template = (
+        "<span class='badge text-bg-{color}'>{code}</span> {label}"
+    )
+    return get_plugin_settings().get("external_inventory_tooltip_template", default_template)
+
+
 # Convenience constants using the settings functions
 PLUGIN_SETTINGS = get_plugin_settings()

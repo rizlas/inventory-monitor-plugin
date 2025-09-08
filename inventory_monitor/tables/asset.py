@@ -37,14 +37,14 @@ def _should_highlight_device_serial_match(record, table):
     return False
 
 
-ASSOCIATED_ABRA_ASSETS = """
+ASSOCIATED_EXTERNAL_INVENTORY_ASSETS = """
   {% if value.count > 3 %}
-    <a href="{% url 'plugins:inventory_monitor:abra_list' %}?asset_id={{ record.pk }}">{{ value.count }}</a>
+    <a href="{% url 'plugins:inventory_monitor:externalinventory_list' %}?asset_id={{ record.pk }}">{{ value.count }}</a>
   {% else %}
-    {% for abra in value.all %}
+    {% for item in value.all %}
         <a 
-            href="{{ abra.get_absolute_url }}" 
-            class="badge text-bg-{% if abra.status == '1' %}green{% elif abra.status == '0' %}gray{% else %}blue{% endif %}" 
+            href="{{ item.get_absolute_url }}" 
+            class="badge text-bg-{% if item.status == '1' %}green{% elif item.status == '0' %}gray{% else %}blue{% endif %}" 
             data-bs-toggle="tooltip" 
             data-bs-placement="left"
             style="
@@ -54,9 +54,9 @@ ASSOCIATED_ABRA_ASSETS = """
                 max-width: 200px;           /* nastavte podle potřeby */
                 display: inline-block;      /* aby šířka fungovala */
             "
-            title="Status: {{ abra.status|default:'Unknown' }}"
+            title="Status: {{ item.status|default:'Unknown' }}"
         >
-            {{ abra.inventory_number }}: {{ abra.name }}
+            {{ item.inventory_number }}: {{ item.name }}
         </a>
     {% endfor %}
   {% endif %}
@@ -74,10 +74,10 @@ class AssetTable(NetBoxTable):
     description = tables.Column()
     serial = tables.Column(linkify=True)
     partnumber = tables.Column()
-    abra_asset_numbers = tables.TemplateColumn(
+    external_inventory_asset_numbers = tables.TemplateColumn(
         template_code="""
-        {% if record.get_abra_asset_numbers_display %}
-            {{ record.get_abra_asset_numbers_display }}
+        {% if record.get_external_inventory_asset_numbers_display %}
+            {{ record.get_external_inventory_asset_numbers_display }}
         {% else %}
             {{ ''|placeholder }}
         {% endif %}
@@ -126,10 +126,10 @@ class AssetTable(NetBoxTable):
     # Assignment columns
     #
     assigned_object = tables.Column(verbose_name="Assigned Object", orderable=False, linkify=True)
-    abra_assets = tables.TemplateColumn(
-        template_code=ASSOCIATED_ABRA_ASSETS,
+    external_inventory_items = tables.TemplateColumn(
+        template_code=ASSOCIATED_EXTERNAL_INVENTORY_ASSETS,
         orderable=False,
-        verbose_name="ABRA Assets",
+        verbose_name="External Inventory Items",
     )
 
     #
@@ -176,7 +176,7 @@ class AssetTable(NetBoxTable):
             "partnumber",
             # Basic identification
             "serial",
-            "abra_asset_numbers",
+            "external_inventory_asset_numbers",
             "description",
             # Type and classification
             "type",
@@ -185,7 +185,7 @@ class AssetTable(NetBoxTable):
             "lifecycle_status",
             # Assignment
             "assigned_object",
-            "abra_assets",
+            "external_inventory_items",
             # Additional information
             "project",
             "vendor",
@@ -217,7 +217,7 @@ class AssetTable(NetBoxTable):
             "assigned_object",
             "assignment_status",
             "lifecycle_status",
-            "abra_asset_numbers",
+            "external_inventory_asset_numbers",
         )
 
 

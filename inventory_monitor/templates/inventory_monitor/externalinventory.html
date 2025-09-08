@@ -1,18 +1,19 @@
 {% extends 'generic/object.html' %}
 {% load render_table from django_tables2 %}
 {% load helpers %}
+{% load i18n %}
 {% load inventory_monitor %}
 {% load plugins %}
 {% block content %}
     <div class="row mb-3">
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">ABRA Details</h5>
+                <h5 class="card-header">External Inventory Details</h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
-                            <th scope="row">ABRA ID</th>
-                            <td>{{ object.abra_id|placeholder }}</td>
+                            <th scope="row">External ID</th>
+                            <td>{{ object.external_id|placeholder }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Inventory Number</th>
@@ -29,11 +30,15 @@
                         <tr>
                             <th scope="row">
                                 Status
+                                {% external_inventory_status_tooltip as status_tooltip %}
+                                {% if status_tooltip %}
                                 <i class="mdi mdi-help-circle text-muted ms-1"
                                    data-bs-toggle="tooltip"
                                    data-bs-html="true"
-                                   title="<span class=&quot;badge text-bg-success&quot;>1</span> Aktivní majetek<br/> <span class=&quot;badge text-bg-warning&quot;>0</span> V procesu zařazování<br/> <span class=&quot;badge text-bg-danger&quot;>2</span> Vyřazený majetek">
+                                   aria-label="{% trans 'Status code explanation' %}"
+                                   title="{{ status_tooltip }}">
                                 </i>
+                                {% endif %}
                             </th>
                             <td>{{ object.status|placeholder }}</td>
                         </tr>

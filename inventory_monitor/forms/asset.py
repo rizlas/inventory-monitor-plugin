@@ -8,7 +8,6 @@ from netbox.forms import (
     NetBoxModelForm,
     NetBoxModelImportForm,
 )
-from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField,
     CSVModelChoiceField,
@@ -20,7 +19,7 @@ from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.widgets.datetime import DatePicker
 
 # Local application imports
-from inventory_monitor.models import ABRA, Asset, AssetType, Contract
+from inventory_monitor.models import Asset, AssetType, Contract, ExternalInventory
 from inventory_monitor.models.asset import (
     ASSIGNED_OBJECT_MODELS_QUERY,
     AssignmentStatusChoices,
@@ -274,8 +273,8 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         # Related objects for filtering
         FieldSet(
             "order_contract",
-            "abra_assets",
-            "abra_inventory_number__ic",
+            "external_inventory_items",
+            "external_inventory_number__ic",
             name=_("Related Objects"),
         ),
         # Date range filters
@@ -301,7 +300,7 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
         # Numeric range filters
         FieldSet("quantity", "quantity__gte", "quantity__lte", name=_("Quantity")),
         FieldSet("price", "price__gte", "price__lte", name=_("Price")),
-        FieldSet("has_abra_assets", name=_("ABRA Assets")),
+        FieldSet("has_external_inventory_items", name=_("External Inventory")),
     )
 
     #
@@ -315,14 +314,18 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     description = forms.CharField(required=False)
     serial = forms.CharField(required=False)
     partnumber = forms.CharField(required=False)
-    abra_inventory_number__ic = forms.CharField(
-        required=False, label="ABRA Asset Number", help_text="Filter by ABRA inventory number"
+    external_inventory_number__ic = forms.CharField(
+        required=False, label="External Inventory Number", help_text="Filter by external inventory number"
     )
 
     # Status filters
-    assignment_status = forms.ChoiceField(choices=add_blank_choice(AssignmentStatusChoices), required=False)
+    assignment_status = forms.ChoiceField(
+        choices=[("", "None")] + list(AssignmentStatusChoices), required=False, initial=None
+    )
 
-    lifecycle_status = forms.ChoiceField(choices=add_blank_choice(LifecycleStatusChoices), required=False)
+    lifecycle_status = forms.ChoiceField(
+        choices=[("", "None")] + list(LifecycleStatusChoices), required=False, initial=None
+    )
 
     # Type filter
     type_id = DynamicModelMultipleChoiceField(queryset=AssetType.objects.all(), required=False, label=_("Type"))
@@ -331,7 +334,9 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     order_contract = DynamicModelMultipleChoiceField(
         queryset=Contract.objects.all(), required=False, label=_("Order Contract")
     )
-    abra_assets = DynamicModelMultipleChoiceField(queryset=ABRA.objects.all(), required=False, label=_("ABRA"))
+    external_inventory_items = DynamicModelMultipleChoiceField(
+        queryset=ExternalInventory.objects.all(), required=False, label=_("External Inventory")
+    )
 
     # Additional information filters
     project = forms.CharField(
@@ -367,15 +372,15 @@ class AssetFilterForm(NetBoxModelFilterSetForm):
     warranty_end__gte = forms.DateField(required=False, label=("Warranty End: From"), widget=DatePicker())
     warranty_end__lte = forms.DateField(required=False, label=("Warranty End: Till"), widget=DatePicker())
 
-    has_abra_assets = forms.ChoiceField(
+    has_external_inventory_items = forms.ChoiceField(
         choices=[
             ("", "All"),
-            ("true", "With ABRA assets"),
-            ("false", "Without ABRA assets"),
+            ("true", "With External Inventory items"),
+            ("false", "Without External Inventory items"),
         ],
         required=False,
-        label=_("Has ABRA assets"),
-        help_text=_("Filter by whether Asset object has assigned ABRA assets"),
+        label=_("Has External Inventory items"),
+        help_text=_("Filter by whether Asset object has assigned External Inventory items"),
     )
 
 
@@ -387,9 +392,9 @@ class AssetBulkEditForm(NetBoxModelBulkEditForm):
     )
     type = DynamicModelChoiceField(queryset=AssetType.objects.all(), required=False)
 
-    assignment_status = forms.ChoiceField(choices=add_blank_choice(AssignmentStatusChoices), required=False)
+    assignment_status = forms.ChoiceField(choices=AssignmentStatusChoices, required=False)
 
-    lifecycle_status = forms.ChoiceField(choices=add_blank_choice(LifecycleStatusChoices), required=False)
+    lifecycle_status = forms.ChoiceField(choices=LifecycleStatusChoices, required=False)
 
     project = forms.CharField(required=False)
 
@@ -403,23 +408,19 @@ class AssetBulkEditForm(NetBoxModelBulkEditForm):
 
     comments = CommentField(required=False)
 
-    model = Asset  # Add this line to explicitly define the model at the class level
-
-    class Meta:
-        model = Asset
-        fields = [
-            "description",
-            "type",
-            "assignment_status",
-            "lifecycle_status",
-            "project",
-            "vendor",
-            "order_contract",
-            "warranty_start",
-            "warranty_end",
-            "comments",
-            "tags",
-        ]
+    model = Asset
+    nullable_fields = (
+        "description",
+        "type",
+        "assignment_status",
+        "lifecycle_status",
+        "project",
+        "vendor",
+        "order_contract",
+        "warranty_start",
+        "warranty_end",
+        "comments",
+    )
 
 
 class AssetBulkImportForm(NetBoxModelImportForm):
@@ -468,35 +469,35 @@ class AssetBulkImportForm(NetBoxModelImportForm):
         ]
 
 
-class AssetABRAAssignmentForm(NetBoxModelForm):
+class AssetExternalInventoryAssignmentForm(NetBoxModelForm):
     """
-    Form for assigning ABRA objects to an Asset
+    Form for assigning External Inventory objects to an Asset
     """
 
-    abra_assets = DynamicModelMultipleChoiceField(
-        queryset=ABRA.objects.all(),
+    external_inventory_items = DynamicModelMultipleChoiceField(
+        queryset=ExternalInventory.objects.all(),
         required=False,
-        label="ABRA Assets",
-        help_text="Add or Remove ABRA assets to this Asset",
+        label="External Inventory Items",
+        help_text="Add or Remove External Inventory items to this Asset",
     )
 
     fieldsets = (
         FieldSet(
-            "abra_assets",
-            name=_("ABRA Assignment"),
+            "external_inventory_items",
+            name=_("External Inventory Assignment"),
         ),
     )
 
     class Meta:
         model = Asset
-        fields = ("abra_assets",)
+        fields = ("external_inventory_items",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Pre-select currently assigned ABRA objects
+        # Pre-select currently assigned External Inventory objects
         if self.instance and self.instance.pk:
-            self.fields["abra_assets"].initial = self.instance.abra_assets.all()
+            self.fields["external_inventory_items"].initial = self.instance.external_inventory_items.all()
 
         # Remove Custom Fields from form
         for cf_name in self.custom_fields.keys():
@@ -511,11 +512,11 @@ class AssetABRAAssignmentForm(NetBoxModelForm):
             instance.save()
 
             # Get current and new relationships
-            old_abra_objects = set(instance.abra_assets.all())
-            new_abra_objects = set(self.cleaned_data["abra_assets"])
+            old_external_inventory_objects = set(instance.external_inventory_items.all())
+            new_external_inventory_objects = set(self.cleaned_data["external_inventory_items"])
 
-            added_objects = new_abra_objects - old_abra_objects
-            removed_objects = old_abra_objects - new_abra_objects
+            added_objects = new_external_inventory_objects - old_external_inventory_objects
+            removed_objects = old_external_inventory_objects - new_external_inventory_objects
 
             for rem_obj in removed_objects:
                 rem_obj.snapshot()

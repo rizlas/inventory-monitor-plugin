@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext as _
-from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
+from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelBulkEditForm
 from utilities.forms.fields import (
     CommentField,
     DynamicModelChoiceField,
@@ -105,3 +105,18 @@ class ContractFilterForm(NetBoxModelFilterSetForm):
     invoicing_end__gte = forms.DateField(required=False, label=("Invoicing End: From"), widget=DatePicker())
     invoicing_end__lte = forms.DateField(required=False, label=("Invoicing End: Till"), widget=DatePicker())
     invoicing_end = forms.DateField(required=False, label=("Invoicing End"), widget=DatePicker())
+
+
+class ContractBulkEditForm(NetBoxModelBulkEditForm):
+    name = forms.CharField(max_length=100, required=False)
+    name_internal = forms.CharField(max_length=100, required=False)
+    contractor = DynamicModelChoiceField(queryset=Contractor.objects.all(), required=False)
+    type = forms.ChoiceField(choices=ContractTypeChoices, required=False)
+    price = forms.DecimalField(required=False)
+    signed = forms.DateField(required=False, widget=DatePicker())
+    accepted = forms.DateField(required=False, widget=DatePicker())
+    invoicing_start = forms.DateField(required=False, widget=DatePicker())
+    invoicing_end = forms.DateField(required=False, widget=DatePicker())
+
+    model = Contract
+    nullable_fields = ("name_internal", "price", "signed", "accepted", "invoicing_start", "invoicing_end")

@@ -23,9 +23,9 @@ menu = PluginMenu(
                     permissions=["inventory_monitor.view_rma"],
                 ),
                 PluginMenuItem(
-                    link="plugins:inventory_monitor:abra_list",
-                    link_text="ABRA",
-                    permissions=["inventory_monitor.view_abra"],
+                    link="plugins:inventory_monitor:externalinventory_list",
+                    link_text="External Inventory",
+                    permissions=["inventory_monitor.view_externalinventory"],
                 ),
                 PluginMenuItem(
                     link="plugins:inventory_monitor:assetservice_list",

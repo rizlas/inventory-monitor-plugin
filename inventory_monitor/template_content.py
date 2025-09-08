@@ -62,27 +62,27 @@ class TenantContractorExtension(PluginTemplateExtension):
         )
 
 
-class AbraAssetsExtension(PluginTemplateExtension):
-    """Display assets information on abra detail page."""
+class ExternalInventoryAssetsExtension(PluginTemplateExtension):
+    """Display assets information on external inventory detail page."""
 
-    models = ["inventory_monitor.abra"]
+    models = ["inventory_monitor.externalinventory"]
 
     def full_width_page(self) -> str:
         """Show asset details in the full_width_page."""
         return self.render(
-            "inventory_monitor/inc/abra_asset_extension.html",
+            "inventory_monitor/inc/external_inventory_asset_extension.html",
         )
 
 
-class AbraRMAsExtension(PluginTemplateExtension):
-    """Display assets information on abra detail page."""
+class ExternalInventoryRMAsExtension(PluginTemplateExtension):
+    """Display RMA information on external inventory detail page."""
 
-    models = ["inventory_monitor.abra"]
+    models = ["inventory_monitor.externalinventory"]
 
     def full_width_page(self) -> str:
-        """Show asset details in the full_width_page."""
+        """Show RMA details in the full_width_page."""
         return self.render(
-            "inventory_monitor/inc/abra_rma_extension.html",
+            "inventory_monitor/inc/external_inventory_rma_extension.html",
         )
 
 
@@ -120,9 +120,11 @@ class ProbeAssetExtension(PluginTemplateExtension):
         asset_table.columns.hide("services_to")
         asset_table.columns.hide("comments")
         asset_table.columns.hide("tags")
-        asset_table.columns.hide("abra_asset_numbers")  # Hide ABRA asset numbers
+        # Hide external inventory asset numbers only if the column exists
+        if "external_inventory_items" in asset_table.columns:
+            asset_table.columns.hide("external_inventory_items")
 
-        # Reorder remaining columns to put important ones first and actions/abra at the end
+        # Reorder remaining columns to put important ones first and actions/external_inventory at the end
         asset_table.sequence = [
             "id",
             "partnumber",
@@ -134,7 +136,7 @@ class ProbeAssetExtension(PluginTemplateExtension):
             "lifecycle_status",
             "probe_status",
             "last_probe_time",
-            "abra_assets",  # "Discovered by Abra" column moved to end
+            "external_inventory_items",  # "Discovered by External Inventory" column moved to end
             "actions",  # Actions dropdown moved to very end
         ]
 
@@ -598,7 +600,7 @@ template_extensions = [
     ProbeAssetExtension,
     TenantContractorExtension,
     AssetDuplicates,
-    AbraAssetsExtension,
-    AbraRMAsExtension,
+    ExternalInventoryAssetsExtension,
+    ExternalInventoryRMAsExtension,
     DeviceAddCreateAssetButton,
 ]

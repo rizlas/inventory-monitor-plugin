@@ -1,5 +1,5 @@
 import django_tables2 as tables
-from netbox.tables import ChoiceFieldColumn, NetBoxTable
+from netbox.tables import ChoiceFieldColumn, NetBoxTable, columns
 
 from inventory_monitor.helpers import NumberColumn
 from inventory_monitor.models import Contract
@@ -15,6 +15,7 @@ class ContractTable(NetBoxTable):
     parent = tables.Column(linkify=True)
     type = ChoiceFieldColumn()
     price = NumberColumn()
+    tags = columns.TagColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Contract

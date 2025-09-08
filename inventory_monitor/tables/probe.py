@@ -1,5 +1,5 @@
 import django_tables2 as tables
-from netbox.tables import NetBoxTable
+from netbox.tables import NetBoxTable, columns
 
 from inventory_monitor.models import Probe
 
@@ -51,6 +51,7 @@ class ProbeTable(NetBoxTable):
     location = tables.Column(linkify=True)
     changes_count = tables.Column(orderable=False)
     discovered_data = tables.JSONColumn()
+    tags = columns.TagColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Probe

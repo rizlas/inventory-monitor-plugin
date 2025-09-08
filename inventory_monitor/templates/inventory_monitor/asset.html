@@ -105,8 +105,8 @@
                         <tr>
                             <th>Asset Number(s)</th>
                             <td>
-                                {% if object.get_abra_asset_numbers_display %}
-                                    {{ object.get_abra_asset_numbers_display }}
+                                {% if object.get_external_inventory_asset_numbers_display %}
+                                    {{ object.get_external_inventory_asset_numbers_display }}
                                 {% else %}
                                     {{ ''|placeholder }}
                                 {% endif %}
@@ -214,23 +214,23 @@
         <div class="col col-md-12">
             <div class="card">
                 <h5 class="card-header">
-                    ABRA assets
+                    External Inventory Items
                     <div class="card-actions">
                         <!-- Add this new button -->
-                        {% if perms.inventory_monitor.change_abra %}
-                            <a href="{% url 'plugins:inventory_monitor:asset_abra_assignment' pk=object.pk %}"
+                        {% if perms.inventory_monitor.change_externalinventory %}
+                            <a href="{% url 'plugins:inventory_monitor:asset_external_inventory_assignment' pk=object.pk %}"
                                class="btn btn-warning btn-sm me-2">
-                                <i class="mdi mdi-link-variant" aria-hidden="true"></i>Edit ABRA Assets
+                                <i class="mdi mdi-link-variant" aria-hidden="true"></i>Edit External Inventory
                             </a>
                         {% endif %}
-                        <a href="{% url 'plugins:inventory_monitor:abra_list' %}?asset_id={{ object.pk }}"
+                        <a href="{% url 'plugins:inventory_monitor:externalinventory_list' %}?asset_id={{ object.pk }}"
                            class="btn btn-primary btn-sm">
-                            <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>ABRA's List
+                            <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>External Inventory List
                         </a>
                     </div>
                 </h5>
                 <!-- HTMX powered service table -->
-                {% htmx_table 'plugins:inventory_monitor:abra_list' asset_id=object.pk %}
+                {% htmx_table 'plugins:inventory_monitor:externalinventory_list' asset_id=object.pk %}
             </div>
         </div>
     </div>

@@ -1,6 +1,7 @@
 from core.models import ObjectType
 from django.db.models import Count, OuterRef, Subquery
 from netbox.views import generic
+from utilities.views import register_model_view
 
 from inventory_monitor import filtersets, forms, models, tables
 from inventory_monitor.helpers import get_object_type_or_none
@@ -29,21 +30,48 @@ def annotate_contracts_with_attachments(contracts, instance):
         return contracts
 
 
+@register_model_view(models.Contractor)
 class ContractorView(generic.ObjectView):
     queryset = models.Contractor.objects.all()
 
 
+@register_model_view(models.Contractor, 'list', path='', detail=False)
 class ContractorListView(generic.ObjectListView):
     queryset = models.Contractor.objects.prefetch_related("tags").annotate(contracts_count=Count("contracts"))
     filterset = filtersets.ContractorFilterSet
     filterset_form = forms.ContractorFilterForm
     table = tables.ContractorTable
+    actions = {
+        "add": {"add"},
+        "export": set(),
+        "bulk_edit": {"change"},
+        "bulk_delete": {"delete"},
+    }
 
 
+@register_model_view(models.Contractor, 'add', detail=False)
+@register_model_view(models.Contractor, 'edit')
 class ContractorEditView(generic.ObjectEditView):
     queryset = models.Contractor.objects.all()
     form = forms.ContractorForm
 
 
+@register_model_view(models.Contractor, 'delete')
 class ContractorDeleteView(generic.ObjectDeleteView):
     queryset = models.Contractor.objects.all()
+
+
+@register_model_view(models.Contractor, 'bulk_edit', path='edit', detail=False)
+class ContractorBulkEditView(generic.BulkEditView):
+    queryset = models.Contractor.objects.all()
+    filterset = filtersets.ContractorFilterSet
+    table = tables.ContractorTable
+    form = forms.ContractorBulkEditForm
+
+
+@register_model_view(models.Contractor, 'bulk_delete', path='delete', detail=False)
+class ContractorBulkDeleteView(generic.BulkDeleteView):
+    queryset = models.Contractor.objects.all()
+    filterset = filtersets.ContractorFilterSet
+    table = tables.ContractorTable
+    default_return_url = "plugins:inventory_monitor:contractor_list"

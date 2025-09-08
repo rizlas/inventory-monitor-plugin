@@ -2,18 +2,18 @@ from netbox.api.viewsets import NetBoxModelViewSet
 
 from inventory_monitor import filtersets, models
 from inventory_monitor.api.serializers import (
-    ABRASerializer,
     AssetSerializer,
     AssetServiceSerializer,
     AssetTypeSerializer,
     ContractorSerializer,
     ContractSerializer,
+    ExternalInventorySerializer,
     InvoiceSerializer,
     ProbeSerializer,
     RMASerializer,
 )
-from inventory_monitor.filtersets import ABRAFilterSet
-from inventory_monitor.models import ABRA
+from inventory_monitor.filtersets import ExternalInventoryFilterSet
+from inventory_monitor.models import ExternalInventory
 
 
 class ProbeViewSet(NetBoxModelViewSet):
@@ -64,7 +64,7 @@ class RMAViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.RMAFilterSet
 
 
-class ABRAViewSet(NetBoxModelViewSet):
-    queryset = ABRA.objects.prefetch_related("assets", "tags")
-    serializer_class = ABRASerializer
-    filterset_class = ABRAFilterSet
+class ExternalInventoryViewSet(NetBoxModelViewSet):
+    queryset = ExternalInventory.objects.prefetch_related("assets", "tags")
+    serializer_class = ExternalInventorySerializer
+    filterset_class = ExternalInventoryFilterSet

@@ -1,43 +1,42 @@
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
+from netbox.graphql.filter_mixins import NetBoxModelFilterMixin
 from strawberry.scalars import ID
 from strawberry_django import FilterLookup
 
-from netbox.graphql.filter_mixins import NetBoxModelFilterMixin
-
 if TYPE_CHECKING:
-    from tenancy.graphql.filters import TenantFilter
+    from core.graphql.filters import ContentTypeFilter
     from dcim.graphql.filters import (
         DeviceFilter,
-        SiteFilter,
         LocationFilter,
+        SiteFilter,
     )
-    from core.graphql.filters import ContentTypeFilter
+    from tenancy.graphql.filters import TenantFilter
 
     # Import the enum types
     from .enums import (
         InventoryMonitorAssignmentStatusEnum,
-        InventoryMonitorLifecycleStatusEnum,
         InventoryMonitorContractTypeEnum,
+        InventoryMonitorLifecycleStatusEnum,
         InventoryMonitorRMAStatusEnum,
     )
 
 from inventory_monitor.models import (
-    ABRA,
+    RMA,
     Asset,
-    AssetType,
     AssetService,
+    AssetType,
     Contract,
     Contractor,
+    ExternalInventory,
     Invoice,
     Probe,
-    RMA,
 )
 
 __all__ = (
-    "InventoryMonitorABRAFilter",
+    "InventoryMonitorExternalInventoryFilter",
     "InventoryMonitorAssetFilter",
     "InventoryMonitorAssetTypeFilter",
     "InventoryMonitorAssetServiceFilter",
@@ -49,9 +48,9 @@ __all__ = (
 )
 
 
-@strawberry_django.filter_type(ABRA, lookups=True)
-class InventoryMonitorABRAFilter(NetBoxModelFilterMixin):
-    abra_id: FilterLookup[str] | None = strawberry_django.filter_field()
+@strawberry_django.filter_type(ExternalInventory, lookups=True)
+class InventoryMonitorExternalInventoryFilter(NetBoxModelFilterMixin):
+    external_id: FilterLookup[str] | None = strawberry_django.filter_field()
     inventory_number: FilterLookup[str] | None = strawberry_django.filter_field()
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     serial_number: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -120,17 +119,18 @@ class InventoryMonitorAssetFilter(NetBoxModelFilterMixin):
     )
     assigned_object_id: FilterLookup[int] | None = strawberry_django.filter_field()
 
-    # Relationship filters back to ABRA
-    abra_assets: (
-        Annotated["InventoryMonitorABRAFilter", strawberry.lazy("inventory_monitor.graphql.filters")] | None
+    # Relationship filters back to External Inventory
+    external_inventory_items: (
+        Annotated["InventoryMonitorExternalInventoryFilter", strawberry.lazy("inventory_monitor.graphql.filters")]
+        | None
     ) = strawberry_django.filter_field()
-    abra_asset_id: ID | None = strawberry_django.filter_field()
+    external_inventory_item_id: FilterLookup[ID] | None = strawberry_django.filter_field()
 
     # Custom boolean filter
-    has_abra_assets: FilterLookup[bool] | None = strawberry_django.filter_field()
+    has_external_inventory_items: FilterLookup[bool] | None = strawberry_django.filter_field()
 
-    # ABRA inventory number filter (related field)
-    abra_inventory_number: FilterLookup[str] | None = strawberry_django.filter_field()
+    # External Inventory number filter (related field)
+    external_inventory_number: FilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(AssetType, lookups=True)

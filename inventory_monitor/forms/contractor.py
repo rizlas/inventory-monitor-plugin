@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext as _
-from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
+from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
     CommentField,
@@ -36,3 +36,13 @@ class ContractorFilterForm(NetBoxModelFilterSetForm):
         FieldSet("name", "company", "address", name=_("Common")),
         FieldSet("tenant_id", name=_("Linked")),
     )
+
+
+class ContractorBulkEditForm(NetBoxModelBulkEditForm):
+    name = forms.CharField(max_length=100, required=False)
+    company = forms.CharField(max_length=100, required=False)
+    address = forms.CharField(max_length=200, required=False)
+    tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False)
+
+    model = Contractor
+    nullable_fields = ("name", "company", "address", "tenant")
