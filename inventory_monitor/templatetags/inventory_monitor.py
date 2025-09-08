@@ -4,9 +4,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from inventory_monitor.settings import (
-    get_external_inventory_status_config,
+    get_external_inventory_status_config_safe,
     get_external_inventory_tooltip_template,
-    get_plugin_settings,
 )
 
 register = template.Library()
@@ -29,31 +28,23 @@ def external_inventory_status_tooltip():
     """
     Generate a configurable status tooltip for external inventory.
     Returns empty string if no configuration is provided.
-    
+
     Returns:
         str: HTML tooltip content based on plugin configuration, or empty string
     """
-    # Check if custom configuration is actually provided
-    plugin_settings = get_plugin_settings()
-    if "external_inventory_status_config" not in plugin_settings:
+    # Use the centralized safe configuration access
+    status_config, is_configured = get_external_inventory_status_config_safe()
+
+    if not is_configured:
         return ""
-    
-    status_config = get_external_inventory_status_config()
+
     tooltip_template = get_external_inventory_tooltip_template()
-    
-    # If configuration is empty, return empty string
-    if not status_config:
-        return ""
-    
+
     tooltip_parts = []
     for code, config in status_config.items():
-        part = tooltip_template.format(
-            code=code,
-            label=_(config["label"]),
-            color=config["color"]
-        )
+        part = tooltip_template.format(code=code, label=_(config["label"]), color=config["color"])
         tooltip_parts.append(part)
-    
+
     return mark_safe("<br/>".join(tooltip_parts))
 
 

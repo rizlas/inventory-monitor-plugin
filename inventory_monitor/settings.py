@@ -39,6 +39,32 @@ def get_external_inventory_status_config():
     return get_plugin_settings().get("external_inventory_status_config", {})
 
 
+def get_external_inventory_status_config_safe():
+    """
+    Safely get external inventory status configuration with validation.
+    Checks if configuration exists and is not empty.
+
+    Returns:
+        tuple: (config_dict, is_configured)
+            - config_dict: Status configuration dictionary
+            - is_configured: Boolean indicating if valid configuration exists
+    """
+    plugin_settings = get_plugin_settings()
+
+    # Check if config key exists
+    if "external_inventory_status_config" not in plugin_settings:
+        return {}, False
+
+    # Get the configuration
+    status_config = plugin_settings.get("external_inventory_status_config", {})
+
+    # Check if configuration is not empty
+    if not status_config:
+        return {}, False
+
+    return status_config, True
+
+
 def get_external_inventory_tooltip_template():
     """
     Get the configurable tooltip template for external inventory status.
@@ -46,9 +72,7 @@ def get_external_inventory_tooltip_template():
     Returns:
         str: Template string for the tooltip content
     """
-    default_template = (
-        "<span class='badge text-bg-{color}'>{code}</span> {label}"
-    )
+    default_template = "<span class='badge text-bg-{color}'>{code}</span> {label}"
     return get_plugin_settings().get("external_inventory_tooltip_template", default_template)
 
 
