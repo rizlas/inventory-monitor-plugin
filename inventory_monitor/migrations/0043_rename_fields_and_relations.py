@@ -1,6 +1,6 @@
 # Generated manually for renaming field and related names
 
-from django.db import migrations, models
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
@@ -10,23 +10,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Step 1: Rename the field abra_id to external_id
+        # Step 1: Rename the field abra_id to external_id (only if abra_id exists)
         migrations.RenameField(
             model_name='externalinventory',
             old_name='abra_id',
             new_name='external_id',
-        ),
-        
-        # Step 2: Update the related_name for the ManyToMany field
-        migrations.AlterField(
-            model_name='externalinventory',
-            name='assets',
-            field=models.ManyToManyField(
-                blank=True,
-                help_text='Associated internal asset records',
-                related_name='external_inventory_items',
-                to='inventory_monitor.asset',
-                verbose_name='Assets'
-            ),
         ),
     ]
