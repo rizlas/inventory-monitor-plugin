@@ -134,3 +134,27 @@ class ExternalInventory(NetBoxModel):
 
     def get_absolute_url(self):
         return reverse("plugins:inventory_monitor:externalinventory", args=[self.pk])
+
+    def get_status_color(self):
+        """Get the Bootstrap color class for the current status from configuration"""
+        from django.conf import settings
+
+        # Get the configuration from PLUGINS_CONFIG
+        config = getattr(settings, "PLUGINS_CONFIG", {}).get("inventory_monitor", {})
+        status_config = config.get("external_inventory_status_config", {})
+
+        # Get color for current status, default to 'secondary' if not found
+        status_info = status_config.get(str(self.status), {})
+        return status_info.get("color", "secondary")
+
+    def get_status_display(self):
+        """Get the human-readable status label from configuration"""
+        from django.conf import settings
+
+        # Get the configuration from PLUGINS_CONFIG
+        config = getattr(settings, "PLUGINS_CONFIG", {}).get("inventory_monitor", {})
+        status_config = config.get("external_inventory_status_config", {})
+
+        # Get label for current status, default to the status value if not found
+        status_info = status_config.get(str(self.status), {})
+        return status_info.get("label", str(self.status))

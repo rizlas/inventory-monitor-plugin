@@ -44,7 +44,7 @@ ASSOCIATED_EXTERNAL_INVENTORY_ASSETS = """
     {% for item in value.all %}
         <a 
             href="{{ item.get_absolute_url }}" 
-            class="badge text-bg-{% if item.status == '1' %}green{% elif item.status == '0' %}gray{% else %}blue{% endif %}" 
+            class="badge text-bg-{{ item.get_status_color }}" 
             data-bs-toggle="tooltip" 
             data-bs-placement="left"
             style="
@@ -54,7 +54,7 @@ ASSOCIATED_EXTERNAL_INVENTORY_ASSETS = """
                 max-width: 200px;           /* nastavte podle potřeby */
                 display: inline-block;      /* aby šířka fungovala */
             "
-            title="Status: {{ item.status|default:'Unknown' }}"
+            title="{{ item.get_status_display }}"
         >
             {{ item.inventory_number }}: {{ item.name }}
         </a>
