@@ -45,7 +45,7 @@ class InvoiceView(generic.ObjectView):
     queryset = models.Invoice.objects.all()
 
 
-@register_model_view(models.Invoice, 'list', path='', detail=False)
+@register_model_view(models.Invoice, "list", path="", detail=False)
 class InvoiceListView(generic.ObjectListView):
     filterset = filtersets.InvoiceFilterSet
     filterset_form = forms.InvoiceFilterForm
@@ -59,19 +59,19 @@ class InvoiceListView(generic.ObjectListView):
     }
 
 
-@register_model_view(models.Invoice, 'add', detail=False)
-@register_model_view(models.Invoice, 'edit')
+@register_model_view(models.Invoice, "add", detail=False)
+@register_model_view(models.Invoice, "edit")
 class InvoiceEditView(generic.ObjectEditView):
     queryset = models.Invoice.objects.all()
     form = forms.InvoiceForm
 
 
-@register_model_view(models.Invoice, 'delete')
+@register_model_view(models.Invoice, "delete")
 class InvoiceDeleteView(generic.ObjectDeleteView):
     queryset = models.Invoice.objects.all()
 
 
-@register_model_view(models.Invoice, 'bulk_edit', path='edit', detail=False)
+@register_model_view(models.Invoice, "bulk_edit", path="edit", detail=False)
 class InvoiceBulkEditView(generic.BulkEditView):
     queryset = models.Invoice.objects.all()
     filterset = filtersets.InvoiceFilterSet
@@ -79,7 +79,7 @@ class InvoiceBulkEditView(generic.BulkEditView):
     form = forms.InvoiceBulkEditForm
 
 
-@register_model_view(models.Invoice, 'bulk_delete', path='delete', detail=False)
+@register_model_view(models.Invoice, "bulk_delete", path="delete", detail=False)
 class InvoiceBulkDeleteView(generic.BulkDeleteView):
     queryset = models.Invoice.objects.all()
     filterset = filtersets.InvoiceFilterSet

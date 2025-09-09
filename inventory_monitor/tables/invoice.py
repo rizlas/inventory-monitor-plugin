@@ -28,6 +28,7 @@ class InvoiceTable(NetBoxTable):
             "comments",
             "attachments_count",
             "actions",
+            "tags",
         )
         default_columns = (
             "id",

@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext as _
-from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelBulkEditForm
+from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets.datetime import DatePicker
@@ -98,19 +98,13 @@ class RMABulkEditForm(NetBoxModelBulkEditForm):
     date_issued = forms.DateField(required=False, widget=DatePicker())
     date_replaced = forms.DateField(required=False, widget=DatePicker())
     issue_description = forms.CharField(
-        required=False, 
-        widget=forms.Textarea(attrs={'rows': 3}),
-        label="Issue Description"
+        required=False, widget=forms.Textarea(attrs={"rows": 3}), label="Issue Description"
     )
-    vendor_response = forms.CharField(
-        required=False, 
-        widget=forms.Textarea(attrs={'rows': 3}),
-        label="Vendor Response"
-    )
+    vendor_response = forms.CharField(required=False, widget=forms.Textarea(attrs={"rows": 3}), label="Vendor Response")
     comments = CommentField(required=False)
-    
+
     model = RMA
-    nullable_fields = (
-        'status', 'date_issued', 'date_replaced', 'issue_description', 
-        'vendor_response', 'comments'
-    )
+    nullable_fields = ("date_issued", "date_replaced")
+
+
+1
