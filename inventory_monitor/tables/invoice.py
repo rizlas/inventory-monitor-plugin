@@ -1,5 +1,5 @@
 import django_tables2 as tables
-from netbox.tables import NetBoxTable
+from netbox.tables import NetBoxTable, columns
 
 from inventory_monitor.helpers import NumberColumn
 from inventory_monitor.models import Invoice
@@ -11,6 +11,7 @@ class InvoiceTable(NetBoxTable):
     contract = tables.Column(linkify=True)
     attachments_count = tables.Column()
     price = NumberColumn()
+    tags = columns.TagColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Invoice
@@ -27,6 +28,7 @@ class InvoiceTable(NetBoxTable):
             "comments",
             "attachments_count",
             "actions",
+            "tags",
         )
         default_columns = (
             "id",

@@ -127,7 +127,7 @@ class ContractFilterSet(NetBoxModelFilterSet):
         return queryset.filter(name | name_internal)
 
     def _master_contracts(self, queryset, name, value):
-        if value == True:
+        if value:
             return queryset.filter(parent=None)
         else:
             return queryset

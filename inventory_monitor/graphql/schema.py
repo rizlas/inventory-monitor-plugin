@@ -4,12 +4,12 @@ import strawberry
 import strawberry_django
 
 from .types import (
-    InventoryMonitorABRAType,
+    InventoryMonitorAssetServiceType,
     InventoryMonitorAssetType,
     InventoryMonitorAssetTypeType,
-    InventoryMonitorAssetServiceType,
-    InventoryMonitorContractType,
     InventoryMonitorContractorType,
+    InventoryMonitorContractType,
+    InventoryMonitorExternalInventoryType,
     InventoryMonitorInvoiceType,
     InventoryMonitorProbeType,
     InventoryMonitorRMAType,
@@ -17,9 +17,9 @@ from .types import (
 
 
 @strawberry.type(name="Query")
-class InventoryMonitorABRAQuery:
-    inventory_monitor_abra: InventoryMonitorABRAType = strawberry_django.field()
-    inventory_monitor_abra_list: List[InventoryMonitorABRAType] = strawberry_django.field()
+class InventoryMonitorExternalInventoryQuery:
+    inventory_monitor_external_inventory: InventoryMonitorExternalInventoryType = strawberry_django.field()
+    inventory_monitor_external_inventory_list: List[InventoryMonitorExternalInventoryType] = strawberry_django.field()
 
 
 @strawberry.type(name="Query")

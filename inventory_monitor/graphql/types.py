@@ -2,41 +2,39 @@ from typing import Annotated, List
 
 import strawberry
 import strawberry_django
-
-from netbox.graphql.types import NetBoxObjectType
-from tenancy.graphql.types import TenantType
+from core.graphql.types import ContentType
 from dcim.graphql.types import (
     DeviceType,
-    SiteType,
     LocationType,
+    SiteType,
 )
-
-from core.graphql.types import ContentType
+from netbox.graphql.types import NetBoxObjectType
+from tenancy.graphql.types import TenantType
 
 import inventory_monitor.models as models
+
+from .enums import (
+    InventoryMonitorAssignmentStatusEnum,
+    InventoryMonitorContractTypeEnum,
+    InventoryMonitorLifecycleStatusEnum,
+    InventoryMonitorRMAStatusEnum,
+)
 from .filters import (
-    InventoryMonitorABRAFilter,
     InventoryMonitorAssetFilter,
-    InventoryMonitorAssetTypeFilter,
     InventoryMonitorAssetServiceFilter,
+    InventoryMonitorAssetTypeFilter,
     InventoryMonitorContractFilter,
     InventoryMonitorContractorFilter,
+    InventoryMonitorExternalInventoryFilter,
     InventoryMonitorInvoiceFilter,
     InventoryMonitorProbeFilter,
     InventoryMonitorRMAFilter,
 )
 
-from .enums import (
-    InventoryMonitorAssignmentStatusEnum,
-    InventoryMonitorLifecycleStatusEnum,
-    InventoryMonitorContractTypeEnum,
-    InventoryMonitorRMAStatusEnum,
-)
 
-
-@strawberry_django.type(models.ABRA, fields="__all__", filters=InventoryMonitorABRAFilter)
-class InventoryMonitorABRAType(NetBoxObjectType):
-    abra_id: str | None
+@strawberry_django.type(models.ExternalInventory, fields="__all__", filters=InventoryMonitorExternalInventoryFilter)
+class InventoryMonitorExternalInventoryType(NetBoxObjectType):
+    external_id: str | None
     inventory_number: str
     name: str
     serial_number: str | None
@@ -87,8 +85,10 @@ class InventoryMonitorAssetType(NetBoxObjectType):
     # Notes
     comments: str
 
-    # Relationship back to ABRA objects
-    abra_assets: List[Annotated["InventoryMonitorABRAType", strawberry.lazy("inventory_monitor.graphql.types")]]
+    # Relationship back to External Inventory objects
+    external_inventory_items: List[
+        Annotated["InventoryMonitorExternalInventoryType", strawberry.lazy("inventory_monitor.graphql.types")]
+    ]
 
     # Services relationship
     services: List[Annotated["InventoryMonitorAssetServiceType", strawberry.lazy("inventory_monitor.graphql.types")]]

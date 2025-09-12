@@ -2,19 +2,19 @@ import django_filters
 from django.db.models import Q
 from netbox.filtersets import NetBoxModelFilterSet
 
-from inventory_monitor.models import ABRA, Asset
+from inventory_monitor.models import Asset, ExternalInventory
 
 
-class ABRAFilterSet(NetBoxModelFilterSet):
+class ExternalInventoryFilterSet(NetBoxModelFilterSet):
     """
-    Filterset for ABRA objects providing comprehensive search and filtering capabilities.
+    Filterset for External Inventory objects providing comprehensive search and filtering capabilities.
     """
 
     q = django_filters.CharFilter(
         method="search",
         label="Search",
     )
-    abra_id = django_filters.CharFilter()
+    external_id = django_filters.CharFilter()
     inventory_number = django_filters.CharFilter()
     name = django_filters.CharFilter()
     serial_number = django_filters.CharFilter()
@@ -33,6 +33,7 @@ class ABRAFilterSet(NetBoxModelFilterSet):
         queryset=Asset.objects.all(),
         to_field_name="id",
         label="Asset (ID)",
+        distinct=True,
     )
 
     # Nový filtr pro objekty s/bez přiřazených assetů
@@ -42,10 +43,10 @@ class ABRAFilterSet(NetBoxModelFilterSet):
     )
 
     class Meta:
-        model = ABRA
+        model = ExternalInventory
         fields = [
             "id",
-            "abra_id",
+            "external_id",
             "inventory_number",
             "name",
             "serial_number",
@@ -64,7 +65,7 @@ class ABRAFilterSet(NetBoxModelFilterSet):
 
     def filter_has_assets(self, queryset, name, value):
         """
-        Filter ABRA objects based on whether they have assigned assets.
+        Filter External Inventory objects based on whether they have assigned assets.
 
         Args:
             queryset: The base queryset
@@ -75,10 +76,10 @@ class ABRAFilterSet(NetBoxModelFilterSet):
             Filtered queryset
         """
         if value is True:
-            # Vrátí pouze ABRA objekty, které mají alespoň jeden přiřazený asset
+            # Vrátí pouze External Inventory objekty, které mají alespoň jeden přiřazený asset
             return queryset.filter(assets__isnull=False).distinct()
         elif value is False:
-            # Vrátí pouze ABRA objekty, které nemají žádný přiřazený asset
+            # Vrátí pouze External Inventory objekty, které nemají žádný přiřazený asset
             return queryset.filter(assets__isnull=True)
         else:
             # Pokud value není boolean, vrátí původní queryset
@@ -86,13 +87,13 @@ class ABRAFilterSet(NetBoxModelFilterSet):
 
     def search(self, queryset, name, value):
         """Allow searching by various fields using a single search parameter."""
-        if not value.strip():
+        if value is None or not value.strip():
             return queryset
         return queryset.filter(
             Q(inventory_number__icontains=value)
             | Q(name__icontains=value)
             | Q(serial_number__icontains=value)
-            | Q(abra_id__icontains=value)
+            | Q(external_id__icontains=value)
             | Q(person_id__icontains=value)
             | Q(person_name__icontains=value)
             | Q(location_code__icontains=value)

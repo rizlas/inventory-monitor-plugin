@@ -14,7 +14,6 @@ from utilities.api import get_serializer_for_model
 
 # Local models
 from inventory_monitor.models import (
-    ABRA,
     ASSIGNED_OBJECT_MODELS_QUERY,
     RMA,
     Asset,
@@ -22,6 +21,7 @@ from inventory_monitor.models import (
     AssetType,
     Contract,
     Contractor,
+    ExternalInventory,
     Invoice,
     Probe,
 )
@@ -221,8 +221,8 @@ class AssetSerializer(NetBoxModelSerializer):
 
     @extend_schema_field(serializers.CharField(read_only=True))
     def get_asset_numbers(self, obj):
-        """Get ABRA asset numbers as comma-separated string"""
-        return obj.get_abra_asset_numbers_display()
+        """Get External Inventory asset numbers as comma-separated string"""
+        return obj.get_external_inventory_asset_numbers_display()
 
 
 class ProbeSerializer(NetBoxModelSerializer):
@@ -374,8 +374,8 @@ class RMASerializer(NetBoxModelSerializer):
         ]
 
 
-class ABRASerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:abra-detail")
+class ExternalInventorySerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:inventory_monitor-api:externalinventory-detail")
     assets = SerializedPKRelatedField(
         queryset=Asset.objects.all(),
         serializer=AssetSerializer,
@@ -385,12 +385,12 @@ class ABRASerializer(NetBoxModelSerializer):
     )
 
     class Meta:
-        model = ABRA
+        model = ExternalInventory
         fields = [
             "id",
             "url",
             "display",
-            "abra_id",
+            "external_id",
             "inventory_number",
             "name",
             "serial_number",

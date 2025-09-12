@@ -1,5 +1,12 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
+
+from inventory_monitor.settings import (
+    get_external_inventory_status_config_safe,
+    get_external_inventory_tooltip_template,
+)
 
 register = template.Library()
 
@@ -14,6 +21,31 @@ def get_status(obj, status_type):
     if hasattr(obj, method_name):
         return getattr(obj, method_name)()
     return None
+
+
+@register.simple_tag
+def external_inventory_status_tooltip():
+    """
+    Generate a configurable status tooltip for external inventory.
+    Returns empty string if no configuration is provided.
+
+    Returns:
+        str: HTML tooltip content based on plugin configuration, or empty string
+    """
+    # Use the centralized safe configuration access
+    status_config, is_configured = get_external_inventory_status_config_safe()
+
+    if not is_configured:
+        return ""
+
+    tooltip_template = get_external_inventory_tooltip_template()
+
+    tooltip_parts = []
+    for code, config in status_config.items():
+        part = tooltip_template.format(code=code, label=_(config["label"]), color=config["color"])
+        tooltip_parts.append(part)
+
+    return mark_safe("<br/>".join(tooltip_parts))
 
 
 @register.filter

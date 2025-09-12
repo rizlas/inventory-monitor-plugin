@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext as _
-from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
+from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelBulkEditForm
 from utilities.forms.fields import (
     CommentField,
     DynamicModelChoiceField,
@@ -65,3 +65,16 @@ class InvoiceFilterForm(NetBoxModelFilterSetForm):
     invoicing_end__gte = forms.DateField(required=False, label=("Invoicing End: From"), widget=DatePicker())
     invoicing_end__lte = forms.DateField(required=False, label=("Invoicing End: Till"), widget=DatePicker())
     invoicing_end = forms.DateField(required=False, label=("Invoicing End"), widget=DatePicker())
+
+
+class InvoiceBulkEditForm(NetBoxModelBulkEditForm):
+    name = forms.CharField(max_length=100, required=False)
+    name_internal = forms.CharField(max_length=100, required=False)
+    project = forms.CharField(max_length=100, required=False)
+    contract = DynamicModelChoiceField(queryset=Contract.objects.all(), required=False)
+    price = forms.DecimalField(required=False)
+    invoicing_start = forms.DateField(required=False, widget=DatePicker())
+    invoicing_end = forms.DateField(required=False, widget=DatePicker())
+
+    model = Invoice
+    nullable_fields = ("name_internal", "project", "price", "invoicing_start", "invoicing_end")

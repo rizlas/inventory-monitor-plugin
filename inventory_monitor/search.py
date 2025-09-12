@@ -1,13 +1,13 @@
 from netbox.search import SearchIndex, register_search
 
 from inventory_monitor.models import (
-    ABRA,
     RMA,
     Asset,
     AssetService,
     AssetType,
     Contract,
     Contractor,
+    ExternalInventory,
     Invoice,
     Probe,
 )
@@ -74,11 +74,11 @@ class AssetIndex(SearchIndex):
         ("project", 100),
         ("description", 5000),
         ("comments", 5000),
-        ("get_abra_asset_numbers_for_search", 80),
+        ("get_external_inventory_asset_numbers_for_search", 80),
     )
     display_attrs = ("serial", "partnumber", "vendor", "description")
 
-    # get_abra_asset_numbers_for_search is a method from Asset which is callable
+    # get_external_inventory_asset_numbers_for_search is a method from Asset which is callable
     @staticmethod
     def get_field_value(instance, field_name):
         value = getattr(instance, field_name)
@@ -110,10 +110,10 @@ class AssetTypeIndex(SearchIndex):
 
 
 @register_search
-class ABRAIndex(SearchIndex):
-    model = ABRA
+class ExternalInventoryIndex(SearchIndex):
+    model = ExternalInventory
     fields = (
-        ("abra_id", 100),
+        ("external_id", 100),
         ("inventory_number", 100),
         ("name", 100),
         ("serial_number", 100),

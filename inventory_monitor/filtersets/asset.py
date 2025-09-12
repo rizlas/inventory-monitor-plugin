@@ -11,7 +11,7 @@ from utilities.filters import (
     MultiValueNumberFilter,
 )
 
-from inventory_monitor.models import ABRA, Asset, AssetType, Contract
+from inventory_monitor.models import Asset, AssetType, Contract, ExternalInventory
 
 
 class AssetFilterSet(NetBoxModelFilterSet):
@@ -35,10 +35,10 @@ class AssetFilterSet(NetBoxModelFilterSet):
     serial = django_filters.CharFilter(lookup_expr="iexact", field_name="serial")
     partnumber = django_filters.CharFilter(field_name="partnumber")
 
-    abra_inventory_number = django_filters.CharFilter(
-        field_name="abra_assets__inventory_number",
-        label="ABRA Asset Number",
-        help_text="Filter by ABRA inventory number",
+    external_inventory_number = django_filters.CharFilter(
+        field_name="external_inventory_items__inventory_number",
+        label="External Inventory Asset Number",
+        help_text="Filter by external inventory number",
     )
 
     #
@@ -73,16 +73,16 @@ class AssetFilterSet(NetBoxModelFilterSet):
         to_field_name="id",
         label="Order Contract (ID)",
     )
-    abra_assets = django_filters.ModelMultipleChoiceFilter(
-        field_name="abra_assets__id",
-        queryset=ABRA.objects.all(),
+    external_inventory_items = django_filters.ModelMultipleChoiceFilter(
+        field_name="external_inventory_items__id",
+        queryset=ExternalInventory.objects.all(),
         to_field_name="id",
-        label="ABRA (ID)",
+        label="External Inventory (ID)",
     )
 
-    has_abra_assets = django_filters.BooleanFilter(
-        method="filter_has_abra_assets",
-        label="Has ABRA assets",
+    has_external_inventory_items = django_filters.BooleanFilter(
+        method="filter_has_external_inventory_items",
+        label="Has External Inventory items",
     )
 
     #
@@ -150,15 +150,20 @@ class AssetFilterSet(NetBoxModelFilterSet):
             "order_contract",
             "warranty_start",
             "warranty_end",
-            "has_abra_assets",
-            "abra_inventory_number",
+            "has_external_inventory_items",
+            "external_inventory_number",
         )
 
-    def filter_has_abra_assets(self, queryset, name, value):
+    def filter_has_external_inventory_items(self, queryset, name, value):
+        """
+        Filter assets based on whether they have external inventory items.
+        
+        Uses exclude for the false case to avoid join-induced duplicates.
+        """
         if value is True:
-            return queryset.filter(abra_assets__isnull=False).distinct()
+            return queryset.filter(external_inventory_items__isnull=False).distinct()
         elif value is False:
-            return queryset.filter(abra_assets__isnull=True)
+            return queryset.exclude(external_inventory_items__isnull=False)
         else:
             return queryset
 
@@ -170,7 +175,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
         - Asset fields (description, serial, project, vendor)
         - Related order contract names
         - Assigned objects (devices, sites, locations, racks)
-        - ABRA inventory numbers
+        - External Inventory numbers
 
         Args:
             queryset: Base queryset to filter
@@ -188,8 +193,8 @@ class AssetFilterSet(NetBoxModelFilterSet):
         vendor = Q(vendor__icontains=value)
         order_contract = Q(order_contract__name__icontains=value)
 
-        # Add ABRA inventory number search
-        abra_inventory_number = Q(abra_assets__inventory_number__icontains=value)
+        # Add External Inventory inventory number search
+        external_inventory_number = Q(external_inventory_items__inventory_number__icontains=value)
 
         # Get content types for assigned object types
         device_type = ContentType.objects.get_for_model(Device)
@@ -215,7 +220,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
             assigned_object_id__in=Rack.objects.filter(name__icontains=value).values_list("pk", flat=True),
         )
 
-        # Combine all search conditions including ABRA inventory numbers
+        # Combine all search conditions including External Inventory numbers
         return queryset.filter(
             description_search
             | serial
@@ -223,7 +228,7 @@ class AssetFilterSet(NetBoxModelFilterSet):
             | project
             | vendor
             | order_contract
-            | abra_inventory_number
+            | external_inventory_number
             | device_search
             | site_search
             | location_search

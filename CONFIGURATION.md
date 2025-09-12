@@ -7,6 +7,16 @@ PLUGINS_CONFIG = {
     "inventory_monitor": {
         # Probe Status Settings
         "probe_recent_days": 7,          # Days to consider probe "recent"
+
+        # External Inventory Status Configuration
+        "external_inventory_status_config": {
+            "1": {"label": "Active", "color": "success"},
+            "0": {"label": "Pending Activation", "color": "warning"},
+            "2": {"label": "Decommissioned", "color": "danger"},
+        },
+
+        # Custom tooltip template for status display
+        "external_inventory_tooltip_template": "<span class='badge text-bg-{color}'>{code}</span> {label}",
     }
 }
 ```
@@ -16,6 +26,49 @@ PLUGINS_CONFIG = {
 ### Probe Status Settings
 
 - **probe_recent_days** (default: 7): Number of days to consider a probe "recent"
+
+### External Inventory Status Configuration
+
+- **external_inventory_status_config** (default: see example): Maps status codes to display labels and Bootstrap colors
+- **external_inventory_tooltip_template** (default: see example): Template string for formatting status tooltips
+
+#### Status Configuration Structure
+```python
+{
+    "status_code": {
+        "label": "Human readable label",
+        "color": "bootstrap_color_class"
+    }
+}
+```
+
+**Available Bootstrap Colors**: `primary`, `secondary`, `success`, `danger`, `warning`, `info`, `light`, `dark`
+
+#### Tooltip Template Variables
+- `{code}`: The status code
+- `{label}`: The translated label  
+- `{color}`: The Bootstrap color class
+
+### Examples
+
+**Simple Text Tooltip:**
+```python
+"external_inventory_tooltip_template": "{code}: {label}"
+```
+
+**Custom Badge Style:**
+```python
+"external_inventory_tooltip_template": "<span class='badge bg-{color} text-white'>{code}</span> - {label}"
+```
+
+**Different Status Codes:**
+```python
+"external_inventory_status_config": {
+    "ACTIVE": {"label": "Active", "color": "success"},
+    "INACTIVE": {"label": "Inactive", "color": "secondary"},
+    "MAINTENANCE": {"label": "Under Maintenance", "color": "warning"},
+}
+```
 
 ## Using Settings in Code
 

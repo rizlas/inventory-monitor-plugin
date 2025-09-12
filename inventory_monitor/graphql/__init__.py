@@ -1,18 +1,17 @@
 from .schema import (
-    InventoryMonitorABRAQuery,
     InventoryMonitorAssetQuery,
-    InventoryMonitorAssetTypeQuery,
     InventoryMonitorAssetServiceQuery,
-    InventoryMonitorContractQuery,
+    InventoryMonitorAssetTypeQuery,
     InventoryMonitorContractorQuery,
+    InventoryMonitorContractQuery,
+    InventoryMonitorExternalInventoryQuery,
     InventoryMonitorInvoiceQuery,
     InventoryMonitorProbeQuery,
     InventoryMonitorRMAQuery,
 )
 
-
 schema = [
-    InventoryMonitorABRAQuery,
+    InventoryMonitorExternalInventoryQuery,
     InventoryMonitorAssetQuery,
     InventoryMonitorAssetTypeQuery,
     InventoryMonitorAssetServiceQuery,

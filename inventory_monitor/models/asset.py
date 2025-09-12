@@ -240,13 +240,20 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
         """Get the probe recent days setting for template use."""
         return get_probe_recent_days()
 
-    def get_abra_asset_numbers(self):
-        """Get all ABRA inventory numbers associated with this asset"""
-        return self.abra_assets.values_list("inventory_number", flat=True)
+    def get_external_inventory_asset_numbers(self):
+        """Get all External Inventory numbers associated with this asset"""
+        return (
+            self.external_inventory_items
+            .filter(inventory_number__isnull=False)
+            .exclude(inventory_number='')
+            .values_list("inventory_number", flat=True)
+            .distinct()
+            .order_by('inventory_number')
+        )
 
-    def get_abra_asset_numbers_display(self):
-        """Get formatted display of ABRA asset numbers"""
-        numbers = list(self.get_abra_asset_numbers())
+    def get_external_inventory_asset_numbers_display(self):
+        """Get formatted display of External Inventory asset numbers"""
+        numbers = list(self.get_external_inventory_asset_numbers())
         if not numbers:
             return None
         elif len(numbers) == 1:
@@ -254,8 +261,8 @@ class Asset(NetBoxModel, DateStatusMixin, ImageAttachmentsMixin):
         else:
             return ", ".join(numbers)
 
-    def get_abra_asset_numbers_for_search(self):
-        return " ".join(self.abra_assets.values_list("inventory_number", flat=True))
+    def get_external_inventory_asset_numbers_for_search(self):
+        return " ".join(self.get_external_inventory_asset_numbers())
 
     def __str__(self):
         if self.partnumber:

@@ -6,22 +6,25 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from netbox.views import generic
+from utilities.views import register_model_view
 
 from inventory_monitor import filtersets, forms, models, tables
-from inventory_monitor.forms.asset import AssetABRAAssignmentForm
+from inventory_monitor.forms.asset import AssetExternalInventoryAssignmentForm
 from inventory_monitor.models import Asset
 
 
+@register_model_view(models.Asset)
 class AssetView(generic.ObjectView):
     queryset = models.Asset.objects.all()
 
 
+@register_model_view(models.Asset, 'list', path='', detail=False)
 class AssetListView(generic.ObjectListView):
     queryset = (
         models.Asset.objects.all()
         .prefetch_related("services")
         .prefetch_related("tags")
-        .prefetch_related("abra_assets")
+        .prefetch_related("external_inventory_items")
         .prefetch_related("rmas")  # Prefetch RMAs to avoid N+1 queries in get_related_probes
         .prefetch_related("type")  # Prefetch asset types for table display
         .select_related("assigned_object_type")  # Optimize generic foreign key queries
@@ -34,14 +37,15 @@ class AssetListView(generic.ObjectListView):
     table = tables.EnhancedAssetTable  # Changed to show probe status with green rows
     template_name = "inventory_monitor/asset_list.html"  # Custom template with CSS
     actions = {
-        "add": {},
-        "import": {},
-        "export": {},
-        "bulk_edit": {},
-        "bulk_delete": {},
+        "add": {"add"},
+        "export": set(),
+        "bulk_edit": {"change"},
+        "bulk_delete": {"delete"},
     }
 
 
+@register_model_view(models.Asset, 'add', detail=False)
+@register_model_view(models.Asset, 'edit')
 class AssetEditView(generic.ObjectEditView):
     queryset = models.Asset.objects.all()
     form = forms.AssetForm
@@ -58,10 +62,12 @@ class AssetEditView(generic.ObjectEditView):
         return instance
 
 
+@register_model_view(models.Asset, 'delete')
 class AssetDeleteView(generic.ObjectDeleteView):
     queryset = models.Asset.objects.all()
 
 
+@register_model_view(models.Asset, 'bulk_edit', path='edit', detail=False)
 class AssetBulkEditView(generic.BulkEditView):
     queryset = models.Asset.objects.all()
     filterset = filtersets.AssetFilterSet
@@ -69,28 +75,32 @@ class AssetBulkEditView(generic.BulkEditView):
     form = forms.AssetBulkEditForm
 
 
+@register_model_view(models.Asset, 'bulk_delete', path='delete', detail=False)
 class AssetBulkDeleteView(generic.BulkDeleteView):
     queryset = models.Asset.objects.all()
     filterset = filtersets.AssetFilterSet
     table = tables.EnhancedAssetTable
+    default_return_url = "plugins:inventory_monitor:asset_list"
 
 
+@register_model_view(models.Asset, 'bulk_import', path='import', detail=False)
 class AssetBulkImportView(generic.BulkImportView):
     queryset = models.Asset.objects.all()
     model_form = forms.AssetBulkImportForm
 
 
-class AssetABRAAssignmentView(generic.ObjectEditView):
+@register_model_view(models.Asset, 'external_inventory_assignment', path='assign-external-inventory')
+class AssetExternalInventoryAssignmentView(generic.ObjectEditView):
     """
-    View for assigning ABRA objects to an Asset
+    View for assigning External Inventory objects to an Asset
     """
 
     queryset = Asset.objects.all()
-    form = AssetABRAAssignmentForm
-    template_name = "inventory_monitor/asset_abra_assignment.html"
+    form = AssetExternalInventoryAssignmentForm
+    template_name = "inventory_monitor/asset_external_inventory_assignment.html"
 
     def get_object(self, **kwargs):
-        """Get the Asset object to assign ABRA objects to"""
+        """Get the Asset object to assign External Inventory objects to"""
         if not kwargs:
             return self.queryset.model()
 
@@ -108,9 +118,12 @@ class AssetABRAAssignmentView(generic.ObjectEditView):
         response = super().form_valid(form)
 
         # Add success message
-        abra_count = form.cleaned_data["abra_assets"].count()
+        external_inventory_count = form.cleaned_data["external_inventory_items"].count()
         messages.success(
-            self.request, _("Successfully assigned {} ABRA object(s) to asset {}").format(abra_count, form.instance)
+            self.request,
+            _("Successfully assigned {} External Inventory object(s) to asset {}").format(
+                external_inventory_count, form.instance
+            ),
         )
 
         return response
@@ -120,7 +133,8 @@ class AssetABRAAssignmentView(generic.ObjectEditView):
         device_asset_tag = (
             instance.assigned_object.asset_tag
             if (
-                instance.assigned_object_type.model == "device"
+                instance.assigned_object_type
+                and instance.assigned_object_type.model == "device"
                 and getattr(instance.assigned_object, "asset_tag", None)
                 and getattr(instance.assigned_object, "serial", None) == instance.serial
             )
@@ -128,6 +142,6 @@ class AssetABRAAssignmentView(generic.ObjectEditView):
         )
         return {
             "asset": instance,
-            "title": f"Assign ABRA Objects to {instance}",
+            "title": f"Assign External Inventory Objects to {instance}",
             "device_asset_tags": device_asset_tag,
         }

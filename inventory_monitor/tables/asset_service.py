@@ -1,5 +1,5 @@
 import django_tables2 as tables
-from netbox.tables import NetBoxTable
+from netbox.tables import NetBoxTable, columns
 
 from inventory_monitor.helpers import NumberColumn
 from inventory_monitor.models import AssetService
@@ -16,6 +16,7 @@ class AssetServiceTable(NetBoxTable):
         verbose_name="Service Status",
         orderable=False,
     )
+    tags = columns.TagColumn()
 
     class Meta(NetBoxTable.Meta):
         model = AssetService
@@ -30,6 +31,7 @@ class AssetServiceTable(NetBoxTable):
             "service_category_vendor",
             "asset",
             "contract",
+            "tags",
             "comments",
             "actions",
         )
@@ -41,5 +43,6 @@ class AssetServiceTable(NetBoxTable):
             "service_price",
             "service_category",
             "service_category_vendor",
+            "tags",
             "actions",
         )

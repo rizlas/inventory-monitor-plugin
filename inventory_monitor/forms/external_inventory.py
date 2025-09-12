@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext as _
-from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
+from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelBulkEditForm
 from utilities.forms.fields import (
     CommentField,
     DynamicModelMultipleChoiceField,
@@ -8,12 +8,12 @@ from utilities.forms.fields import (
 )
 from utilities.forms.rendering import FieldSet
 
-from inventory_monitor.models import ABRA, Asset
+from inventory_monitor.models import Asset, ExternalInventory
 
 
-class ABRAForm(NetBoxModelForm):
+class ExternalInventoryForm(NetBoxModelForm):
     """
-    Form for creating and editing ABRA objects
+    Form for creating and editing External Inventory objects
     """
 
     comments = CommentField(label="Comments")
@@ -25,7 +25,7 @@ class ABRAForm(NetBoxModelForm):
 
     fieldsets = (
         FieldSet(
-            "abra_id",
+            "external_id",
             "inventory_number",
             "name",
             "serial_number",
@@ -58,9 +58,9 @@ class ABRAForm(NetBoxModelForm):
     )
 
     class Meta:
-        model = ABRA
+        model = ExternalInventory
         fields = (
-            "abra_id",
+            "external_id",
             "inventory_number",
             "name",
             "serial_number",
@@ -80,17 +80,30 @@ class ABRAForm(NetBoxModelForm):
         )
 
 
-class ABRAFilterForm(NetBoxModelFilterSetForm):
+class ExternalInventoryBulkEditForm(NetBoxModelBulkEditForm):
+    name = forms.CharField(required=False, label="Name")
+    person_name = forms.CharField(required=False, label="Person Name")
+    location = forms.CharField(required=False, label="Location")
+    status = forms.CharField(required=False, label="Status")
+    comments = CommentField(required=False)
+    
+    model = ExternalInventory
+    nullable_fields = (
+        'name', 'person_name', 'location', 'status', 'comments'
+    )
+
+
+class ExternalInventoryFilterForm(NetBoxModelFilterSetForm):
     """
-    Filter form for ABRA objects
+    Filter form for External Inventory objects
     """
 
-    model = ABRA
+    model = ExternalInventory
 
     fieldsets = (
         FieldSet("q", "filter_id", "tag", name=_("Misc")),
         FieldSet(
-            "abra_id",
+            "external_id",
             "inventory_number",
             "name",
             "serial_number",
@@ -122,7 +135,7 @@ class ABRAFilterForm(NetBoxModelFilterSetForm):
     )
 
     tag = TagFilterField(model)
-    abra_id = forms.CharField(required=False)
+    external_id = forms.CharField(required=False)
     inventory_number = forms.CharField(required=False)
     name = forms.CharField(required=False)
     serial_number = forms.CharField(required=False)
@@ -144,5 +157,5 @@ class ABRAFilterForm(NetBoxModelFilterSetForm):
         ],
         required=False,
         label=_("Has Assets"),
-        help_text=_("Filter by whether ABRA object has assigned assets"),
+        help_text=_("Filter by whether External Inventory object has assigned assets"),
     )
