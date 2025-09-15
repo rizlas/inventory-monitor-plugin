@@ -1,337 +1,461 @@
-# Inventory Monitor
+# NetBox Inventory Monitor Plugin
 
-This project is designed to monitor and manage inventory assets, including their types, assignments, lifecycle statuses, and related contracts, services, invoices, and RMAs.
+A comprehensive NetBox plugin for asset management with semi-automatic discovery processes. This plugin extends NetBox with powerful inventory tracking capabilities, including asset lifecycle management, probe monitoring, contract tracking, and RMA (Return Merchandise Authorization) processing.
+
+[![Version](https://img.shields.io/badge/version-11.0.2-blue.svg)](https://gitlab.cesnet.cz/701/done/inventory-monitor-plugin)
+[![NetBox](https://img.shields.io/badge/netbox-4.4.x-green.svg)](https://github.com/netbox-community/netbox)
+[![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
+
+---
+
+## Features
+
+- **🏷️ Asset Management**: Track physical and logical assets with detailed metadata
+- **📊 Probe Monitoring**: Visual status indicators for discovery data populated by external scripts (e.g., SNMP scans)
+- **📝 Contract Tracking**: Manage contracts, contractors, and invoicing
+- **🔄 RMA Processing**: Complete RMA workflow with serial number tracking
+- **🏢 External Inventory**: Integration with external inventory systems
+- **🛠️ Asset Services**: Track maintenance and service contracts
+- **📈 Lifecycle Management**: Full asset lifecycle status tracking
+- **🔍 Advanced Search**: Powerful filtering and search capabilities
+- **🎨 Visual Interface**: Rich UI with status indicators and color coding
+- **🔌 NetBox Integration**: Native NetBox plugin following best practices
 
 ---
 
 ## Table of Contents
 
-- [Attachments](#attachments)
-- [Mermaid Diagram](#mermaid-diagram)
-- [How the Data Model Works](#how-the-data-model-works)
-- [Example Data and Relationships](#example-data-and-relationships)
-- [Relationship Example](#relationship-example)
+- [Features](#features)
+- [Data Model Overview](#data-model-overview)
+- [Data Models](#data-models)
 - [Installation](#installation)
+- [Configuration](#configuration)
 - [Usage](#usage)
-- [Contributing](#contributing)
+- [API](#api)
+- [Development](#development)
 - [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
-## Attachments
-
-- For attachments use [netbox-attachments](https://github.com/Kani999/netbox-attachments)
-
----
-
-## Mermaid Diagram
+## Data Model Overview
 
 ```mermaid
 classDiagram
     class AssetType {
-        CharField name
-        SlugField slug
-        CharField description
-        ColorField color
+        +CharField name
+        +SlugField slug
+        +CharField description
+        +ColorField color
     }
 
     class Asset {
-        CharField serial
-        CharField partnumber
-        CharField asset_number
-        CharField assignment_status
-        CharField lifecycle_status
-        ForeignKey assigned_object_type
-        PositiveBigIntegerField assigned_object_id
-        GenericForeignKey assigned_object
-        ForeignKey inventory_item
-        ForeignKey type
-        ForeignKey order_contract
-        CharField project
-        CharField vendor
-        PositiveIntegerField quantity
-        DecimalField price
-        DateField warranty_start
-        DateField warranty_end
-        TextField comments
+        +CharField serial
+        +CharField partnumber
+        +CharField assignment_status
+        +CharField lifecycle_status
+        +GenericForeignKey assigned_object
+        +ForeignKey type
+        +ForeignKey order_contract
+        +CharField project
+        +CharField vendor
+        +DecimalField price
+        +DateField warranty_start
+        +DateField warranty_end
+        +is_recently_probed()
     }
 
-    class ComponentService {
-        DateField service_start
-        DateField service_end
-        CharField service_param
-        DecimalField service_price
-        CharField service_category
-        CharField service_category_vendor
-        ForeignKey asset
-        ForeignKey contract
-        TextField comments
+    class AssetService {
+        +DateField service_start
+        +DateField service_end
+        +DecimalField service_price
+        +CharField service_category
+        +CharField service_category_vendor
+        +ForeignKey asset
+        +ForeignKey contract
     }
 
     class Contract {
-        CharField name
-        CharField name_internal
-        ForeignKey contractor
-        CharField type
-        DecimalField price
-        DateField signed
-        DateField accepted
-        DateField invoicing_start
-        DateField invoicing_end
-        ForeignKey parent
-        TextField comments
+        +CharField name
+        +CharField name_internal
+        +ForeignKey contractor
+        +CharField type
+        +DecimalField price
+        +DateField signed
+        +DateField invoicing_start
+        +DateField invoicing_end
+        +ForeignKey parent
     }
 
     class Contractor {
-        CharField name
-        CharField company
-        CharField address
-        TextField comments
-        ForeignKey tenant
+        +CharField name
+        +CharField company
+        +CharField address
+        +ForeignKey tenant
     }
 
     class Invoice {
-        CharField name
-        CharField name_internal
-        CharField project
-        ForeignKey contract
-        DecimalField price
-        DateField invoicing_start
-        DateField invoicing_end
-        TextField comments
+        +CharField name
+        +CharField project
+        +ForeignKey contract
+        +DecimalField price
+        +DateField invoicing_start
+        +DateField invoicing_end
     }
 
     class Probe {
-        DateTimeField time
-        DateTimeField creation_time
-        CharField device_descriptor
-        CharField site_descriptor
-        CharField location_descriptor
-        CharField part
-        CharField name
-        CharField serial
-        ForeignKey device
-        ForeignKey site
-        ForeignKey location
-        TextField description
-        TextField comments
-        JSONField discovered_data
-        CharField category
+        +DateTimeField time
+        +CharField device_descriptor
+        +CharField site_descriptor
+        +CharField location_descriptor
+        +CharField serial
+        +ForeignKey device
+        +ForeignKey site
+        +ForeignKey location
+        +JSONField discovered_data
+        +is_recently_probed()
     }
 
     class RMA {
-        CharField rma_number
-        ForeignKey asset
-        CharField original_serial
-        CharField replacement_serial
-        CharField status
-        DateField date_issued
-        DateField date_replaced
-        TextField issue_description
-        TextField vendor_response
+        +CharField rma_number
+        +ForeignKey asset
+        +CharField original_serial
+        +CharField replacement_serial
+        +CharField status
+        +DateField date_issued
+        +DateField date_replaced
+        +update_asset_serial()
     }
 
-    AssetType --> Asset : type
-    Asset --> ComponentService : asset
-    Asset --> RMA : asset
-    Asset --> Contract : order_contract
-    ComponentService --> Contract : contract
-    Contract --> Contractor : contractor
-    Contract --> Invoice : contract
-    Contractor --> Contract : contractor
-    Invoice --> Contract : contract
-    Probe --> Asset : asset
+    class ExternalInventory {
+        +CharField inventory_number
+        +CharField status
+        +CharField project_code
+        +CharField user_name
+        +ManyToManyField assets
+    }
+
+    AssetType ||--o{ Asset : type
+    Asset ||--o{ AssetService : asset
+    Asset ||--o{ RMA : asset
+    Asset ||--o{ Probe : serial
+    Asset }o--|| Contract : order_contract
+    AssetService }o--|| Contract : contract
+    Contract }o--|| Contractor : contractor
+    Contract ||--o{ Invoice : contract
+    Contract ||--o{ Contract : parent
+    ExternalInventory }o--o{ Asset : assets
+
+    Asset --> Device : assigned_object
+    Asset --> Site : assigned_object
+    Asset --> Location : assigned_object
 ```
 
 ---
 
-## How the Data Model Works
+## Data Models
 
-1. **Contractor**
-   - Represents an external company or individual providing services or assets.
-   - Associated with multiple contracts (`Contract`).
+### Core Models
 
-2. **Contract**
-   - Represents a business agreement, such as for purchasing assets or services.
-   - Can have:
-     - Multiple invoices (`Invoice`) for billing.
-     - Subcontracts (`Contract`) for hierarchical contract management.
-     - Assets (`Asset`) linked to the contract.
-     - Services (`ComponentService`) provided as part of the contract.
+#### **Asset**
+The central model representing physical or logical inventory items.
 
-3. **Invoice**
-   - Linked to a contract, representing billing details.
-   - Contains details about invoicing periods and project-specific billing.
+**Key Fields:**
+- `serial`: Unique identifier for the asset
+- `partnumber`: Manufacturer part number
+- `assignment_status`: Current assignment status (stocked, assigned, retired, etc.)
+- `lifecycle_status`: Lifecycle stage (new, in_use, maintenance, decommissioned, etc.)
+- `assigned_object`: Generic foreign key to NetBox objects (Device, Site, Location, etc.)
+- `type`: Link to AssetType for categorization
+- `order_contract`: Associated purchase contract
+- `warranty_start/end`: Warranty period tracking
 
-4. **Asset**
-   - Represents physical or logical assets involved in a project.
-   - Includes details like serial number, price, vendor, warranty, and project association.
-   - Linked to services (`ComponentService`) and devices, sites, locations, rack.
-   - Can be linked with inventory items.
+**Special Features:**
+- Probe status integration with `is_recently_probed()` method
+- Generic assignment to any NetBox object
+- Integration with External Inventory systems
 
-5. **ComponentService**
-   - Represents services provided for an asset, such as maintenance or subscriptions.
-   - Contains details about the service period, parameters, pricing, and service categories.
+#### **Probe**
+Discovery and monitoring data collection points populated by external scripts (e.g., SNMP discovery tools).
 
-6. **Probe**
-   - Represents measurements or data collection related to a device, site, or location.
-   - Includes descriptors for identifying the context of the probe.
+**Key Fields:**
+- `time`: Timestamp of the probe data collection
+- `serial`: Links to Asset via serial number matching
+- `device_descriptor`, `site_descriptor`, `location_descriptor`: Context information from discovery
+- `discovered_data`: JSON field for flexible data storage from external tools
+- `category`: Probe type classification
 
----
+**Note**: Probe data is populated by external discovery scripts, not generated by the plugin itself.
 
-## Example Data and Relationships
+#### **Contract & Contractor**
+Business relationship management.
 
-### Scenario
+**Contract Features:**
+- Hierarchical contracts (parent/child relationships)
+- Invoice tracking
+- Service associations
+- Asset procurement tracking
 
-- A contractor named **TechCorp** signs a contract for supplying assets and providing maintenance services for a project.
-- The project involves purchasing routers and switches from **TechCorp**, with maintenance services for these assets.
-- The contract also includes invoicing for specific periods.
+#### **RMA (Return Merchandise Authorization)**
+Complete RMA workflow management.
 
-### Data Example
+**Key Features:**
+- Automatic serial number updates upon completion
+- Status tracking (investigating, authorized, shipped, completed, cancelled)
+- Integration with Asset lifecycle
 
-#### Contractor
+#### **AssetService**
+Service and maintenance contract tracking.
 
-- **Name**: TechCorp
-- **Company**: TechCorp Ltd.
-- **Address**: 123 Main St, TechCity
-- **Tenant**: Default Tenant
+**Features:**
+- Service period management
+- Pricing and category tracking
+- Links to both Assets and Contracts
 
-#### Contract
+#### **ExternalInventory**
+Integration with external inventory management systems.
 
-- **Name**: Network Infrastructure Supply
-- **Type**: Supply and Maintenance
-- **Price**: $100,000
-- **Signed**: 2025-01-01
-- **Invoicing Start**: 2025-01-15
-- **Invoicing End**: 2026-01-15
-
-#### Invoice
-
-- **Name**: Invoice #001
-- **Project**: Project Alpha
-- **Price**: $25,000
-- **Invoicing Start**: 2025-01-15
-- **Invoicing End**: 2025-02-15
-
-#### Asset
-
-- **Serial**: R12345
-- **Part Number**: RT-5000
-- **Vendor**: TechCorp
-- **Price**: $5,000
-- **Warranty Start**: 2025-01-15
-- **Warranty End**: 2028-01-15
-- **Project**: Project Alpha
-
-#### ComponentService
-
-- **Service Start**: 2025-01-15
-- **Service End**: 2026-01-15
-- **Service Param**: Annual Maintenance
-- **Service Price**: $1,000
-- **Service Category**: Maintenance
-- **Service Category Vendor**: TechCorp
-
-#### Probe
-
-- **Time**: 2025-02-01 10:00:00
-- **Device Descriptor**: RT-5000 Router
-- **Site Descriptor**: Data Center 1
-- **Location Descriptor**: Rack A1
-- **Part**: Router Module
-- **Name**: Temperature Check
-- **Serial**: R12345
-- **Description**: Router temperature measurement.
-
----
-
-## Relationship Example
-
-1. **TechCorp** is linked to the **Network Infrastructure Supply** contract.
-2. The contract includes:
-   - An **asset** (router) with serial number R12345.
-   - A **service** for annual maintenance of the router.
-   - An **invoice** for January 2025 billing.
-3. The **asset** is associated with:
-   - A **site** (Data Center 1).
-   - A **location** (Rack A1).
-   - A **device** (RT-5000 Router).
-4. A **probe** captures performance data (temperature) for the router at a specific time.
-
-This structure enables easy tracking of assets, contracts, invoices, and services within the NetBox plugin.
+**Features:**
+- Many-to-many relationship with Assets
+- Project code tracking
+- Status synchronization
 
 ---
 
 ## Installation
 
-To install the Inventory Monitor plugin, follow these steps:
+### Requirements
 
-1. Clone the repository:
-    ```sh
-    git clone https://gitlab.cesnet.cz/701/done/inventory-monitor-plugin.git
-    cd inventory-monitor-plugin
-    ```
+- NetBox 4.4.0 or higher
+- Python 3.10 or higher
 
-1. Run the setup script:
-    ```sh
-    python setup.py install
-    ```
+### From PyPI (Recommended)
 
-    **OR** install directly from PyPI:
-    ```sh
-    pip install inventory-monitor 
-    ```
+```bash
+pip install inventory-monitor
+```
 
-1. To enable the plugin, add it to the `PLUGINS` list in your NetBox [`configuration.py`](https://docs.netbox.dev/en/stable/configuration/) file:
-    ```python
-    PLUGINS = [
-        "inventory_monitor",
-    ]
-    ```
+### From Source
 
-1. (Optional) Configure plugin settings in your NetBox [`configuration.py`](https://docs.netbox.dev/en/stable/configuration/) file:
-    ```python
-    PLUGINS_CONFIG = {
-        "inventory_monitor": {
-            "probe_recent_days": 7,          # Days to consider probe "recent"
-        }
+```bash
+git clone https://github.com/CESNET/inventory-monitor-plugin.git
+cd inventory-monitor-plugin
+pip install .
+```
+
+### NetBox Configuration
+
+1. Add the plugin to your NetBox `configuration.py`:
+
+```python
+PLUGINS = [
+    "inventory_monitor",
+]
+```
+
+2. Run database migrations:
+
+```bash
+python manage.py migrate
+```
+
+3. Restart NetBox services:
+
+```bash
+sudo systemctl restart netbox netbox-rq
+```
+
+---
+
+## Configuration
+
+### Plugin Settings
+
+Configure the plugin in your NetBox `configuration.py`:
+
+```python
+PLUGINS_CONFIG = {
+    "inventory_monitor": {
+        # Probe Status Settings
+        "probe_recent_days": 7,  # Days to consider probe "recent"
+        
+        # External Inventory Status Configuration
+        "external_inventory_status_config": {
+            "1": {"label": "Active", "color": "success"},
+            "0": {"label": "Pending Activation", "color": "warning"},
+            "2": {"label": "Decommissioned", "color": "danger"},
+        },
+        
+        # Custom tooltip template for status display
+        "external_inventory_tooltip_template": "<span class='badge text-bg-{color}'>{code}</span> {label}",
     }
-    ```
-    
-    See CONFIGURATION.md for detailed configuration options.
+}
+```
 
-1. Run the database migrations:
-    ```sh
-    python manage.py migrate
-    ```
+### Configuration Options
+
+#### Probe Status Settings
+- **`probe_recent_days`** (default: 7): Number of days to consider a probe "recent". Affects visual indicators and status badges.
+
+#### External Inventory Status Configuration
+- **`external_inventory_status_config`**: Maps status codes to display labels and Bootstrap colors
+- **`external_inventory_tooltip_template`**: Template string for formatting status tooltips
+
+**Status Configuration Structure:**
+```python
+{
+    "status_code": {
+        "label": "Human readable label",
+        "color": "bootstrap_color_class"  # primary, secondary, success, danger, warning, info, light, dark
+    }
+}
+```
+
+**Template Variables:**
+- `{code}`: The status code
+- `{label}`: The translated label
+- `{color}`: The Bootstrap color class
+
+### Integration with NetBox Attachments
+
+For file attachments, install and configure [netbox-attachments](https://github.com/Kani999/netbox-attachments):
+
+```bash
+pip install netbox-attachments
+```
 
 ---
 
 ## Usage
 
-To use the Inventory Monitor plugin, follow these steps:
+### Accessing the Plugin
 
-1. Start the application:
-    ```sh
-    python manage.py runserver
-    ```
+After installation, the plugin adds an "Inventory Monitor" section to the NetBox navigation menu with the following sections:
 
-2. Access the application in your web browser at `http://localhost:8000`.
+#### Assets
+- **Assets**: Main asset inventory management
+- **Asset Types**: Asset categorization and classification
+- **RMA**: Return Merchandise Authorization tracking
+- **External Inventory**: External system integration
+- **Services**: Asset service and maintenance contracts
+
+#### Network Probe
+- **Probes**: Discovery and monitoring data
+- **Data Locations**: Probe data organization
+
+#### Contracts
+- **Contractors**: Vendor and service provider management
+- **Contracts**: Business agreement tracking
+- **Invoices**: Billing and invoice management
+
+### Basic Workflow
+
+1. **Set up Asset Types**: Define categories for your assets
+2. **Add Contractors**: Register vendors and service providers
+3. **Create Contracts**: Define business agreements
+4. **Register Assets**: Add inventory items with full metadata
+5. **Populate Probe Data**: Use external scripts (SNMP, discovery tools) to populate monitoring data
+6. **Track Services**: Manage maintenance and service contracts
+7. **Process RMAs**: Handle return merchandise authorizations
+
+### Probe Status Monitoring
+
+The plugin provides visual feedback for probe status:
+- **Green indicators**: Recent probes (within configured days)
+- **Red indicators**: Stale probes (older than configured threshold)
+- **Status badges**: Clear visual indicators in asset lists and details
+
+### Asset Assignment
+
+Assets can be assigned to any NetBox object using GenericForeignKey:
+- Devices
+- Sites
+- Locations
+- Racks
+- And more...
 
 ---
 
-## Contributing
+## API
 
-We welcome contributions to the Inventory Monitor project! To contribute, follow these steps:
+The plugin provides a full REST API following NetBox patterns:
 
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Make your changes and commit them with clear and concise messages.
-4. Push your changes to your fork.
-5. Submit a pull request to the main repository.
+### Available Endpoints
+
+- `/api/plugins/inventory-monitor/assets/` - Asset management
+- `/api/plugins/inventory-monitor/asset-types/` - Asset type management
+- `/api/plugins/inventory-monitor/probes/` - Probe data access
+- `/api/plugins/inventory-monitor/contracts/` - Contract management
+- `/api/plugins/inventory-monitor/contractors/` - Contractor management
+- `/api/plugins/inventory-monitor/invoices/` - Invoice tracking
+- `/api/plugins/inventory-monitor/asset-services/` - Service management
+- `/api/plugins/inventory-monitor/rmas/` - RMA processing
+- `/api/plugins/inventory-monitor/external-inventory/` - External inventory integration
+
+### API Features
+
+- **Full CRUD operations** on all models
+- **Advanced filtering** with NetBox's built-in filter backend
+- **Pagination** for large datasets
+- **Search capabilities** across relevant fields
+- **Bulk operations** for efficient data management
+- **OpenAPI/Swagger documentation** at `/api/docs/`
+
+
+---
+
+## Development
+
+### Architecture Overview
+
+The plugin follows NetBox plugin best practices:
+
+#### Models Architecture
+```
+Asset ←→ Probe (via serial number matching)
+Asset → AssetType
+Asset → Contract (order_contract)
+Asset ← GenericForeignKey (assigned to Device, Site, Location, etc.)
+Asset ←→ RMA (via serial numbers)
+Asset ←→ ExternalInventory (many-to-many)
+```
+
+#### Key Components
+1. **Models**: Core business logic with probe status methods
+2. **Views**: Standard NetBox generic views with enhancements
+3. **Tables**: Django-tables2 with probe status indicators
+4. **Templates**: Custom templates with integrated status visualization
+5. **API**: DRF-based REST API following NetBox patterns
+6. **Configuration**: Plugin settings via `default_settings`
+
+### Performance Considerations
+
+- **Database Optimizations**: Proper indexing on frequently queried fields
+- **Query Optimization**: Use of `select_related()` and `prefetch_related()`
+- **Caching**: Consider caching probe status for large asset lists
+
+### Settings Access Pattern
+
+```python
+# Recommended approach
+from inventory_monitor.settings import get_probe_recent_days
+days = get_probe_recent_days()
+
+# Alternative approach
+from inventory_monitor.settings import get_plugin_settings
+settings = get_plugin_settings()
+days = settings.get("probe_recent_days", 7)
+```
 
 ---
 
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
+
+---
+
+## Acknowledgments
+
+- Built for the [NetBox](https://github.com/netbox-community/netbox) ecosystem
+- Part of the CESNET infrastructure management toolkit
