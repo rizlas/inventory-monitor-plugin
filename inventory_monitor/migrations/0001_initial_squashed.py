@@ -231,6 +231,7 @@ class Migration(migrations.Migration):
         ("inventory_monitor", "0042_rename_abra_to_external_inventory"),
         ("inventory_monitor", "0043_rename_fields_and_relations"),
         ("inventory_monitor", "0044_remove_externalinventory_abra_id_idx_and_more"),
+        ("inventory_monitor", "0045_normalize_database_object_names"),
     ]
 
     dependencies = [
@@ -441,68 +442,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name="ComponentService",
-            fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
-                ("created", models.DateTimeField(auto_now_add=True, null=True)),
-                ("last_updated", models.DateTimeField(auto_now=True, null=True)),
-                (
-                    "custom_field_data",
-                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
-                ),
-                ("service_start", models.DateField(blank=True, null=True)),
-                ("service_end", models.DateField(blank=True, null=True)),
-                ("service_param", models.CharField(blank=True, max_length=32, null=True)),
-                (
-                    "service_price",
-                    models.DecimalField(
-                        blank=True,
-                        decimal_places=2,
-                        default=0,
-                        max_digits=12,
-                        null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
-                    ),
-                ),
-                ("service_category", models.CharField(blank=True, max_length=255, null=True)),
-                ("service_category_vendor", models.CharField(blank=True, max_length=255, null=True)),
-                (
-                    "asset",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="services",
-                        to="inventory_monitor.asset",
-                    ),
-                ),
-                (
-                    "contract",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="services",
-                        to="inventory_monitor.contract",
-                    ),
-                ),
-                ("tags", taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag")),
-                ("comments", models.TextField(blank=True)),
-            ],
-            options={
-                "ordering": (
-                    "service_start",
-                    "service_end",
-                    "service_param",
-                    "service_price",
-                    "service_category",
-                    "service_category_vendor",
-                    "asset",
-                    "contract",
-                ),
-            },
-        ),
-        migrations.CreateModel(
             name="Asset",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
@@ -609,6 +548,68 @@ class Migration(migrations.Migration):
                     "warranty_end",
                 ),
                 "db_table": "inventory_monitor_asset",
+            },
+        ),
+        migrations.CreateModel(
+            name="ComponentService",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
+                ("created", models.DateTimeField(auto_now_add=True, null=True)),
+                ("last_updated", models.DateTimeField(auto_now=True, null=True)),
+                (
+                    "custom_field_data",
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
+                ("service_start", models.DateField(blank=True, null=True)),
+                ("service_end", models.DateField(blank=True, null=True)),
+                ("service_param", models.CharField(blank=True, max_length=32, null=True)),
+                (
+                    "service_price",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        null=True,
+                        validators=[django.core.validators.MinValueValidator(0)],
+                    ),
+                ),
+                ("service_category", models.CharField(blank=True, max_length=255, null=True)),
+                ("service_category_vendor", models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "asset",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="services",
+                        to="inventory_monitor.asset",
+                    ),
+                ),
+                (
+                    "contract",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="services",
+                        to="inventory_monitor.contract",
+                    ),
+                ),
+                ("tags", taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag")),
+                ("comments", models.TextField(blank=True)),
+            ],
+            options={
+                "ordering": (
+                    "service_start",
+                    "service_end",
+                    "service_param",
+                    "service_price",
+                    "service_category",
+                    "service_category_vendor",
+                    "asset",
+                    "contract",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -862,7 +863,7 @@ class Migration(migrations.Migration):
             index=models.Index(fields=["name"], name="invmon_asset_name_idx"),
         ),
         migrations.CreateModel(
-            name="ABRA",
+            name="ExternalInventory",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ("created", models.DateTimeField(auto_now_add=True, null=True)),
@@ -878,27 +879,34 @@ class Migration(migrations.Migration):
                 ("person_name", models.CharField(blank=True, max_length=255, null=True)),
                 ("location_code", models.CharField(blank=True, max_length=64, null=True)),
                 ("location", models.CharField(blank=True, max_length=255, null=True)),
-                ("activity_code", models.CharField(blank=True, max_length=64, null=True)),
+                ("department_code", models.CharField(blank=True, max_length=64, null=True)),
+                ("project_code", models.CharField(blank=True, max_length=64, null=True)),
+                ("external_id", models.CharField(blank=True, db_index=True, max_length=64, null=True, unique=True)),
                 ("user_name", models.CharField(blank=True, max_length=255, null=True)),
                 ("user_note", models.TextField(blank=True, null=True)),
                 ("split_asset", models.CharField(blank=True, null=True)),
                 ("status", models.CharField(blank=True, null=True)),
                 (
                     "assets",
-                    models.ManyToManyField(blank=True, related_name="abra_assets", to="inventory_monitor.asset"),
+                    models.ManyToManyField(
+                        blank=True, related_name="external_inventory_assets", to="inventory_monitor.asset"
+                    ),
                 ),
                 ("tags", taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag")),
             ],
             options={
-                "verbose_name": "ABRA Asset",
-                "verbose_name_plural": "ABRA Assets",
+                "verbose_name": "External Inventory Asset",
+                "verbose_name_plural": "External Inventory Assets",
                 "ordering": ("inventory_number", "name"),
                 "indexes": [
-                    models.Index(fields=["inventory_number"], name="abra_invnum_idx"),
-                    models.Index(fields=["serial_number"], name="abra_serial_idx"),
-                    models.Index(fields=["person_id"], name="abra_personid_idx"),
-                    models.Index(fields=["location_code"], name="abra_loccode_idx"),
-                    models.Index(fields=["status"], name="abra_status_idx"),
+                    models.Index(fields=["inventory_number"], name="ext_inv_invnum_idx"),
+                    models.Index(fields=["serial_number"], name="ext_inv_serial_idx"),
+                    models.Index(fields=["person_id"], name="ext_inv_personid_idx"),
+                    models.Index(fields=["location_code"], name="ext_inv_loccode_idx"),
+                    models.Index(fields=["department_code"], name="ext_inv_deptcode_idx"),
+                    models.Index(fields=["project_code"], name="ext_inv_projcode_idx"),
+                    models.Index(fields=["external_id"], name="ext_inv_id_idx"),
+                    models.Index(fields=["status"], name="ext_inv_status_idx"),
                 ],
             },
         ),
@@ -966,15 +974,6 @@ class Migration(migrations.Migration):
             model_name="asset",
             index=models.Index(fields=["description"], name="invmon_asset_desc_idx"),
         ),
-        migrations.AddField(
-            model_name="abra",
-            name="abra_id",
-            field=models.CharField(blank=True, max_length=64, null=True, unique=True),
-        ),
-        migrations.AddIndex(
-            model_name="abra",
-            index=models.Index(fields=["abra_id"], name="abra_id_idx"),
-        ),
         migrations.AlterModelOptions(
             name="componentservice",
             options={
@@ -996,29 +995,6 @@ class Migration(migrations.Migration):
         migrations.RenameModel(
             old_name="ComponentService",
             new_name="AssetService",
-        ),
-        migrations.AlterField(
-            model_name="abra",
-            name="abra_id",
-            field=models.CharField(blank=True, db_index=True, max_length=64, null=True, unique=True),
-        ),
-        migrations.RenameField(
-            model_name="abra",
-            old_name="activity_code",
-            new_name="department_code",
-        ),
-        migrations.AddField(
-            model_name="abra",
-            name="project_code",
-            field=models.CharField(blank=True, max_length=64, null=True),
-        ),
-        migrations.AddIndex(
-            model_name="abra",
-            index=models.Index(fields=["department_code"], name="ext_inv_deptcode_idx"),
-        ),
-        migrations.AddIndex(
-            model_name="abra",
-            index=models.Index(fields=["project_code"], name="ext_inv_projcode_idx"),
         ),
         migrations.AlterModelOptions(
             name="asset",
@@ -1044,61 +1020,5 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name="asset",
             name="asset_number",
-        ),
-        migrations.RenameModel(
-            old_name="ABRA",
-            new_name="ExternalInventory",
-        ),
-        migrations.RunPython(
-            code=rename_ct_and_perms_forward,
-            reverse_code=rename_ct_and_perms_reverse,
-        ),
-        migrations.RenameField(
-            model_name="externalinventory",
-            old_name="abra_id",
-            new_name="external_id",
-        ),
-        migrations.RemoveIndex(
-            model_name="externalinventory",
-            name="abra_id_idx",
-        ),
-        migrations.RenameIndex(
-            model_name="externalinventory",
-            new_name="ext_inv_invnum_idx",
-            old_name="abra_invnum_idx",
-        ),
-        migrations.RenameIndex(
-            model_name="externalinventory",
-            new_name="ext_inv_serial_idx",
-            old_name="abra_serial_idx",
-        ),
-        migrations.RenameIndex(
-            model_name="externalinventory",
-            new_name="ext_inv_personid_idx",
-            old_name="abra_personid_idx",
-        ),
-        migrations.RenameIndex(
-            model_name="externalinventory",
-            new_name="ext_inv_loccode_idx",
-            old_name="abra_loccode_idx",
-        ),
-        migrations.RenameIndex(
-            model_name="externalinventory",
-            new_name="ext_inv_deptcode_idx",
-            old_name="abra_deptcode_idx",
-        ),
-        migrations.RenameIndex(
-            model_name="externalinventory",
-            new_name="ext_inv_projcode_idx",
-            old_name="abra_projcode_idx",
-        ),
-        migrations.RenameIndex(
-            model_name="externalinventory",
-            new_name="ext_inv_status_idx",
-            old_name="abra_status_idx",
-        ),
-        migrations.AddIndex(
-            model_name="externalinventory",
-            index=models.Index(fields=["external_id"], name="ext_inv_id_idx"),
         ),
     ]
