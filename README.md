@@ -135,20 +135,20 @@ classDiagram
         +ManyToManyField assets
     }
 
-    AssetType ||--o{ Asset : type
-    Asset ||--o{ AssetService : asset
-    Asset ||--o{ RMA : asset
-    Asset ||--o{ Probe : serial
-    Asset }o--|| Contract : order_contract
-    AssetService }o--|| Contract : contract
-    Contract }o--|| Contractor : contractor
-    Contract ||--o{ Invoice : contract
-    Contract ||--o{ Contract : parent
-    ExternalInventory }o--o{ Asset : assets
+    AssetType --> Asset : "type"
+    Asset --> AssetService : "asset"
+    Asset --> RMA : "asset"
+    Asset --> Probe : "serial"
+    Contract --> Asset : "order_contract"
+    Contract --> AssetService : "contract"
+    Contractor --> Contract : "contractor"
+    Contract --> Invoice : "contract"
+    Contract --> Contract : "parent"
+    ExternalInventory --> Asset : "assets"
 
-    Asset --> Device : assigned_object
-    Asset --> Site : assigned_object
-    Asset --> Location : assigned_object
+    Asset --> Device : "assigned_object"
+    Asset --> Site : "assigned_object"
+    Asset --> Location : "assigned_object"
 ```
 
 ---
