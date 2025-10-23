@@ -19,60 +19,63 @@ from django.db import migrations, models
 
 def copy_to_assigned_object(apps, schema_editor):
     """
-    Migrate data from site, device, and location to assigned_object
+    Migrate data from site, device, and location to assigned_object.
+    Robust: will create missing ContentType rows if they don't exist yet.
     """
     Asset = apps.get_model("inventory_monitor", "Asset")
     ContentType = apps.get_model("contenttypes", "ContentType")
 
-    site_ct = ContentType.objects.get(app_label="dcim", model="site")
-    device_ct = ContentType.objects.get(app_label="dcim", model="device")
-    location_ct = ContentType.objects.get(app_label="dcim", model="location")
+    # Use get_or_create to be robust in environments where contenttypes rows
+    # have not yet been populated for dcim.* models.
+    site_ct, _ = ContentType.objects.get_or_create(app_label="dcim", model="site")
+    device_ct, _ = ContentType.objects.get_or_create(app_label="dcim", model="device")
+    location_ct, _ = ContentType.objects.get_or_create(app_label="dcim", model="location")
 
     # Migrate site assignments
     for asset in Asset.objects.filter(site__isnull=False):
         asset.assigned_object_type = site_ct
         asset.assigned_object_id = asset.site.id
-        asset.save()
+        asset.save(update_fields=["assigned_object_type", "assigned_object_id"])
 
     # Migrate location assignments
     for asset in Asset.objects.filter(location__isnull=False):
         asset.assigned_object_type = location_ct
         asset.assigned_object_id = asset.location.id
-        asset.save()
+        asset.save(update_fields=["assigned_object_type", "assigned_object_id"])
 
     # Migrate device assignments
     for asset in Asset.objects.filter(device__isnull=False):
         asset.assigned_object_type = device_ct
         asset.assigned_object_id = asset.device.id
-        asset.save()
+        asset.save(update_fields=["assigned_object_type", "assigned_object_id"])
 
 
 def reverse_migration(apps, schema_editor):
     """
-    Reverse the migration by copying data from assigned_object back to individual fields
+    Reverse the migration by copying data from assigned_object back to individual fields.
+    Resilient: uses get_or_create for ContentType lookups.
     """
     Asset = apps.get_model("inventory_monitor", "Asset")
     ContentType = apps.get_model("contenttypes", "ContentType")
 
-    # Get content types for the models
-    site_ct = ContentType.objects.get(app_label="dcim", model="site")
-    device_ct = ContentType.objects.get(app_label="dcim", model="device")
-    location_ct = ContentType.objects.get(app_label="dcim", model="location")
+    site_ct, _ = ContentType.objects.get_or_create(app_label="dcim", model="site")
+    device_ct, _ = ContentType.objects.get_or_create(app_label="dcim", model="device")
+    location_ct, _ = ContentType.objects.get_or_create(app_label="dcim", model="location")
 
     # Restore site assignments
     for asset in Asset.objects.filter(assigned_object_type=site_ct):
         asset.site_id = asset.assigned_object_id
-        asset.save()
+        asset.save(update_fields=["site_id"])
 
     # Restore location assignments
     for asset in Asset.objects.filter(assigned_object_type=location_ct):
         asset.location_id = asset.assigned_object_id
-        asset.save()
+        asset.save(update_fields=["location_id"])
 
     # Restore device assignments
     for asset in Asset.objects.filter(assigned_object_type=device_ct):
         asset.device_id = asset.assigned_object_id
-        asset.save()
+        asset.save(update_fields=["device_id"])
 
 
 def create_rmas_for_serial_differences(apps, schema_editor):
